@@ -1,0 +1,8 @@
+{
+  "name": "Detachd Insurtech Platform",
+  "description": "An AI-powered insurtech platform for streamlined claim processing, fraud detection, and user verification. This application provides a comprehensive interface for policyholders, adjusters, and administrators.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "prompt": ""
+}

@@ -1,0 +1,118 @@
+.dock-outer {
+  /* margin: 0 0.5rem; */ /* Centered by Layout now */
+  display: flex;
+  width: 100%; /* Take full width for centering logic within */
+  justify-content: center; /* Center the dock-panel */
+  align-items: center;
+  position: fixed; /* Fixed position at the bottom */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50; /* Ensure it's above other content */
+  padding-bottom: 0.5rem; /* Space from bottom edge */
+  pointer-events: none; /* Outer container doesn't catch mouse events */
+}
+
+.dock-panel {
+  /* position: absolute; */ /* Not needed if dock-outer centers it */
+  /* bottom: 0.5rem; */ /* Handled by dock-outer */
+  /* left: 50%; */
+  /* transform: translateX(-50%); */
+  display: flex;
+  align-items: flex-end; /* Icons align to bottom before magnification */
+  width: fit-content;
+  gap: 0.75rem; /* Tailwind: gap-3 */
+  border-radius: 1rem; /* Tailwind: rounded-xl */
+  background-color: rgba(17, 24, 39, 0.85); /* Tailwind: bg-slate-900 with opacity */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(55, 65, 81, 0.6); /* Tailwind: border-slate-700 with opacity */
+  padding: 0.5rem 0.75rem; /* Tailwind: p-2 px-3 */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind: shadow-lg */
+  pointer-events: auto; /* Panel itself should be interactive */
+}
+
+.dock-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem; /* Tailwind: rounded-lg */
+  background-color: rgba(31, 41, 55, 0.7); /* Tailwind: bg-slate-800 with opacity */
+  border: 1px solid rgba(75, 85, 99, 0.5); /* Tailwind: border-slate-600 with opacity */
+  /* box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06); */ /* Can simplify or remove for flatter look */
+  cursor: pointer;
+  outline: none;
+  color: #d1d5db; /* Tailwind: text-slate-300 default icon color */
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.dock-item:hover, .dock-item:focus {
+  color: #f9fafb; /* Tailwind: text-slate-50 */
+  background-color: rgba(55, 65, 81, 0.8); /* Tailwind: bg-slate-700 with opacity */
+}
+
+.dock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%; /* Ensure icon container takes full space of DockItem */
+  height: 100%;
+}
+
+.dock-icon svg { /* Ensure SVGs scale nicely */
+    width: 60%;
+    height: 60%;
+}
+
+.dock-label {
+  position: absolute;
+  top: -2rem; /* Increased distance */
+  left: 50%;
+  width: fit-content;
+  white-space: pre;
+  border-radius: 0.375rem; /* Tailwind: rounded-md */
+  border: 1px solid #374151; /* Tailwind: border-slate-700 */
+  background-color: #111827; /* Tailwind: bg-slate-900 */
+  padding: 0.25rem 0.625rem; /* Tailwind: px-2.5 py-1 */
+  font-size: 0.75rem; /* Tailwind: text-xs */
+  color: #e5e7eb; /* Tailwind: text-slate-200 */
+  transform: translateX(-50%);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* Tailwind: shadow-sm */
+  pointer-events: none; /* Labels should not interfere with mouse events */
+}
+
+/* Dock CSS styles */
+.dock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dock-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dock-item:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dock-item.active {
+  background: rgba(59, 130, 246, 0.5);
+  border: 1px solid #3b82f6;
+}

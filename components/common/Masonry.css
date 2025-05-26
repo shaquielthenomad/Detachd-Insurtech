@@ -1,0 +1,64 @@
+.masonry {
+  position: relative;
+  width: 100%;
+  /* height is dynamically set by the component */
+}
+
+.masonry > div { /* This is the a.div from react-spring */
+  position: absolute;
+  will-change: transform, width, height, opacity;
+  padding: 0.75rem; /* Tailwind: p-3 */
+  box-sizing: border-box;
+}
+
+.masonry > div > div { /* This is the inner div holding the content (PixelCard) */
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 1rem; /* Match PixelCard's border-radius, Tailwind: rounded-xl */
+  /* box-shadow: 0px 10px 50px -10px rgba(0, 0, 0, 0.2); */ /* Shadow can be on PixelCard itself */
+  transition: transform 0.3s ease; /* Keep hover effect if desired directly on content */
+}
+
+/* If you want a hover effect on the item wrapper (not the card content itself) */
+.masonry > div > div:hover {
+  /* transform: scale(1.03); */ /* Example hover effect, can be removed if PixelCard handles its own */
+  /* transition: 0.3s ease; */
+}
+
+/* Masonry CSS styles */
+.masonry-container {
+  column-count: auto;
+  column-gap: 20px;
+  column-fill: balance;
+}
+
+@media (min-width: 640px) {
+  .masonry-container {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 768px) {
+  .masonry-container {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .masonry-container {
+    column-count: 4;
+  }
+}
+
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 20px;
+  display: inline-block;
+  width: 100%;
+}
+
+.masonry-item:last-child {
+  margin-bottom: 0;
+}

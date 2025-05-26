@@ -1,0 +1,165 @@
+.icon-btns {
+  display: grid;
+  grid-gap: 2em; /* Reduced gap for potentially smaller screens */
+  grid-template-columns: repeat(2, 1fr);
+  margin: auto;
+  padding: 2em 0; /* Reduced padding */
+  overflow: visible;
+  max-width: 300px; /* Constrain width for welcome page */
+}
+
+.icon-btn {
+  background-color: transparent;
+  border: none; /* Ensure no default button border */
+  outline: none;
+  position: relative;
+  width: 4.5em;
+  height: 4.5em;
+  perspective: 24em;
+  transform-style: preserve-3d;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  display: flex; /* Added for centering content if needed */
+  flex-direction: column; /* Added for label positioning */
+  align-items: center; /* Added for centering */
+  justify-content: center; /* Added for centering */
+}
+
+.icon-btn__back,
+.icon-btn__front,
+.icon-btn__label {
+  transition: opacity 0.3s cubic-bezier(0.83, 0, 0.17, 1),
+    transform 0.3s cubic-bezier(0.83, 0, 0.17, 1);
+}
+
+.icon-btn__back,
+.icon-btn__front {
+  border-radius: 1.25em;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.icon-btn__back {
+  box-shadow: 0.5em -0.5em 0.75em hsla(223, 10%, 10%, 0.15);
+  display: block;
+  transform: rotate(15deg);
+  transform-origin: 100% 100%;
+}
+
+.icon-btn__front {
+  background-color: hsla(0, 0%, 100%, 0.15); /* Semi-transparent white */
+  box-shadow: 0 0 0 0.1em hsla(0, 0%, 100%, 0.3) inset;
+  backdrop-filter: blur(0.75em);
+  -webkit-backdrop-filter: blur(0.75em); /* For Safari */
+  display: flex;
+  transform-origin: 80% 50%;
+}
+
+.icon-btn__icon {
+  margin: auto;
+  width: 1.5em; /* Icon size relative to button size */
+  height: 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white; /* Default icon color, can be overridden by SVG fill/stroke */
+}
+
+/* Ensure SVG icons within .icon-btn__icon inherit color or have specific styles */
+.icon-btn__icon svg {
+  width: 100%;
+  height: 100%;
+  /* fill: currentColor; /* Example: if icons are single-color SVGs */
+}
+
+
+.icon-btn__label {
+  font-size: 0.75em; /* Smaller label */
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.5; /* Adjusted line height */
+  opacity: 0;
+  position: absolute;
+  top: 100%; /* Position label below the icon */
+  right: 0;
+  left: 0;
+  transform: translateY(5px); /* Start slightly below */
+  color: #e0e0e0; /* Light color for label, assuming dark background */
+  margin-top: 0.5em; /* Space between icon and label */
+}
+
+.icon-btn:focus-visible .icon-btn__back,
+.icon-btn:hover .icon-btn__back {
+  transform: rotate(25deg) translate3d(-0.5em, -0.5em, 0.5em);
+}
+
+.icon-btn:focus-visible .icon-btn__front,
+.icon-btn:hover .icon-btn__front {
+  transform: translateZ(2em);
+}
+
+.icon-btn:focus-visible .icon-btn__label,
+.icon-btn:hover .icon-btn__label {
+  opacity: 1;
+  transform: translateY(10px); /* Move label down further on hover */
+}
+
+@media (min-width: 400px) { /* Adjust breakpoint for 2 columns */
+  .icon-btns {
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 2.5em;
+  }
+}
+
+@media (min-width: 768px) {
+  .icon-btns {
+    grid-template-columns: repeat(3, 1fr); /* Or 4 if space allows */
+    grid-gap: 3em;
+    max-width: 500px; /* Allow more width for more columns */
+  }
+}
+
+/* GlassIcons CSS styles */
+.glass-icon {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.glass-icon:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.glass-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  padding: 20px;
+}
+
+.glass-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.glass-item svg {
+  margin-bottom: 8px;
+}
+
+.glass-item span {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}

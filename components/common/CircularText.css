@@ -1,0 +1,79 @@
+/* CircularText CSS styles */
+.circular-text {
+  position: relative;
+  display: inline-block;
+}
+
+.circular-text svg {
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.circular-text-path {
+  fill: none;
+  stroke: none;
+}
+
+.circular-text-text {
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.circular-text {
+  margin: 0 auto;
+  border-radius: 50%;
+  width: 200px;
+  position: relative;
+  height: 200px;
+  font-weight: bold;
+  color: #fff;
+  font-weight: 900;
+  text-align: center;
+  cursor: pointer;
+  transform-origin: 50% 50%;
+  -webkit-transform-origin: 50% 50%;
+}
+
+.circular-text span {
+  position: absolute;
+  display: inline-block;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  font-size: 24px;
+  transition: all 0.5s cubic-bezier(0, 0, 0, 1);
+}
+
+/* Verification Seal Specific Styles */
+.verification-seal {
+  width: 120px;
+  height: 120px;
+}
+
+.verification-seal span {
+  font-size: 10px;
+  font-weight: 600;
+  color: #3b82f6;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.verification-seal-large {
+  width: 180px;
+  height: 180px;
+}
+
+.verification-seal-large span {
+  font-size: 14px;
+} 

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detachd Insurtech Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: { // Primary accent color
+                DEFAULT: '#2563EB', // blue-600
+                hover: '#1D4ED8',   // blue-700
+                dark: '#1E40AF',    // blue-800 (can be used for darker shades of accent)
+              },
+              secondary: { // Secondary accent or utility color
+                DEFAULT: '#475569', // slate-600
+                hover: '#334155',   // slate-700
+              },
+              // Light Theme Palette
+              light: '#F9FAFB',    // Very Light Gray (gray-50) - Page Background
+              medium: '#E5E7EB',   // Light Gray (gray-200) - Borders, Dividers
+              dark: '#1F2937',     // Dark Gray (gray-800) - For text on light primary buttons if needed
+              
+              'card-bg': '#FFFFFF',      // White - Card Backgrounds (used by old Card, PixelCard is dark)
+              'input-bg': '#FFFFFF',     // White - Input Backgrounds
+              'input-border': '#D1D5DB', // Gray (gray-300) - Input Borders
+              
+              // Text colors for light theme (default page text)
+              'text-light': '#1F2937',   // Dark Gray (gray-800) - Main text on light backgrounds
+              'text-dim': '#4B5563',     // Medium Gray (gray-600) - Secondary text / subtitles
+
+              // Text colors for dark components (like PixelCard)
+              'text-on-dark-primary': '#FFFFFF', // Pure white for primary text on dark cards
+              'text-on-dark-secondary': '#CBD5E1', // Lighter gray for secondary text on dark cards
+            }
+          }
+        }
+      }
+    </script>
+
+  <style>
+    .image-mask-sensitive {
+      filter: blur(15px) grayscale(80%);
+      opacity: 0.6;
+    }
+  </style>
+</head>
+  <body class="bg-light text-text-light"> <!-- Default page bg and text -->
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
