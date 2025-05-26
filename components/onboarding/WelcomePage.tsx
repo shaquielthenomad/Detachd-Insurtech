@@ -52,9 +52,6 @@ export const WelcomePage: React.FC = () => {
           <p className="text-lg text-slate-300 max-w-md mx-auto leading-relaxed">
             AI Fraud Detection, Made for South Africa.
           </p>
-          <p className="text-md text-slate-400 max-w-md mx-auto leading-relaxed mt-2">
-            Powered by SecureAI Blockchain Verification.
-          </p>
         </header>
         
         <main className="w-full space-y-4 mb-10">
@@ -107,6 +104,9 @@ export const WelcomePage: React.FC = () => {
         <footer className="w-full text-center space-y-3">
           <p className="text-xs text-slate-400">
             By continuing, you agree to our <Link to={ROUTES.TERMS_CONDITIONS} className="underline hover:text-sky-400">Terms of Service</Link> and <Link to={ROUTES.PRIVACY_POLICY} className="underline hover:text-sky-400">Privacy Policy</Link>.
+          </p>
+          <p className="text-xs text-slate-500 mt-2">
+            Powered by SecureAI Blockchain Verification.
           </p>
         </footer>
       </div>
