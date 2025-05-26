@@ -118,86 +118,108 @@ export const NotificationSettingsPage: React.FC = () => {
         {/* Email Notifications */}
         <PixelCard variant="blue" title="Email Notifications" icon={<MailIcon className="h-5 w-5 text-blue-400" />}>
           <div className="space-y-4">
-            <Checkbox
-              label="Claim Updates"
-              description="Receive emails when your claims are updated"
-              checked={settings.emailNotifications.claimUpdates}
-              onChange={() => handleEmailChange('claimUpdates')}
-            />
-            <Checkbox
-              label="System Alerts"
-              description="Important system maintenance and updates"
-              checked={settings.emailNotifications.systemAlerts}
-              onChange={() => handleEmailChange('systemAlerts')}
-            />
-            <Checkbox
-              label="Document Requests"
-              description="When additional documents are required"
-              checked={settings.emailNotifications.documentRequests}
-              onChange={() => handleEmailChange('documentRequests')}
-            />
-            <Checkbox
-              label="Payment Notifications"
-              description="Payment confirmations and processing updates"
-              checked={settings.emailNotifications.paymentNotifications}
-              onChange={() => handleEmailChange('paymentNotifications')}
-            />
-            <Checkbox
-              label="Security Alerts"
-              description="Account security and login notifications"
-              checked={settings.emailNotifications.securityAlerts}
-              onChange={() => handleEmailChange('securityAlerts')}
-            />
+            <div>
+              <Checkbox
+                label="Claim Updates"
+                checked={settings.emailNotifications.claimUpdates}
+                onChange={() => handleEmailChange('claimUpdates')}
+              />
+              <p className="text-sm text-text-on-dark-secondary ml-6 -mt-2">Receive emails when your claims are updated</p>
+            </div>
+            <div>
+              <Checkbox
+                label="System Alerts"
+                checked={settings.emailNotifications.systemAlerts}
+                onChange={() => handleEmailChange('systemAlerts')}
+              />
+              <p className="text-sm text-text-on-dark-secondary ml-6 -mt-2">Important system maintenance and updates</p>
+            </div>
+            <div>
+              <Checkbox
+                label="Document Requests"
+                checked={settings.emailNotifications.documentRequests}
+                onChange={() => handleEmailChange('documentRequests')}
+              />
+              <p className="text-sm text-text-on-dark-secondary ml-6 -mt-2">When additional documents are required</p>
+            </div>
+            <div>
+              <Checkbox
+                label="Payment Notifications"
+                checked={settings.emailNotifications.paymentNotifications}
+                onChange={() => handleEmailChange('paymentNotifications')}
+              />
+              <p className="text-sm text-text-on-dark-secondary ml-6 -mt-2">Payment confirmations and processing updates</p>
+            </div>
+            <div>
+              <Checkbox
+                label="Security Alerts"
+                checked={settings.emailNotifications.securityAlerts}
+                onChange={() => handleEmailChange('securityAlerts')}
+              />
+              <p className="text-sm text-text-on-dark-secondary ml-6 -mt-2">Account security and login notifications</p>
+            </div>
           </div>
         </PixelCard>
 
         {/* SMS Notifications */}
         <PixelCard variant="blue" title="SMS Notifications" icon={<PhoneIcon className="h-5 w-5 text-blue-400" />}>
           <div className="space-y-4">
-            <Checkbox
-              label="Urgent Alerts"
-              description="Critical updates requiring immediate attention"
-              checked={settings.smsNotifications.urgentAlerts}
-              onChange={() => handleSmsChange('urgentAlerts')}
-            />
-            <Checkbox
-              label="Claim Approvals"
-              description="When your claims are approved or declined"
-              checked={settings.smsNotifications.claimApprovals}
-              onChange={() => handleSmsChange('claimApprovals')}
-            />
-            <Checkbox
-              label="Security Alerts"
-              description="Account security notifications via SMS"
-              checked={settings.smsNotifications.securityAlerts}
-              onChange={() => handleSmsChange('securityAlerts')}
-            />
+            <div>
+              <Checkbox
+                label="Urgent Alerts"
+                checked={settings.smsNotifications.urgentAlerts}
+                onChange={() => handleSmsChange('urgentAlerts')}
+              />
+              <p className="text-sm text-text-on-dark-secondary ml-6 -mt-2">Critical updates requiring immediate attention</p>
+            </div>
+            <div>
+              <Checkbox
+                label="Claim Approvals"
+                checked={settings.smsNotifications.claimApprovals}
+                onChange={() => handleSmsChange('claimApprovals')}
+              />
+              <p className="text-sm text-text-on-dark-secondary ml-6 -mt-2">When your claims are approved or declined</p>
+            </div>
+            <div>
+              <Checkbox
+                label="Security Alerts"
+                checked={settings.smsNotifications.securityAlerts}
+                onChange={() => handleSmsChange('securityAlerts')}
+              />
+              <p className="text-sm text-text-on-dark-secondary ml-6 -mt-2">Account security notifications via SMS</p>
+            </div>
           </div>
         </PixelCard>
 
         {/* Push Notifications */}
         <PixelCard variant="blue" title="Push Notifications" icon={<BellIcon className="h-5 w-5 text-blue-400" />}>
           <div className="space-y-4">
-            <Checkbox
-              label="Enable Push Notifications"
-              description="Allow browser notifications from Detachd"
-              checked={settings.pushNotifications.enabled}
-              onChange={() => handlePushChange('enabled')}
-            />
+            <div>
+              <Checkbox
+                label="Enable Push Notifications"
+                checked={settings.pushNotifications.enabled}
+                onChange={() => handlePushChange('enabled')}
+              />
+              <p className="text-sm text-text-on-dark-secondary ml-6 -mt-2">Allow browser notifications from Detachd</p>
+            </div>
             {settings.pushNotifications.enabled && (
               <>
-                <Checkbox
-                  label="Claim Updates"
-                  description="Real-time claim status updates"
-                  checked={settings.pushNotifications.claimUpdates}
-                  onChange={() => handlePushChange('claimUpdates')}
-                />
-                <Checkbox
-                  label="System Alerts"
-                  description="Important system notifications"
-                  checked={settings.pushNotifications.systemAlerts}
-                  onChange={() => handlePushChange('systemAlerts')}
-                />
+                <div>
+                  <Checkbox
+                    label="Claim Updates"
+                    checked={settings.pushNotifications.claimUpdates}
+                    onChange={() => handlePushChange('claimUpdates')}
+                  />
+                  <p className="text-sm text-text-on-dark-secondary ml-6 -mt-2">Real-time claim status updates</p>
+                </div>
+                <div>
+                  <Checkbox
+                    label="System Alerts"
+                    checked={settings.pushNotifications.systemAlerts}
+                    onChange={() => handlePushChange('systemAlerts')}
+                  />
+                  <p className="text-sm text-text-on-dark-secondary ml-6 -mt-2">Important system notifications</p>
+                </div>
               </>
             )}
           </div>
@@ -222,15 +244,17 @@ export const NotificationSettingsPage: React.FC = () => {
         {/* Quiet Hours */}
         <PixelCard variant="blue" title="Quiet Hours">
           <div className="space-y-4">
-            <Checkbox
-              label="Enable Quiet Hours"
-              description="Reduce notifications during specified hours"
-              checked={settings.quietHours.enabled}
-              onChange={() => setSettings(prev => ({
-                ...prev,
-                quietHours: { ...prev.quietHours, enabled: !prev.quietHours.enabled }
-              }))}
-            />
+            <div>
+              <Checkbox
+                label="Enable Quiet Hours"
+                checked={settings.quietHours.enabled}
+                onChange={() => setSettings(prev => ({
+                  ...prev,
+                  quietHours: { ...prev.quietHours, enabled: !prev.quietHours.enabled }
+                }))}
+              />
+              <p className="text-sm text-text-on-dark-secondary ml-6 -mt-2">Reduce notifications during specified hours</p>
+            </div>
             {settings.quietHours.enabled && (
               <div className="grid grid-cols-2 gap-4">
                 <div>

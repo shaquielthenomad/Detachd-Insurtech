@@ -30,9 +30,9 @@ export const MyClaimsPage: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 500)); 
        // Mock data for demonstration, replace with actual API call
       const mockUserClaims: Claim[] = [
-        { id: 'clm001', claimNumber: 'DET-001', policyholderName: 'Demo User', dateOfLoss: '2024-07-15', claimType: 'Auto Accident', status: ClaimStatus.IN_REVIEW, amountClaimed: 2500 },
-        { id: 'clm002', claimNumber: 'DET-002', policyholderName: 'Demo User', dateOfLoss: '2024-06-20', claimType: 'Property Damage', status: ClaimStatus.APPROVED, amountClaimed: 1200 },
-        { id: 'clm003', claimNumber: 'DET-003', policyholderName: 'Demo User', dateOfLoss: '2024-05-01', claimType: 'Theft', status: ClaimStatus.REJECTED, amountClaimed: 800 },
+        { id: 'clm001', claimNumber: 'DET-001', policyholderName: 'Thabo Mthembu', dateOfLoss: '2024-07-15', claimType: 'Auto Accident', status: ClaimStatus.IN_REVIEW, amountClaimed: 25000 },
+        { id: 'clm002', claimNumber: 'DET-002', policyholderName: 'Thabo Mthembu', dateOfLoss: '2024-06-20', claimType: 'Property Damage', status: ClaimStatus.APPROVED, amountClaimed: 12000 },
+        { id: 'clm003', claimNumber: 'DET-003', policyholderName: 'Thabo Mthembu', dateOfLoss: '2024-05-01', claimType: 'Theft', status: ClaimStatus.REJECTED, amountClaimed: 8000 },
       ];
       setClaims(mockUserClaims);
       setIsLoading(false);
@@ -93,7 +93,7 @@ export const MyClaimsPage: React.FC = () => {
                     </p>
                     {claim.amountClaimed && (
                       <p className="mt-2 flex items-center text-sm text-text-on-dark-secondary sm:mt-0 sm:ml-6">
-                        Amount: ${claim.amountClaimed.toLocaleString()}
+                        Amount: R {claim.amountClaimed.toLocaleString()}
                       </p>
                     )}
                   </div>

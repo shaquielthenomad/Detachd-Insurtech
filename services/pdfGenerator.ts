@@ -201,7 +201,7 @@ export class PDFGenerator {
         <div class="footer">
             <p><strong>${certificateData.companyInfo.name}</strong> | Enterprise No: ${certificateData.companyInfo.enterpriseNumber}</p>
             <p>Founded ${certificateData.companyInfo.founded} | ${certificateData.companyInfo.email}</p>
-            <p>This certificate is cryptographically secured and tamper-proof. Verify authenticity at secure.detachd.systems</p>
+            <p>This certificate is cryptographically secured and tamper-proof. Verify authenticity at detachd.systems</p>
         </div>
     </div>
 </body>

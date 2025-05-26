@@ -61,7 +61,7 @@ export const SettingsPage: React.FC = () => {
   const appSettings = [
     { icon: <GlobeIcon />, title: 'Language Settings', description: 'Select your preferred language.', linkTo: ROUTES.SETTINGS_LANGUAGE },
     { icon: <EyeIcon />, title: 'Preferences & Cookies', description: 'Manage cookie settings.', linkTo: ROUTES.SETTINGS_PREFERENCES },
-    { icon: <ShieldCheckIcon />, title: 'Data Processing Consent', description: 'Review data processing consent.', linkTo: ROUTES.SETTINGS_DATA_CONSENT },
+    { icon: <ShieldCheckIcon />, title: 'Data Processing Consent', description: 'Review data processing consent.', linkTo: ROUTES.SETTINGS_CONSENT },
   ];
 
   // Insurer-only application settings

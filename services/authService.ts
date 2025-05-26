@@ -4,7 +4,7 @@ import { User, UserRole } from '../types';
 export const AUTH_CONFIG = {
   clientId: process.env.AZURE_CLIENT_ID || 'your-azure-client-id',
   authority: 'https://detachd.b2clogin.com/detachd.onmicrosoft.com/B2C_1_signupsignin',
-  redirectUri: 'https://secure.detachd.systems/auth/callback',
+  redirectUri: 'https://detachd.systems/auth/callback',
   scopes: ['openid', 'profile', 'email'],
   knownAuthorities: ['detachd.b2clogin.com']
 };
@@ -91,7 +91,7 @@ export class AuthService {
         id: `usr_${Date.now()}`,
         email,
         name: email.split('@')[0].replace(/[^a-zA-Z]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-        role: email.includes('insurer') ? UserRole.INSURER : UserRole.POLICYHOLDER,
+        role: email.includes('insurer') ? UserRole.INSURER_PARTY : UserRole.POLICYHOLDER,
         avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=1e40af&color=fff`
       };
       

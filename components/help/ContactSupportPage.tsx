@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { PageHeader } from '../common/PageHeader';
 import PixelCard from '../common/PixelCard';
 import { Button } from '../common/Button';
@@ -8,15 +9,29 @@ import { Select } from '../common/Select';
 import { PhoneIcon, MailIcon, MapPinIcon } from '../common/Icon';
 
 export const ContactSupportPage: React.FC = () => {
+  const location = useLocation();
+  const claimContext = location.state?.claimContext;
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    category: '',
-    subject: '',
-    message: '',
+    category: claimContext ? 'claim' : '',
+    subject: claimContext ? claimContext.subject : '',
+    message: claimContext ? `Regarding Claim #${claimContext.claimNumber} (${claimContext.claimType}) for ${claimContext.policyholderName}:\n\n${claimContext.message}` : '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (claimContext) {
+      setFormData(prev => ({
+        ...prev,
+        category: 'claim',
+        subject: claimContext.subject,
+        message: `Regarding Claim #${claimContext.claimNumber} (${claimContext.claimType}) for ${claimContext.policyholderName}:\n\n${claimContext.message}`
+      }));
+    }
+  }, [claimContext]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -68,9 +83,21 @@ export const ContactSupportPage: React.FC = () => {
     <div>
       <PageHeader 
         title="Contact Support" 
-        subtitle="Get help with your claims and account"
+        subtitle={claimContext ? `Request information for Claim #${claimContext.claimNumber}` : "Get help with your claims and account"}
         showBackButton 
       />
+      
+      {claimContext && (
+        <PixelCard variant="blue" className="mb-6">
+          <div className="bg-blue-900/20 p-4 rounded-md border border-blue-400/30">
+            <h3 className="text-sm font-medium text-blue-300 mb-2">Claim Information Request</h3>
+            <p className="text-sm text-text-on-dark-secondary">
+              <strong>Claim:</strong> #{claimContext.claimNumber} - {claimContext.claimType}<br />
+              <strong>Policyholder:</strong> {claimContext.policyholderName}
+            </p>
+          </div>
+        </PixelCard>
+      )}
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">

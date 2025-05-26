@@ -8,7 +8,8 @@ import { ROUTES, MOCK_DELAY } from '../../constants';
 import { DownloadIcon, ShieldCheckIcon, CheckCircleIcon } from '../common/Icon';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import VerificationSeal from '../common/VerificationSeal';
-import { Claim, ClaimStatus } from '../../types'; 
+import { Claim, ClaimStatus } from '../../types';
+import { PDFService } from '../../services/pdfService'; 
 
 const mockClaimForCertificate: Claim & { verifiedOn?: string; certificateId?: string; verificationMethod?: string; transactionId?: string } = {
   id: 'clm001', // Match an ID from mock claims if possible for consistency
@@ -45,12 +46,32 @@ export const ClaimVerificationCertificatePage: React.FC = () => {
     }, MOCK_DELAY);
   }, [claimId]);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
+    if (!claimData) return;
+    
     setIsDownloading(true);
-    setTimeout(() => {
-      alert(`Simulating PDF download for Certificate ID: ${claimData?.certificateId}`);
+    try {
+      const { pdfBlob, downloadUrl, certificateData } = await PDFService.generateVerificationCertificatePDF(claimData);
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `detachd-certificate-${certificateData.certificateId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up blob URL after download
+      setTimeout(() => {
+        PDFService.cleanupBlobUrl(downloadUrl);
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Failed to generate PDF:', error);
+      alert('Failed to generate PDF certificate. Please try again.');
+    } finally {
       setIsDownloading(false);
-    }, MOCK_DELAY * 1.5);
+    }
   };
 
   if (isLoading) {

@@ -33,9 +33,9 @@ export const EMAIL_TEMPLATES = {
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="https://secure.detachd.systems/dashboard" 
+            <a href="https://detachd.systems/dashboard" 
                style="background: #1e40af; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-              Access Your Dashboard
+              Access Dashboard
             </a>
           </div>
           
@@ -87,7 +87,7 @@ export const EMAIL_TEMPLATES = {
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="https://secure.detachd.systems/claims/${claim.id}" 
+            <a href="https://detachd.systems/claims/${claim.id}" 
                style="background: #1e40af; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
               Track Claim Status
             </a>
@@ -135,7 +135,7 @@ export const EMAIL_TEMPLATES = {
                style="background: #059669; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; margin-right: 10px;">
               Download Certificate
             </a>
-            <a href="https://secure.detachd.systems/claims/${claim.id}" 
+            <a href="https://detachd.systems/claims/${claim.id}" 
                style="background: #1e40af; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
               View Details
             </a>
@@ -169,7 +169,7 @@ export const EMAIL_TEMPLATES = {
           </p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="https://secure.detachd.systems/reset-password?token=${resetToken}" 
+            <a href="https://detachd.systems/reset-password?token=${resetToken}" 
                style="background: #dc2626; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
               Reset Password
             </a>

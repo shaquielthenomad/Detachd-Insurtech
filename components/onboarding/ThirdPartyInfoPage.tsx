@@ -8,6 +8,7 @@ import PixelCard from '../common/PixelCard';
 import { ROUTES, MOCK_DELAY } from '../../constants';
 import { UserRole } from '../../types';
 import { UserIcon, MailIcon, PhoneIcon, DownloadIcon, PrinterIcon } from '../common/Icon';
+import { PDFService } from '../../services/pdfService';
 
 // Global country codes with South Africa first
 const countryCodes = [
@@ -360,15 +361,29 @@ export const ThirdPartyInfoPage: React.FC = () => {
                   <Button 
                     variant="outline" 
                     onClick={() => {
-                      const accessInfo = `DETACHD ACCESS CODE\n\nCode: ${generatedCode}\nGenerated: ${new Date().toLocaleString()}\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.countryCode} ${formData.phoneNumber}\n\nSave this information securely. You'll need this code to access claim information.\n\n---\nDetachd Pty Ltd\nEnterprise Number: 2021/792488/07\nsupport@detachd.systems`;
-                      
-                      const blob = new Blob([accessInfo], { type: 'text/plain' });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `detachd-access-code-${generatedCode}.txt`;
-                      a.click();
-                      URL.revokeObjectURL(url);
+                      try {
+                        const { blob, downloadUrl } = PDFService.generateAccessCodeFile({
+                          code: generatedCode,
+                          name: formData.name,
+                          email: formData.email,
+                          phone: `${formData.countryCode} ${formData.phoneNumber}`
+                        });
+                        
+                        const link = document.createElement('a');
+                        link.href = downloadUrl;
+                        link.download = `detachd-access-code-${generatedCode}.txt`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        
+                        // Clean up blob URL
+                        setTimeout(() => {
+                          PDFService.cleanupBlobUrl(downloadUrl);
+                        }, 1000);
+                      } catch (error) {
+                        console.error('Download failed:', error);
+                        alert('Download failed. Please try again.');
+                      }
                     }}
                     leftIcon={<DownloadIcon className="h-4 w-4" />}
                     className="flex-1"
@@ -378,20 +393,40 @@ export const ThirdPartyInfoPage: React.FC = () => {
                   <Button 
                     variant="outline" 
                     onClick={() => {
-                      const accessInfo = `DETACHD ACCESS CODE\n\nCode: ${generatedCode}\nGenerated: ${new Date().toLocaleString()}\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.countryCode} ${formData.phoneNumber}\n\nSave this information securely. You'll need this code to access claim information.\n\n---\nDetachd Pty Ltd\nEnterprise Number: 2021/792488/07\nsupport@detachd.systems`;
-                      
-                      const printWindow = window.open('', '_blank');
-                      if (printWindow) {
-                        printWindow.document.write(`
-                          <html>
-                            <head><title>Detachd Access Code</title></head>
-                            <body style="font-family: monospace; padding: 20px; white-space: pre-line;">
-                              ${accessInfo}
-                            </body>
-                          </html>
-                        `);
-                        printWindow.document.close();
-                        printWindow.print();
+                      try {
+                        const { blob } = PDFService.generateAccessCodeFile({
+                          code: generatedCode,
+                          name: formData.name,
+                          email: formData.email,
+                          phone: `${formData.countryCode} ${formData.phoneNumber}`
+                        });
+                        
+                        // Read blob content for printing
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                          const content = e.target?.result as string;
+                          const printWindow = window.open('', '_blank');
+                          if (printWindow) {
+                            printWindow.document.write(`
+                              <html>
+                                <head>
+                                  <title>Detachd Access Code</title>
+                                  <style>
+                                    body { font-family: monospace; padding: 20px; white-space: pre-line; line-height: 1.5; }
+                                    @media print { body { margin: 0; } }
+                                  </style>
+                                </head>
+                                <body>${content}</body>
+                              </html>
+                            `);
+                            printWindow.document.close();
+                            printWindow.print();
+                          }
+                        };
+                        reader.readAsText(blob);
+                      } catch (error) {
+                        console.error('Print failed:', error);
+                        alert('Print failed. Please try again.');
                       }
                     }}
                     leftIcon={<PrinterIcon className="h-4 w-4" />}
