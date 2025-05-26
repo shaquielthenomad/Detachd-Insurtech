@@ -55,6 +55,10 @@ export const LivenessCheck: React.FC<LivenessCheckProps> = ({
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
+        // Ensure video plays
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play();
+        };
       }
       setStep('instructions');
     } catch (err) {
@@ -206,7 +210,8 @@ export const LivenessCheck: React.FC<LivenessCheckProps> = ({
                   autoPlay
                   muted
                   playsInline
-                  className="w-full h-64 bg-black rounded-lg object-cover"
+                  className="w-full h-64 bg-black rounded-lg object-cover mirror"
+                  style={{ transform: 'scaleX(-1)' }}
                 />
                 <canvas ref={canvasRef} className="hidden" />
                 
