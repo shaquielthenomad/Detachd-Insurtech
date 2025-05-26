@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PageHeader } from '../common/PageHeader';
-import PixelCard from '../common/PixelCard'; // Changed from Card
-import { FileTextIcon, CheckCircleIcon, PlusCircleIcon, AlertTriangleIcon, ShieldCheckIcon, BellIcon, DocumentTextIcon, UserGroupIcon, PhoneIcon, ChatBubbleLeftRightIcon } from '../common/Icon';
+import PixelCard from '../common/PixelCard';
+import { FileTextIcon, CheckCircleIcon, PlusCircleIcon, AlertTriangleIcon, ShieldCheckIcon, BellIcon } from '../common/Icon';
 import { UserRole } from '../../types';
 import { Button } from '../common/Button';
 import { ROUTES } from '../../constants';
@@ -28,13 +28,11 @@ const initialRiskScoreTrendData: { name: string; avgRiskScore: number }[] = [
   { name: 'Week 5', avgRiskScore: 0 },
 ];
 
-
 export const DashboardOverviewPage: React.FC = () => {
   const { user } = useAuth();
   const [totalClaims, setTotalClaims] = useState(0);
   const [openClaims, setOpenClaims] = useState(0);
   const [closedClaims, setClosedClaims] = useState(0);
-  // const [recentActivity, setRecentActivity] = useState<RecentActivityItem[]>([]); // Not used in current masonry
   const [claimsByMonthData, setClaimsByMonthData] = useState(initialClaimsByMonthData);
   const [riskScoreTrendData, setRiskScoreTrendData] = useState(initialRiskScoreTrendData);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,7 +77,7 @@ export const DashboardOverviewPage: React.FC = () => {
       } else {
         // Policyholder-specific data
         setMyClaimsCount(3);
-        setActivePolicies(1); // Fixed to show 1 active policy
+        setActivePolicies(1);
         setOpenClaims(1);
         setClosedClaims(2);
       }
@@ -96,34 +94,10 @@ export const DashboardOverviewPage: React.FC = () => {
   const isInsurer = user?.role === UserRole.INSURER_PARTY;
   const noChartData = (chartData: any[]) => chartData.every(item => Object.values(item).slice(1).every(val => val === 0));
 
-  const getDashboardItems = () => {
+  const getDashboardItems = (): MasonryDataItem[] => {
     if (isInsurer) {
+      // Insurer dashboard items
       return [
-        {
-          id: 'claims-overview',
-          title: 'Claims Overview',
-          content: (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-400">23</div>
-                  <div className="text-sm text-text-on-dark-secondary">Pending Review</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-400">156</div>
-                  <div className="text-sm text-text-on-dark-secondary">Approved Today</div>
-                </div>
-              </div>
-              <Button 
-                variant="primary" 
-                className="w-full"
-                onClick={() => navigate(ROUTES.CLAIMS_OVERVIEW)}
-              >
-                Review Claims
-              </Button>
-            </div>
-          )
-        },
         {
           id: 'total-claims',
           height: 180,
@@ -166,225 +140,102 @@ export const DashboardOverviewPage: React.FC = () => {
             </PixelCard>
           ),
         },
+      ];
+    } else {
+      // Enhanced Policyholder Dashboard
+      return [
         {
-          id: 'claims-by-month',
-          height: 420,
+          id: 'my-claims',
+          height: 180,
           renderContent: () => (
-            <PixelCard title="Claims by Month" variant="blue">
-              {noChartData(claimsByMonthData) ? (
-                <p className="text-center text-text-on-dark-secondary py-10">No claims data available for this period.</p>
-              ) : (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={claimsByMonthData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.3)" />
-                    <XAxis dataKey="name" stroke="#94a3b8" />
-                    <YAxis stroke="#94a3b8" />
-                    <Tooltip
-                      wrapperClassName="!bg-slate-700/80 !border-slate-600 !rounded-md !shadow-lg"
-                      contentStyle={{ backgroundColor: 'transparent', border: 'none' }}
-                      itemStyle={{ color: '#e0e7ff' }}
-                      labelStyle={{ color: '#cbd5e1' }}
-                    />
-                    <Legend wrapperStyle={{ color: '#cbd5e1' }}/>
-                    <Bar dataKey="Submitted" fill="#60a5fa" name="Submitted" />
-                    <Bar dataKey="Approved" fill="#34d399" name="Approved" />
-                    <Bar dataKey="Rejected" fill="#f87171" name="Rejected" />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
+            <Link to={ROUTES.CLAIMS}>
+              <PixelCard title="My Claims" variant="blue" icon={<FileTextIcon className="h-6 w-6 text-blue-400" />}>
+                <p className="text-3xl font-bold text-text-on-dark-primary">{myClaimsCount}</p>
+                <p className="text-sm text-text-on-dark-secondary">{myClaimsCount === 0 ? "No claims submitted yet" : "Click to view details"}</p>
+              </PixelCard>
+            </Link>
+          ),
+        },
+        {
+          id: 'active-policies',
+          height: 180,
+          renderContent: () => (
+            <Link to={ROUTES.MY_POLICY}>
+              <PixelCard title="Active Policies" variant="blue" icon={<ShieldCheckIcon className="h-6 w-6 text-green-400" />}>
+                <p className="text-3xl font-bold text-green-400">{activePolicies}</p>
+                <p className="text-sm text-text-on-dark-secondary">{activePolicies === 0 ? "No active policies" : "Coverage active"}</p>
+              </PixelCard>
+            </Link>
+          ),
+        },
+        {
+          id: 'ai-insights',
+          height: 250,
+          renderContent: () => (
+            <PixelCard title="AI Risk Insights" variant="blue">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                  <span className="text-text-on-dark-primary">Low Risk Profile</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-on-dark-secondary">Driving Score</span>
+                    <span className="text-green-400">92/100</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-on-dark-secondary">Claim History</span>
+                    <span className="text-green-400">Excellent</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-on-dark-secondary">Fraud Risk</span>
+                    <span className="text-green-400">Very Low</span>
+                  </div>
+                </div>
+                <div className="bg-green-900/20 border border-green-700 p-3 rounded">
+                  <div className="text-green-400 text-sm font-medium">💡 AI Tip</div>
+                  <div className="text-text-on-dark-secondary text-sm mt-1">
+                    Your excellent driving record qualifies you for a 15% discount renewal!
+                  </div>
+                </div>
+              </div>
             </PixelCard>
           ),
         },
         {
-          id: 'risk-score-trend',
-          height: 420,
+          id: 'quick-actions',
+          height: 250,
           renderContent: () => (
-            <PixelCard title="Average Risk Score Trend" variant="blue">
-               {noChartData(riskScoreTrendData) ? (
-                <p className="text-center text-text-on-dark-secondary py-10">No risk score data available.</p>
-              ) : (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={riskScoreTrendData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.3)" />
-                    <XAxis dataKey="name" stroke="#94a3b8" />
-                    <YAxis stroke="#94a3b8" />
-                    <Tooltip
-                      wrapperClassName="!bg-slate-700/80 !border-slate-600 !rounded-md !shadow-lg"
-                      contentStyle={{ backgroundColor: 'transparent', border: 'none' }}
-                      itemStyle={{ color: '#e0e7ff' }}
-                      labelStyle={{ color: '#cbd5e1' }}
-                    />
-                    <Legend wrapperStyle={{ color: '#cbd5e1' }} />
-                    <Line type="monotone" dataKey="avgRiskScore" stroke="#60a5fa" activeDot={{ r: 8 }} name="Avg. Risk Score" />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
+            <PixelCard title="Quick Actions" variant="blue">
+              <div className="space-y-4">
+                <Button 
+                  variant="primary" 
+                  className="w-full"
+                  leftIcon={<PlusCircleIcon className="h-5 w-5" />}
+                  onClick={() => navigate(ROUTES.NEW_CLAIM)}
+                >
+                  Start New Claim
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full text-slate-300 hover:bg-slate-700"
+                  onClick={() => navigate(ROUTES.MY_POLICY)}
+                >
+                  View My Policy
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full text-slate-300 hover:bg-slate-700"
+                  onClick={() => navigate(ROUTES.HELP_CONTACT_SUPPORT)}
+                >
+                  Contact Support
+                </Button>
+              </div>
             </PixelCard>
           ),
-        }
+        },
       ];
     }
-
-    // Enhanced Policyholder Dashboard
-    return [
-      {
-        id: 'policy-status',
-        title: 'My Policy Status',
-        content: (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-semibold text-text-on-dark-primary">Premium Policy</div>
-                <div className="text-sm text-text-on-dark-secondary">POL-2024-001</div>
-              </div>
-              <div className="text-right">
-                <div className="text-green-400 font-semibold">Active</div>
-                <div className="text-sm text-text-on-dark-secondary">Expires: Dec 2024</div>
-              </div>
-            </div>
-            <div className="bg-slate-800 p-3 rounded">
-              <div className="text-sm text-text-on-dark-secondary">Coverage</div>
-              <div className="text-text-on-dark-primary">R2,500,000 Comprehensive</div>
-            </div>
-            <Button 
-              variant="primary" 
-              className="w-full"
-              onClick={() => navigate(ROUTES.MY_POLICY)}
-            >
-              View Policy Details
-            </Button>
-          </div>
-        )
-      },
-      {
-        id: 'ai-insights',
-        title: 'AI Risk Insights',
-        content: (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-              <span className="text-text-on-dark-primary">Low Risk Profile</span>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-text-on-dark-secondary">Driving Score</span>
-                <span className="text-green-400">92/100</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-text-on-dark-secondary">Claim History</span>
-                <span className="text-green-400">Excellent</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-text-on-dark-secondary">Fraud Risk</span>
-                <span className="text-green-400">Very Low</span>
-              </div>
-            </div>
-            <div className="bg-green-900/20 border border-green-700 p-3 rounded">
-              <div className="text-green-400 text-sm font-medium">💡 AI Tip</div>
-              <div className="text-text-on-dark-secondary text-sm mt-1">
-                Your excellent driving record qualifies you for a 15% discount renewal!
-              </div>
-            </div>
-          </div>
-        )
-      },
-      {
-        id: 'recent-claims',
-        title: 'Recent Claims',
-        content: (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-slate-800 rounded">
-              <div>
-                <div className="text-text-on-dark-primary font-medium">CLM-001234</div>
-                <div className="text-sm text-text-on-dark-secondary">Vehicle Damage</div>
-              </div>
-              <div className="text-right">
-                <div className="text-green-400 text-sm">Approved</div>
-                <div className="text-text-on-dark-secondary text-xs">Jan 20, 2024</div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-slate-800 rounded">
-              <div>
-                <div className="text-text-on-dark-primary font-medium">CLM-001235</div>
-                <div className="text-sm text-text-on-dark-secondary">Windshield Repair</div>
-              </div>
-              <div className="text-right">
-                <div className="text-yellow-400 text-sm">Under Review</div>
-                <div className="text-text-on-dark-secondary text-xs">Jan 25, 2024</div>
-              </div>
-            </div>
-            <Button 
-              variant="ghost" 
-              className="w-full"
-              onClick={() => navigate(ROUTES.MY_CLAIMS)}
-            >
-              View All Claims
-            </Button>
-          </div>
-        )
-      },
-      {
-        id: 'quick-actions',
-        title: 'Quick Actions',
-        content: (
-          <div className="space-y-3">
-            <Button 
-              variant="primary" 
-              className="w-full"
-              leftIcon={<PlusCircleIcon className="h-5 w-5" />}
-              onClick={() => navigate(ROUTES.NEW_CLAIM)}
-            >
-              Start New Claim
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full"
-              leftIcon={<DocumentTextIcon className="h-5 w-5" />}
-              onClick={() => navigate(ROUTES.UPLOAD_DOCUMENTS)}
-            >
-              Upload Documents
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full"
-              leftIcon={<UserGroupIcon className="h-5 w-5" />}
-              onClick={() => navigate(ROUTES.INVITE_WITNESS)}
-            >
-              Invite Witness
-            </Button>
-          </div>
-        )
-      },
-      {
-        id: 'emergency-contacts',
-        title: 'Emergency Contacts',
-        content: (
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3">
-              <PhoneIcon className="h-5 w-5 text-red-400" />
-              <div>
-                <div className="text-text-on-dark-primary font-medium">24/7 Claims Hotline</div>
-                <div className="text-text-on-dark-secondary text-sm">0800 123 456</div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <ChatBubbleLeftRightIcon className="h-5 w-5 text-blue-400" />
-              <div>
-                <div className="text-text-on-dark-primary font-medium">Live Chat Support</div>
-                <div className="text-text-on-dark-secondary text-sm">Available 24/7</div>
-              </div>
-            </div>
-            <Button 
-              variant="ghost" 
-              className="w-full"
-              onClick={() => navigate(ROUTES.CONTACT_SUPPORT)}
-            >
-              Contact Support
-            </Button>
-          </div>
-        )
-      }
-    ];
   };
 
   return (
