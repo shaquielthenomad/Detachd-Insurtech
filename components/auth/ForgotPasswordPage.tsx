@@ -136,17 +136,14 @@ export const ForgotPasswordPage: React.FC = () => {
         smooth={true}
       />
       <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
-        <img 
-          className="mx-auto h-12 w-auto filter invert brightness-0" 
-          src="https://picsum.photos/seed/logo_dark/100/100" 
-          alt={`${APP_NAME} logo`} 
-        /> 
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-100">
-          Reset your password
-        </h2>
-        <p className="mt-2 text-center text-sm text-slate-300">
-          Enter your email address and we'll send you a link to reset your password.
-        </p>
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-text-on-dark-primary mb-2">
+            Reset your password
+          </h2>
+          <p className="text-text-on-dark-secondary">
+            Enter your email address and we'll send you a link to reset your password.
+          </p>
+        </div>
       </div>
 
       <div className="relative z-10 mt-8 sm:mx-auto sm:w-full sm:max-w-md">

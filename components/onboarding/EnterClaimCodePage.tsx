@@ -23,15 +23,34 @@ export const EnterClaimCodePage: React.FC = () => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     setIsLoading(false);
 
-    if (claimCode === "VALID123") { 
-      navigate(ROUTES.ONBOARDING_ROLE_SELECTION); 
+    // Determine user type based on claim code prefix
+    const codeUpper = claimCode.toUpperCase();
+    
+    if (codeUpper.startsWith('WIT-')) {
+      // Witness claim code
+      navigate(ROUTES.WITNESS_CLAIM_CODE, { state: { claimCode } });
+    } else if (codeUpper.startsWith('MED-')) {
+      // Medical professional code
+      navigate(ROUTES.THIRD_PARTY_INFO, { state: { claimCode, userType: 'medical_professional' } });
+    } else if (codeUpper.startsWith('FR-')) {
+      // First responder code
+      navigate(ROUTES.THIRD_PARTY_INFO, { state: { claimCode, userType: 'first_responder' } });
+    } else if (codeUpper.startsWith('INS-')) {
+      // Insurance adjuster code
+      navigate(ROUTES.INSURANCE_CODE, { state: { claimCode } });
+    } else if (codeUpper.startsWith('POL-')) {
+      // Policyholder code
+      navigate(ROUTES.THIRD_PARTY_INFO, { state: { claimCode, userType: 'policyholder' } });
+    } else if (codeUpper === 'DEMO123' || codeUpper === 'VALID123') {
+      // Demo codes - allow role selection
+      navigate(ROUTES.ONBOARDING_ROLE_SELECTION, { state: { claimCode } });
     } else {
-      setError('Invalid claim code. Please check and try again.');
+      setError('Invalid claim code. Please check the format and try again.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-dark flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto w-full">
         <PageHeader title="Let's get you connected to a claim." showBackButton backButtonPath={ROUTES.WELCOME}/>
         <div className="mt-8">
@@ -40,19 +59,39 @@ export const EnterClaimCodePage: React.FC = () => {
               Enter Your Claim Code
             </h2>
             <p className="text-center text-sm text-text-on-dark-secondary mb-6">
-              If you have a claim code, please enter it below to proceed.
+              Enter the claim code provided to you to access the relevant claim information.
             </p>
+            
+            {/* Code format examples */}
+            <div className="mb-6 p-4 bg-dark rounded-lg border border-light">
+              <p className="text-xs text-text-on-dark-secondary mb-2">Code formats:</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="text-text-on-dark-secondary">
+                  <span className="text-blue-400">WIT-</span> Witness
+                </div>
+                <div className="text-text-on-dark-secondary">
+                  <span className="text-green-400">MED-</span> Medical
+                </div>
+                <div className="text-text-on-dark-secondary">
+                  <span className="text-red-400">FR-</span> First Responder
+                </div>
+                <div className="text-text-on-dark-secondary">
+                  <span className="text-purple-400">INS-</span> Insurance
+                </div>
+              </div>
+            </div>
+            
             <form className="space-y-6" onSubmit={handleSubmit}>
               <Input
                 label="Claim Code"
                 id="claim-code"
                 type="text"
                 value={claimCode}
-                onChange={(e) => setClaimCode(e.target.value)}
-                placeholder="Enter your claim code"
+                onChange={(e) => setClaimCode(e.target.value.toUpperCase())}
+                placeholder="e.g., WIT-ABC123, MED-XYZ789"
                 required
-                error={error} // Error text will be red, styled by Input component
-                containerClassName="[&>label]:text-text-on-dark-secondary" // Ensure label is light
+                error={error}
+                containerClassName="[&>label]:text-text-on-dark-secondary"
               />
               <div>
                 <Button type="submit" className="w-full" isLoading={isLoading}>
@@ -60,6 +99,18 @@ export const EnterClaimCodePage: React.FC = () => {
                 </Button>
               </div>
             </form>
+            
+            <div className="mt-6 pt-4 border-t border-light">
+              <p className="text-xs text-text-on-dark-secondary text-center">
+                Don't have a claim code? 
+                <button 
+                  onClick={() => navigate(ROUTES.ONBOARDING_ROLE_SELECTION)}
+                  className="text-blue-400 hover:text-blue-300 ml-1"
+                >
+                  Create an account
+                </button>
+              </p>
+            </div>
           </PixelCard>
         </div>
       </div>
