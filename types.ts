@@ -116,6 +116,7 @@ export enum Page {
   NEW_CLAIM_SUCCESS = '/claims/new/success',
   CLAIM_SUCCESS = '/claims/success', // General claim success page (for witness, third party, etc.)
   MY_POLICY = '/my-policy', // Added new policy page route
+  POLICY_DETAILS = '/my-policy/:policyId', // Individual policy details page
   POLICY_PLANS = '/policy/plans', // Policy plans management page
   NEW_POLICY = '/policy/new', // New policy creation route
   HELP_VERIFICATION = '/help/verification', // Verification issues help

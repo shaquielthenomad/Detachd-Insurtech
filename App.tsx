@@ -46,6 +46,7 @@ import { WitnessClaimCodePage } from './components/onboarding/WitnessClaimCodePa
 import { InsurerDepartmentPage } from './components/onboarding/InsurerDepartmentPage';
 import { LogoutSuccessPage } from './components/auth/LogoutSuccessPage';
 import { NewPolicyPage } from './components/policy/NewPolicyPage';
+import PolicyDetailsPage from './components/policy/PolicyDetailsPage';
 
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -116,6 +117,7 @@ const App: React.FC = () => {
         <Route path={ROUTES.CLAIM_SUCCESS} element={<ProtectedRoute><Layout><ClaimSuccessPage /></Layout></ProtectedRoute>} />
         
         <Route path={ROUTES.MY_POLICY} element={<ProtectedRoute><Layout><PolicyPlanPage /></Layout></ProtectedRoute>} />
+        <Route path={ROUTES.POLICY_DETAILS} element={<ProtectedRoute><Layout><PolicyDetailsPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.NEW_POLICY} element={<ProtectedRoute><Layout><NewPolicyPage /></Layout></ProtectedRoute>} />
 
                   <Route path={ROUTES.TASKS_OVERVIEW} element={<ProtectedRoute><Layout><TasksPage /></Layout></ProtectedRoute>} />

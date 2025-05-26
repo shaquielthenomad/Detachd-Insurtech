@@ -7,6 +7,7 @@ import { Claim, ClaimStatus } from '../../types';
 import { ROUTES } from '../../constants';
 import { PlusCircleIcon, ChevronRightIcon, FileTextIcon } from '../common/Icon'; 
 import { LoadingSpinner } from '../common/LoadingSpinner';
+import { useAuth } from '../../contexts/AuthContext';
 
 const getStatusBadgeStyles = (status: ClaimStatus): string => {
   // Styles for dark PixelCard background
@@ -21,6 +22,7 @@ const getStatusBadgeStyles = (status: ClaimStatus): string => {
 };
 
 export const MyClaimsPage: React.FC = () => {
+  const { user } = useAuth();
   const [claims, setClaims] = useState<Claim[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,15 +32,15 @@ export const MyClaimsPage: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 500)); 
        // Mock data for demonstration, replace with actual API call
       const mockUserClaims: Claim[] = [
-        { id: 'clm001', claimNumber: 'DET-001', policyholderName: 'Thabo Mthembu', dateOfLoss: '2024-07-15', claimType: 'Auto Accident', status: ClaimStatus.IN_REVIEW, amountClaimed: 25000 },
-        { id: 'clm002', claimNumber: 'DET-002', policyholderName: 'Thabo Mthembu', dateOfLoss: '2024-06-20', claimType: 'Property Damage', status: ClaimStatus.APPROVED, amountClaimed: 12000 },
-        { id: 'clm003', claimNumber: 'DET-003', policyholderName: 'Thabo Mthembu', dateOfLoss: '2024-05-01', claimType: 'Theft', status: ClaimStatus.REJECTED, amountClaimed: 8000 },
+        { id: 'clm001', claimNumber: 'DET-001', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-07-15', claimType: 'Auto Accident', status: ClaimStatus.IN_REVIEW, amountClaimed: 25000 },
+        { id: 'clm002', claimNumber: 'DET-002', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-06-20', claimType: 'Property Damage', status: ClaimStatus.APPROVED, amountClaimed: 12000 },
+        { id: 'clm003', claimNumber: 'DET-003', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-05-01', claimType: 'Theft', status: ClaimStatus.REJECTED, amountClaimed: 8000 },
       ];
       setClaims(mockUserClaims);
       setIsLoading(false);
     };
     fetchClaims();
-  }, []);
+  }, [user?.name]);
 
   if (isLoading) {
     return <LoadingSpinner message="Loading your claims..." />;

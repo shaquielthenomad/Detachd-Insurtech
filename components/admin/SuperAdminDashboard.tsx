@@ -408,19 +408,114 @@ export const SuperAdminDashboard: React.FC = () => {
       {activeTab === 'approvals' && renderApprovals()}
       {activeTab === 'settings' && renderSettings()}
       {activeTab === 'users' && (
-        <div className="text-center py-8 text-text-on-dark-secondary">
-          User management coming soon...
-        </div>
+        <PixelCard variant="blue" title="User Management" icon={<UsersIcon className="h-5 w-5 text-blue-400" />}>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-slate-800 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-blue-400">5</div>
+                <div className="text-sm text-text-on-dark-secondary">Total Active Users</div>
+              </div>
+              <div className="bg-slate-800 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-yellow-400">2</div>
+                <div className="text-sm text-text-on-dark-secondary">Pending Verifications</div>
+              </div>
+              <div className="bg-slate-800 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-green-400">100%</div>
+                <div className="text-sm text-text-on-dark-secondary">System Uptime</div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center p-3 bg-slate-800 rounded">
+                <div>
+                  <div className="text-text-on-dark-primary">John Smith (Policyholder)</div>
+                  <div className="text-sm text-text-on-dark-secondary">john.smith@example.com - Active</div>
+                </div>
+                <span className="px-2 py-1 bg-green-900 text-green-300 rounded text-xs">Verified</span>
+              </div>
+              <div className="flex justify-between items-center p-3 bg-slate-800 rounded">
+                <div>
+                  <div className="text-text-on-dark-primary">Sarah Johnson (Adjuster)</div>
+                  <div className="text-sm text-text-on-dark-secondary">sarah.j@santam.co.za - Active</div>
+                </div>
+                <span className="px-2 py-1 bg-green-900 text-green-300 rounded text-xs">Verified</span>
+              </div>
+            </div>
+          </div>
+        </PixelCard>
       )}
       {activeTab === 'claims' && (
-        <div className="text-center py-8 text-text-on-dark-secondary">
-          Claims management coming soon...
-        </div>
+        <PixelCard variant="blue" title="Claims Management" icon={<DocumentTextIcon className="h-5 w-5 text-blue-400" />}>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-slate-800 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-blue-400">3</div>
+                <div className="text-sm text-text-on-dark-secondary">Active Claims</div>
+              </div>
+              <div className="bg-slate-800 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-green-400">1</div>
+                <div className="text-sm text-text-on-dark-secondary">Approved Today</div>
+              </div>
+              <div className="bg-slate-800 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-red-400">1</div>
+                <div className="text-sm text-text-on-dark-secondary">Fraud Detected</div>
+              </div>
+              <div className="bg-slate-800 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-yellow-400">45</div>
+                <div className="text-sm text-text-on-dark-secondary">Avg Risk Score</div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center p-3 bg-slate-800 rounded">
+                <div>
+                  <div className="text-text-on-dark-primary">Claim #DET-001 - Auto Accident</div>
+                  <div className="text-sm text-text-on-dark-secondary">John Smith - R25,000 - Risk: 45%</div>
+                </div>
+                <span className="px-2 py-1 bg-yellow-900 text-yellow-300 rounded text-xs">In Review</span>
+              </div>
+              <div className="flex justify-between items-center p-3 bg-slate-800 rounded">
+                <div>
+                  <div className="text-text-on-dark-primary">Claim #DET-002 - Property Damage</div>
+                  <div className="text-sm text-text-on-dark-secondary">John Smith - R12,000 - Risk: 25%</div>
+                </div>
+                <span className="px-2 py-1 bg-green-900 text-green-300 rounded text-xs">Approved</span>
+              </div>
+            </div>
+          </div>
+        </PixelCard>
       )}
       {activeTab === 'audit' && (
-        <div className="text-center py-8 text-text-on-dark-secondary">
-          Audit log coming soon...
-        </div>
+        <PixelCard variant="blue" title="System Audit Log" icon={<ClipboardDocumentListIcon className="h-5 w-5 text-blue-400" />}>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center p-3 bg-slate-800 rounded">
+              <div>
+                <div className="text-text-on-dark-primary">User Login</div>
+                <div className="text-sm text-text-on-dark-secondary">john.smith@example.com logged in successfully</div>
+              </div>
+              <div className="text-xs text-text-on-dark-secondary">2 min ago</div>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-slate-800 rounded">
+              <div>
+                <div className="text-text-on-dark-primary">Claim Approved</div>
+                <div className="text-sm text-text-on-dark-secondary">Claim #DET-002 approved by Sarah Johnson</div>
+              </div>
+              <div className="text-xs text-text-on-dark-secondary">1 hour ago</div>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-slate-800 rounded">
+              <div>
+                <div className="text-text-on-dark-primary">AI Risk Assessment</div>
+                <div className="text-sm text-text-on-dark-secondary">Claim #DET-001 analyzed - Risk Score: 45%</div>
+              </div>
+              <div className="text-xs text-text-on-dark-secondary">2 hours ago</div>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-slate-800 rounded">
+              <div>
+                <div className="text-text-on-dark-primary">Document Upload</div>
+                <div className="text-sm text-text-on-dark-secondary">police_report.pdf uploaded for Claim #DET-001</div>
+              </div>
+              <div className="text-xs text-text-on-dark-secondary">3 hours ago</div>
+            </div>
+          </div>
+        </PixelCard>
       )}
     </div>
   );

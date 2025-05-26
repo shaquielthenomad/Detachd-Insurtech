@@ -126,7 +126,7 @@ export const StartClaimPage: React.FC = () => {
         navigate(`/claims/${result.claimId}/success`);
       } else {
         // Demo fallback - create a mock claim ID and navigate
-        const mockClaimId = `CLM-${Date.now().toString().slice(-6)}`;
+        const mockClaimId = `clm${Date.now().toString().slice(-6)}`;
         
         // Show AI analysis results
         if (riskScore > 70) {
@@ -137,14 +137,14 @@ export const StartClaimPage: React.FC = () => {
           alert(`✅ Claim ${mockClaimId} submitted successfully! (Risk Score: ${riskScore}% - Low Risk)`);
         }
         
-        // Navigate back to dashboard
-        navigate('/dashboard');
+        // Navigate to claims list to see the new claim
+        navigate(ROUTES.CLAIMS);
       }
     } catch (error) {
       console.error('Error submitting claim:', error);
       
       // Demo fallback even on error
-      const mockClaimId = `CLM-${Date.now().toString().slice(-6)}`;
+      const mockClaimId = `clm${Date.now().toString().slice(-6)}`;
       const mockRiskScore = Math.floor(Math.random() * 60) + 20; // 20-80%
       
       if (mockRiskScore > 70) {
@@ -155,8 +155,8 @@ export const StartClaimPage: React.FC = () => {
         alert(`✅ Claim ${mockClaimId} submitted successfully! (Risk Score: ${mockRiskScore}% - Low Risk)`);
       }
       
-      // Navigate back to dashboard
-      navigate('/dashboard');
+      // Navigate to claims list to see the new claim
+      navigate(ROUTES.CLAIMS);
     } finally {
       setIsLoading(false);
     }

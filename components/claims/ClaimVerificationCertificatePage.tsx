@@ -35,7 +35,7 @@ const ClaimVerificationCertificatePage: React.FC = () => {
     
     setLoading(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:7071/api';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:7071/api';
       const token = localStorage.getItem('detachd_token');
       const response = await fetch(`${API_BASE_URL}/claims/${claimId}`, {
         headers: {
@@ -48,7 +48,7 @@ const ClaimVerificationCertificatePage: React.FC = () => {
         setClaim(claimData);
       } else {
         // Fallback to demo data - but with REALISTIC status based on claim ID
-        const isApproved = claimId?.includes('approved') || claimId?.includes('001');
+        const isApproved = claimId === 'clm002' || claimId?.includes('approved');
         const demoData: ClaimData = {
           id: claimId,
           status: isApproved ? 'approved' : 'under_review',
@@ -77,7 +77,7 @@ const ClaimVerificationCertificatePage: React.FC = () => {
 
     setGeneratingCertificate(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:7071/api';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:7071/api';
       const token = localStorage.getItem('detachd_token');
       const response = await fetch(`${API_BASE_URL}/claims/${claimId}/certificate`, {
         method: 'POST',
