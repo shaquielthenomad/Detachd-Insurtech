@@ -61,9 +61,10 @@ export const TermsPage: React.FC = () => {
           <section>
             <h2 className="text-xl font-semibold text-text-on-dark-primary mb-3">7. Contact Information</h2>
             <div className="bg-slate-700/30 p-4 rounded-lg">
-              <p><strong>Detachd (Pty) Ltd</strong></p>
+              <p><strong>Detachd Pty Ltd</strong></p>
+              <p>Enterprise Number: 2021/792488/07</p>
               <p>Cape Town, South Africa</p>
-              <p>Email: legal@detachd.co.za</p>
+              <p>Email: legal@detachd.systems</p>
               <p>Phone: +27 21 000 0000</p>
             </div>
           </section>

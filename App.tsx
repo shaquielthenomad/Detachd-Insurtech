@@ -32,6 +32,8 @@ import { PrivacyPage } from './components/legal/PrivacyPage';
 import { AboutPage } from './components/legal/AboutPage';
 import { ContactSupportPage } from './components/help/ContactSupportPage';
 import { NotificationsPage } from './components/notifications/NotificationsPage';
+import { NotificationSettingsPage } from './components/notifications/NotificationSettingsPage';
+import { PolicyPlanPage } from './components/policy/PolicyPlanPage';
 import { TasksPage } from './components/tasks/TasksPage';
 import { ForgotPasswordPage } from './components/auth/ForgotPasswordPage';
 import { ReportIssuePage } from './components/help/ReportIssuePage';
@@ -128,6 +130,8 @@ const App: React.FC = () => {
         <Route path={ROUTES.ANALYTICS} element={<ProtectedRoute><Layout><AnalyticsPage /></Layout></ProtectedRoute>} />
         
                   <Route path={ROUTES.NOTIFICATIONS_OVERVIEW} element={<ProtectedRoute><Layout><NotificationsPage /></Layout></ProtectedRoute>} />
+        <Route path={ROUTES.NOTIFICATIONS_SETTINGS} element={<ProtectedRoute><Layout><NotificationSettingsPage /></Layout></ProtectedRoute>} />
+        <Route path={ROUTES.POLICY_PLANS} element={<ProtectedRoute><Layout><PolicyPlanPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.NOTIFICATIONS_SUSPICIOUS_ACTIVITY} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
         
         <Route path={ROUTES.TEAM} element={<ProtectedRoute><Layout><TeamDirectoryPage /></Layout></ProtectedRoute>} />

@@ -42,10 +42,10 @@ export const AboutPage: React.FC = () => {
               The Future of Insurance Claims
             </h2>
             <p className="text-lg text-text-on-dark-secondary max-w-3xl mx-auto leading-relaxed">
-              Detachd is South Africa's leading AI-powered insurance technology platform, 
-              transforming how claims are processed, verified, and resolved. Built by South Africans, 
-              for South Africans, we combine cutting-edge artificial intelligence with blockchain 
-              security to create a transparent, efficient, and trustworthy claims ecosystem.
+              Detachd is an AI-powered insurtech startup revolutionizing fraud prevention in South Africa's $40 billion insurance market, 
+              tackling $500M–$1B in annual losses from fraudulent claims. Our mobile app enables insurers and policyholders to upload 
+              claim images, verified in real-time by AI for tampering, and sealed with ECTA-compliant digital signatures. 
+              Compliant with POPIA for data protection, Detachd streamlines claims processing, reduces fraud, and builds trust.
             </p>
           </div>
         </PixelCard>
@@ -120,22 +120,22 @@ export const AboutPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
               <div>
                 <p className="text-text-on-dark-secondary font-medium">Company Name</p>
-                <p className="text-text-on-dark-primary">Detachd (Pty) Ltd</p>
+                <p className="text-text-on-dark-primary">Detachd Pty Ltd</p>
               </div>
               <div>
-                <p className="text-text-on-dark-secondary font-medium">Registration Number</p>
-                <p className="text-text-on-dark-primary">2024/123456/07</p>
+                <p className="text-text-on-dark-secondary font-medium">Enterprise Number</p>
+                <p className="text-text-on-dark-primary">2021/792488/07</p>
               </div>
               <div>
                 <p className="text-text-on-dark-secondary font-medium">Founded</p>
-                <p className="text-text-on-dark-primary">2024</p>
+                <p className="text-text-on-dark-primary">2021</p>
               </div>
             </div>
             
             <div className="mt-6 pt-6 border-t border-slate-700">
               <p className="text-text-on-dark-secondary">
                 <strong>Head Office:</strong> Cape Town, South Africa<br/>
-                <strong>Email:</strong> info@detachd.co.za<br/>
+                <strong>Email:</strong> info@detachd.systems<br/>
                 <strong>Phone:</strong> +27 21 000 0000
               </p>
             </div>

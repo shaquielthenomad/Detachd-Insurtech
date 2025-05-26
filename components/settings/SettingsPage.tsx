@@ -48,7 +48,8 @@ export const SettingsPage: React.FC = () => {
   const accountSettings = [
     { icon: <UserCircleIcon />, title: 'Account Details', description: 'View and update your personal information.', linkTo: ROUTES.PROFILE },
     { icon: <LockIcon />, title: 'Update Password', description: 'Secure your account by changing your password.', linkTo: ROUTES.SETTINGS_UPDATE_PASSWORD },
-    { icon: <BellIcon />, title: 'Notification Preferences', description: 'Choose how you receive alerts.', linkTo: ROUTES.NOTIFICATIONS_OVERVIEW },
+    { icon: <BellIcon />, title: 'Notification Preferences', description: 'Choose how you receive alerts.', linkTo: ROUTES.NOTIFICATIONS_SETTINGS },
+    { icon: <ShieldCheckIcon />, title: 'Policy Plans', description: 'Manage your insurance policies and coverage.', linkTo: ROUTES.POLICY_PLANS },
     { icon: <CogIcon />, title: 'Delete Account', description: 'Permanently delete your account.', linkTo: ROUTES.SETTINGS_DELETE_ACCOUNT },
   ];
 

@@ -64,7 +64,7 @@ const faqData: FAQItem[] = [
   {
     id: 'faq11',
     question: 'How do I report suspected fraud?',
-    answer: 'You can report suspected fraud through our secure reporting system, by calling our fraud hotline at +27 86 000 0000, or by emailing fraud@detachd.co.za. All reports are handled confidentially.',
+    answer: 'You can report suspected fraud through our secure reporting system, by calling our fraud hotline at +27 86 000 0000, or by emailing fraud@detachd.systems. All reports are handled confidentially.',
   },
   {
     id: 'faq12',
@@ -109,7 +109,7 @@ const faqData: FAQItem[] = [
   {
     id: 'faq20',
     question: 'How can I provide feedback about the platform?',
-    answer: 'We welcome your feedback! You can submit suggestions through the Contact Support page, email us at feedback@detachd.co.za, or use the feedback option in your account settings.',
+          answer: 'We welcome your feedback! You can submit suggestions through the Contact Support page, email us at feedback@detachd.systems, or use the feedback option in your account settings.',
   },
   {
     id: 'faq21',
@@ -205,7 +205,7 @@ export const HelpCenterPage: React.FC = () => {
         <h2 className="text-xl font-semibold text-text-on-dark-primary mb-2">Still need help?</h2>
         <p className="text-text-on-dark-secondary mb-4">If you can't find what you're looking for, feel free to contact our support team.</p>
         <p className="text-sm text-text-on-dark-secondary">
-          Contact Support at <a href="mailto:support@detachd.co.za" className="text-blue-300 hover:underline">support@detachd.co.za</a> or call us at +27 21 000 0000.
+          Contact Support at <a href="mailto:support@detachd.systems" className="text-blue-300 hover:underline">support@detachd.systems</a> or call us at +27 21 000 0000.
         </p>
       </PixelCard>
     </div>

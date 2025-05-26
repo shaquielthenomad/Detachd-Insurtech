@@ -4,7 +4,7 @@ import PixelCard from '../common/PixelCard';
 
 export const PrivacyPage: React.FC = () => {
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 bg-slate-900">
       <PageHeader 
         title="Privacy Policy" 
         subtitle="POPIA Compliant - Effective Date: January 2025"
@@ -89,9 +89,10 @@ export const PrivacyPage: React.FC = () => {
             <h2 className="text-xl font-semibold text-text-on-dark-primary mb-3">7. Contact Our Data Protection Officer</h2>
             <div className="bg-slate-700/30 p-4 rounded-lg">
               <p><strong>Data Protection Officer</strong></p>
-              <p>Detachd (Pty) Ltd</p>
+              <p>Detachd Pty Ltd</p>
+              <p>Enterprise Number: 2021/792488/07</p>
               <p>Cape Town, South Africa</p>
-              <p>Email: privacy@detachd.co.za</p>
+              <p>Email: privacy@detachd.systems</p>
               <p>Phone: +27 21 000 0000</p>
             </div>
           </section>

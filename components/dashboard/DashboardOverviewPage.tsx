@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PageHeader } from '../common/PageHeader';
 import PixelCard from '../common/PixelCard'; // Changed from Card
-import { FileTextIcon, CheckCircleIcon, PlusCircleIcon, AlertTriangleIcon, ShieldCheckIcon } from '../common/Icon';
+import { FileTextIcon, CheckCircleIcon, PlusCircleIcon, AlertTriangleIcon, ShieldCheckIcon, BellIcon } from '../common/Icon';
 import { UserRole } from '../../types';
 import { Button } from '../common/Button';
 import { ROUTES } from '../../constants';
@@ -277,15 +277,26 @@ export const DashboardOverviewPage: React.FC = () => {
       <PageHeader 
         title={isInsurer ? "Insurer Dashboard" : "My Dashboard"} 
         subtitle={isInsurer ? `Claims management overview for ${user?.name || 'Adjuster'}` : `Welcome back, ${user?.name || 'User'}!`}
-        actions={!isInsurer ? (
-          <Button 
-            variant="primary" 
-            leftIcon={<PlusCircleIcon className="h-5 w-5" />}
-            onClick={() => navigate(ROUTES.NEW_CLAIM)}
-          >
-            Start New Claim
-          </Button>
-        ) : undefined}
+        actions={
+          <div className="flex space-x-3">
+            <Button 
+              variant="ghost" 
+              leftIcon={<BellIcon className="h-5 w-5" />}
+              onClick={() => navigate(ROUTES.NOTIFICATIONS_OVERVIEW)}
+            >
+              Notifications
+            </Button>
+            {!isInsurer && (
+              <Button 
+                variant="primary" 
+                leftIcon={<PlusCircleIcon className="h-5 w-5" />}
+                onClick={() => navigate(ROUTES.NEW_CLAIM)}
+              >
+                Start New Claim
+              </Button>
+            )}
+          </div>
+        }
       />
       <Masonry 
         data={getDashboardItems()}

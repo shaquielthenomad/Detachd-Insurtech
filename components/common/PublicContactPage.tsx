@@ -138,10 +138,10 @@ export const PublicContactPage: React.FC = () => {
                     <div>
                       <p className="font-medium text-slate-200">Email</p>
                       <a 
-                        href="mailto:support@detachd.co.za" 
+                        href="mailto:support@detachd.systems" 
                         className="text-blue-400 hover:text-blue-300"
                       >
-                        support@detachd.co.za
+                        support@detachd.systems
                       </a>
                     </div>
                   </div>

@@ -162,10 +162,10 @@ export const ContactSupportPage: React.FC = () => {
                 <div>
                   <p className="text-text-on-dark-primary font-medium">Email Support</p>
                   <a 
-                    href="mailto:support@detachd.co.za" 
+                    href="mailto:support@detachd.systems" 
                     className="text-blue-400 hover:text-blue-300"
                   >
-                    support@detachd.co.za
+                    support@detachd.systems
                   </a>
                   <p className="text-xs text-text-on-dark-secondary">Response within 24 hours</p>
                 </div>
