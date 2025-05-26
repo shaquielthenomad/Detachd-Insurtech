@@ -47,19 +47,20 @@ const ClaimVerificationCertificatePage: React.FC = () => {
         const claimData = await response.json();
         setClaim(claimData);
       } else {
-        // Fallback to demo data for development
+        // Fallback to demo data - but with REALISTIC status based on claim ID
+        const isApproved = claimId?.includes('approved') || claimId?.includes('001');
         const demoData: ClaimData = {
           id: claimId,
-          status: 'approved',
+          status: isApproved ? 'approved' : 'under_review',
           claimNumber: `CLM-${claimId?.slice(-6).toUpperCase()}`,
           incidentDate: '2024-01-15',
           location: '123 Main Street, Toronto, ON',
           description: 'Vehicle collision at intersection',
           policyNumber: 'POL-2024-001',
-          approvedBy: 'Sarah Chen (Senior Adjuster)',
-          approvedDate: '2024-01-20',
-          certificateHash: 'abc123def456',
-          blockchainTxId: '0x1234567890abcdef'
+          approvedBy: isApproved ? 'Sarah Chen (Senior Adjuster)' : undefined,
+          approvedDate: isApproved ? '2024-01-20' : undefined,
+          certificateHash: isApproved ? 'abc123def456' : undefined,
+          blockchainTxId: isApproved ? '0x1234567890abcdef' : undefined
         };
         setClaim(demoData);
       }

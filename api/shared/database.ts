@@ -1,14 +1,18 @@
-import * as sql from 'mssql';
+import sql from 'mssql';
 
+// REAL Azure SQL Database Configuration from existing detachd-sql-76c5c226
 const config: sql.config = {
-  server: process.env.AZURE_SQL_SERVER || 'detachd-sql-76c5c226.database.windows.net',
-  database: process.env.AZURE_SQL_DATABASE || 'detachd-db',
-  user: process.env.AZURE_SQL_USER || 'detachdadmin',
-  password: process.env.AZURE_SQL_PASSWORD || 'DtchdKJHGFDSA#2024',
+  server: 'detachd-sql-76c5c226.database.windows.net',
+  database: 'detachd-db',
+  user: 'detachdadmin',
+  password: process.env.AZURE_SQL_PASSWORD || 'your_actual_sql_password',
+  port: 1433,
   options: {
     encrypt: true,
     trustServerCertificate: false,
     enableArithAbort: true,
+    connectionTimeout: 30000,
+    requestTimeout: 30000,
   },
   pool: {
     max: 10,

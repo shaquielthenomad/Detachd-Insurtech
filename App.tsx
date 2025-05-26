@@ -40,7 +40,6 @@ import { ReportIssuePage } from './components/help/ReportIssuePage';
 import { ClaimStatusOverviewPage } from './components/claims/ClaimStatusOverviewPage';
 import { PublicContactPage } from './components/common/PublicContactPage'; 
 import ClaimVerificationCertificatePage from './components/claims/ClaimVerificationCertificatePage';
-import { MyPolicyPage } from './components/policy/MyPolicyPage';
 import { InsuranceCodePage } from './components/onboarding/InsuranceCodePage';
 import { ThirdPartyInfoPage } from './components/onboarding/ThirdPartyInfoPage';
 import { WitnessClaimCodePage } from './components/onboarding/WitnessClaimCodePage';
@@ -116,7 +115,7 @@ const App: React.FC = () => {
         <Route path={ROUTES.NEW_CLAIM_SUCCESS} element={<ProtectedRoute><Layout><ClaimSuccessPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.CLAIM_SUCCESS} element={<ProtectedRoute><Layout><ClaimSuccessPage /></Layout></ProtectedRoute>} />
         
-        <Route path={ROUTES.MY_POLICY} element={<ProtectedRoute><Layout><MyPolicyPage /></Layout></ProtectedRoute>} />
+        <Route path={ROUTES.MY_POLICY} element={<ProtectedRoute><Layout><PolicyPlanPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.NEW_POLICY} element={<ProtectedRoute><Layout><NewPolicyPage /></Layout></ProtectedRoute>} />
 
                   <Route path={ROUTES.TASKS_OVERVIEW} element={<ProtectedRoute><Layout><TasksPage /></Layout></ProtectedRoute>} />
@@ -131,7 +130,6 @@ const App: React.FC = () => {
         
                   <Route path={ROUTES.NOTIFICATIONS_OVERVIEW} element={<ProtectedRoute><Layout><NotificationsPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.NOTIFICATIONS_SETTINGS} element={<ProtectedRoute><Layout><NotificationSettingsPage /></Layout></ProtectedRoute>} />
-        <Route path={ROUTES.POLICY_PLANS} element={<ProtectedRoute><Layout><PolicyPlanPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.NOTIFICATIONS_SUSPICIOUS_ACTIVITY} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
         
         <Route path={ROUTES.TEAM} element={<ProtectedRoute><Layout><TeamDirectoryPage /></Layout></ProtectedRoute>} />

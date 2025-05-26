@@ -52,18 +52,18 @@ export const LoginPage: React.FC = () => {
     <div className="min-h-screen bg-dark flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-text-on-dark-primary mb-2">
+          <h2 className="text-3xl font-bold text-white mb-2">
             Sign in to Detachd
           </h2>
-          <p className="text-text-on-dark-secondary">
+          <p className="text-slate-300">
             Secure insurance claim management platform
           </p>
         </div>
         
-        <div className="bg-medium rounded-lg p-8 border border-light">
+        <div className="bg-slate-900 rounded-lg p-8 border border-slate-700">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-text-on-dark-primary mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
                 Email address
               </label>
               <input
@@ -72,7 +72,7 @@ export const LoginPage: React.FC = () => {
                 type="email"
                 autoComplete="email"
                 required
-                className="w-full px-3 py-2 bg-dark border border-light rounded-md text-text-on-dark-primary placeholder-text-on-dark-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-md text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -80,7 +80,7 @@ export const LoginPage: React.FC = () => {
             </div>
             
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-text-on-dark-primary mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
                 Password
               </label>
               <input
@@ -89,7 +89,7 @@ export const LoginPage: React.FC = () => {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="w-full px-3 py-2 bg-dark border border-light rounded-md text-text-on-dark-primary placeholder-text-on-dark-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-md text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -118,7 +118,7 @@ export const LoginPage: React.FC = () => {
                 Forgot your password?
               </Link>
               <Link
-                to="/onboarding"
+                to="/onboarding/role"
                 className="text-blue-400 hover:text-blue-300 transition-colors"
               >
                 Create account
@@ -127,24 +127,24 @@ export const LoginPage: React.FC = () => {
           </form>
 
           {/* Demo Accounts Section */}
-          <div className="mt-8 pt-6 border-t border-light">
-            <h3 className="text-lg font-medium text-text-on-dark-primary mb-4">Demo Accounts</h3>
+          <div className="mt-8 pt-6 border-t border-slate-700">
+            <h3 className="text-lg font-medium text-white mb-4">Demo Accounts</h3>
             <div className="space-y-2">
               {demoAccounts.map((account, index) => (
                 <button
                   key={index}
                   onClick={() => handleDemoLogin(account.email, account.password)}
                   disabled={loading}
-                  className="w-full text-left px-4 py-3 bg-dark hover:bg-light rounded-md border border-light transition-colors disabled:opacity-50"
+                  className="w-full text-left px-4 py-3 bg-slate-800 hover:bg-slate-700 rounded-md border border-slate-600 transition-colors disabled:opacity-50"
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-text-on-dark-primary">{account.role}</span>
-                    <span className="text-xs text-text-on-dark-secondary">{account.email}</span>
+                    <span className="text-sm font-medium text-white">{account.role}</span>
+                    <span className="text-xs text-slate-400">{account.email}</span>
                   </div>
                 </button>
               ))}
             </div>
-            <p className="mt-3 text-xs text-text-on-dark-secondary">
+            <p className="mt-3 text-xs text-slate-400">
               Click any demo account to login instantly
             </p>
           </div>

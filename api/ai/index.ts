@@ -7,18 +7,23 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// Azure Cognitive Services Configuration
-const cognitiveServiceKey = process.env.AZURE_COGNITIVE_SERVICES_KEY || '';
-const cognitiveServiceEndpoint = process.env.AZURE_COGNITIVE_SERVICES_ENDPOINT || '';
-
-// OpenAI Configuration
+// Azure OpenAI Configuration from environment variables
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
+  apiKey: process.env.AZURE_OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY,
+  baseURL: process.env.AZURE_OPENAI_ENDPOINT || "https://detachd-openai.openai.azure.com/openai/deployments/gpt-4/",
+  defaultQuery: { 'api-version': '2024-02-15-preview' },
+  defaultHeaders: {
+    'api-key': process.env.AZURE_OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY,
+  },
 });
 
+// Azure Cognitive Services Configuration from environment variables
+const COGNITIVE_SERVICES_KEY = process.env.AZURE_COGNITIVE_SERVICES_KEY;
+const COGNITIVE_SERVICES_ENDPOINT = process.env.AZURE_COGNITIVE_SERVICES_ENDPOINT || "https://southafricanorth.api.cognitive.microsoft.com/";
+
 // Initialize Computer Vision client
-const cognitiveServiceCredentials = new CognitiveServicesCredentials(cognitiveServiceKey);
-const computerVisionClient = new ComputerVisionClient(cognitiveServiceCredentials, cognitiveServiceEndpoint);
+const cognitiveServiceCredentials = new CognitiveServicesCredentials(COGNITIVE_SERVICES_KEY);
+const computerVisionClient = new ComputerVisionClient(cognitiveServiceCredentials, COGNITIVE_SERVICES_ENDPOINT);
 
 interface AuthenticatedRequest extends HttpRequest {
   user?: {
@@ -30,43 +35,29 @@ interface AuthenticatedRequest extends HttpRequest {
 
 interface FraudAnalysisRequest {
   claimId: string;
-  claimType: string;
-  amountClaimed: number;
-  dateOfLoss: string;
-  description: string;
-  location: string;
-  documents: Array<{
-    id: string;
-    type: string;
+  claimDescription: string;
+  documents?: Array<{
     url: string;
+    type: 'image' | 'pdf' | 'document';
   }>;
-  userHistory: {
-    totalClaims: number;
-    recentClaims: number;
-    rejectedClaims: number;
-    averageClaimAmount: number;
+  userHistory?: {
+    previousClaims: number;
+    accountAge: number;
+    verificationStatus: string;
   };
 }
 
 interface FraudAnalysisResult {
   riskScore: number;
-  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  recommendation: 'APPROVE' | 'REVIEW' | 'REJECT';
   confidence: number;
   riskFactors: string[];
-  documentAnalysis: Array<{
-    documentId: string;
-    isAuthentic: boolean;
-    tamperingDetected: boolean;
-    confidence: number;
-    issues: string[];
-  }>;
-  textAnalysis: {
-    sentiment: number;
-    inconsistencies: string[];
-    suspiciousPatterns: string[];
+  recommendation: 'approve' | 'review' | 'reject';
+  analysis: {
+    textSentiment: number;
+    documentAuthenticity: number;
+    patternAnalysis: number;
+    userRiskProfile: number;
   };
-  aiRecommendation: string;
 }
 
 // Middleware to verify JWT token
@@ -190,7 +181,7 @@ const performComprehensiveFraudAnalysis = async (request: FraudAnalysisRequest):
   const documentAnalysis = await analyzeDocuments(request.documents);
   
   // 2. Text Analysis using OpenAI
-  const textAnalysis = await analyzeClaimText(request.description, request);
+  const textAnalysis = await analyzeClaimText(request.claimDescription, request);
   
   // 3. Pattern Analysis
   const patternAnalysis = await analyzePatterns(request);

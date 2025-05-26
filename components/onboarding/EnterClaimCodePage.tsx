@@ -28,19 +28,19 @@ export const EnterClaimCodePage: React.FC = () => {
     
     if (codeUpper.startsWith('WIT-')) {
       // Witness claim code
-      navigate(ROUTES.WITNESS_CLAIM_CODE, { state: { claimCode } });
+      navigate(ROUTES.ONBOARDING_WITNESS_CLAIM_CODE, { state: { claimCode } });
     } else if (codeUpper.startsWith('MED-')) {
       // Medical professional code
-      navigate(ROUTES.THIRD_PARTY_INFO, { state: { claimCode, userType: 'medical_professional' } });
+      navigate(ROUTES.ONBOARDING_THIRD_PARTY_INFO, { state: { claimCode, userType: 'medical_professional' } });
     } else if (codeUpper.startsWith('FR-')) {
       // First responder code
-      navigate(ROUTES.THIRD_PARTY_INFO, { state: { claimCode, userType: 'first_responder' } });
+      navigate(ROUTES.ONBOARDING_THIRD_PARTY_INFO, { state: { claimCode, userType: 'first_responder' } });
     } else if (codeUpper.startsWith('INS-')) {
       // Insurance adjuster code
-      navigate(ROUTES.INSURANCE_CODE, { state: { claimCode } });
+      navigate(ROUTES.ONBOARDING_INSURANCE_CODE, { state: { claimCode } });
     } else if (codeUpper.startsWith('POL-')) {
       // Policyholder code
-      navigate(ROUTES.THIRD_PARTY_INFO, { state: { claimCode, userType: 'policyholder' } });
+      navigate(ROUTES.ONBOARDING_THIRD_PARTY_INFO, { state: { claimCode, userType: 'policyholder' } });
     } else if (codeUpper === 'DEMO123' || codeUpper === 'VALID123') {
       // Demo codes - allow role selection
       navigate(ROUTES.ONBOARDING_ROLE_SELECTION, { state: { claimCode } });
@@ -64,19 +64,25 @@ export const EnterClaimCodePage: React.FC = () => {
             
             {/* Code format examples */}
             <div className="mb-6 p-4 bg-dark rounded-lg border border-light">
-              <p className="text-xs text-text-on-dark-secondary mb-2">Code formats:</p>
-              <div className="grid grid-cols-2 gap-2 text-xs">
+              <p className="text-xs text-text-on-dark-secondary mb-2">Code formats & examples:</p>
+              <div className="grid grid-cols-1 gap-2 text-xs">
                 <div className="text-text-on-dark-secondary">
-                  <span className="text-blue-400">WIT-</span> Witness
+                  <span className="text-blue-400">WIT-ABC123</span> - Witness
                 </div>
                 <div className="text-text-on-dark-secondary">
-                  <span className="text-green-400">MED-</span> Medical
+                  <span className="text-green-400">MED-XYZ789</span> - Medical Professional
                 </div>
                 <div className="text-text-on-dark-secondary">
-                  <span className="text-red-400">FR-</span> First Responder
+                  <span className="text-red-400">FR-DEF456</span> - First Responder
                 </div>
                 <div className="text-text-on-dark-secondary">
-                  <span className="text-purple-400">INS-</span> Insurance
+                  <span className="text-purple-400">INS-GHI123</span> - Insurance Adjuster
+                </div>
+                <div className="text-text-on-dark-secondary">
+                  <span className="text-yellow-400">POL-JKL789</span> - Policyholder
+                </div>
+                <div className="text-text-on-dark-secondary">
+                  <span className="text-cyan-400">DEMO123</span> - Demo/Testing
                 </div>
               </div>
             </div>

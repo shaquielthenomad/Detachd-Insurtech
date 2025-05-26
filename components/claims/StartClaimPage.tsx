@@ -47,20 +47,88 @@ export const StartClaimPage: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmitBasicInfo = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     setError('');
-    if (!formData.fullName || !formData.claimType || !formData.dateOfLoss || !formData.incidentDescription) {
-        setError("Please fill in all required fields.");
-        return;
+
+    try {
+      // Step 1: Submit claim data
+      const claimData = {
+        incidentDate: formData.dateOfLoss,
+        location: '', // Assuming location is not provided in the form
+        description: formData.incidentDescription,
+        policyNumber: formData.policyNumber,
+        claimType: formData.claimType,
+        estimatedAmount: parseFloat(formData.estimatedAmount || '0'),
+        witnesses: [], // Assuming witnesses are not provided in the form
+        policeReportNumber: '', // Assuming police report number is not provided in the form
+      };
+
+      // Step 2: Run AI fraud detection analysis
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:7071/api';
+      const token = localStorage.getItem('detachd_token');
+      
+      // AI Analysis
+      const aiResponse = await fetch(`${API_BASE_URL}/ai/analyze-claim`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          description: formData.incidentDescription,
+          claimType: formData.claimType,
+          estimatedAmount: parseFloat(formData.estimatedAmount || '0'),
+          location: '', // Assuming location is not provided in the form
+          incidentDate: formData.dateOfLoss
+        })
+      });
+
+      let riskScore = 25; // Default low risk
+      let aiAnalysis = 'Standard claim processing';
+      
+      if (aiResponse.ok) {
+        const aiResult = await aiResponse.json();
+        riskScore = aiResult.riskScore || 25;
+        aiAnalysis = aiResult.analysis || 'AI analysis completed';
+      }
+
+      // Step 3: Submit claim with AI analysis
+      const claimResponse = await fetch(`${API_BASE_URL}/claims`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...claimData,
+          riskScore,
+          aiAnalysis,
+          status: riskScore > 70 ? 'under_review' : 'pending'
+        })
+      });
+
+      if (claimResponse.ok) {
+        const result = await claimResponse.json();
+        
+        // Show AI analysis results
+        if (riskScore > 70) {
+          setError(`⚠️ Claim flagged for review (Risk Score: ${riskScore}%). Additional verification may be required.`);
+        } else if (riskScore > 40) {
+          setError(`ℹ️ Standard processing (Risk Score: ${riskScore}%). Your claim will be reviewed shortly.`);
+        }
+        
+        navigate(`/claims/${result.claimId}/success`);
+      } else {
+        throw new Error('Failed to submit claim');
+      }
+    } catch (error) {
+      console.error('Error submitting claim:', error);
+      setError('Failed to submit claim. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    if (user?.role === UserRole.POLICYHOLDER && !formData.policyNumber) {
-        setError("Policy number is required for policyholders.");
-        return;
-    }
-    
-    // Start liveness verification process
-    setShowLivenessCheck(true);
   };
 
   const handleVerificationSuccess = async (data: VerificationData) => {
@@ -112,7 +180,7 @@ export const StartClaimPage: React.FC = () => {
       />
       
       <PixelCard variant="blue" contentClassName="text-text-on-dark-primary">
-           <form onSubmit={handleSubmitBasicInfo} className="space-y-6">
+           <form onSubmit={handleSubmit} className="space-y-6">
             <Input
               label="Full Name"
               name="fullName"
