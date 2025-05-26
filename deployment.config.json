@@ -1,0 +1,87 @@
+{
+  "azure": {
+    "resourceGroup": "detachd-insurtech-rg",
+    "location": "South Africa North",
+    "staticWebApp": {
+      "name": "detachd-insurtech-app",
+      "sku": "Standard",
+      "customDomain": "detachd.systems"
+    },
+    "sqlDatabase": {
+      "server": "detachd-sql-76c5c226.database.windows.net",
+      "database": "detachd-db",
+      "user": "detachdadmin"
+    },
+    "storage": {
+      "account": "detachdstorage",
+      "containers": ["documents", "certificates", "backups"]
+    },
+    "functions": {
+      "name": "detachd-api-functions",
+      "runtime": "node",
+      "version": "18"
+    }
+  },
+  "company": {
+    "name": "Detachd Pty Ltd",
+    "enterpriseNumber": "2021/792488/07",
+    "founded": "2021",
+    "email": "support@detachd.systems",
+    "phone": "+27 21 123 4567",
+    "address": "Cape Town, South Africa",
+    "founder": {
+      "name": "Shaquiel Sewell",
+      "email": "shaquiel@detachd.systems"
+    },
+    "description": "Detachd is an AI-powered insurtech startup revolutionizing fraud prevention in South Africa's $40 billion insurance market, tackling $500M–$1B in annual losses from fraudulent claims..."
+  },
+  "features": {
+    "aiPoweredFraudDetection": true,
+    "blockchainVerification": true,
+    "realTimeProcessing": true,
+    "multiStakeholderPlatform": true,
+    "southAfricanCompliance": true
+  },
+  "deployment": {
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "apiDirectory": "api",
+    "environmentVariables": [
+      "AZURE_SQL_SERVER",
+      "AZURE_SQL_DATABASE", 
+      "AZURE_SQL_USER",
+      "AZURE_SQL_PASSWORD",
+      "AZURE_STORAGE_ACCOUNT",
+      "AZURE_STORAGE_KEY",
+      "JWT_SECRET",
+      "JWT_REFRESH_SECRET",
+      "AZURE_COMMUNICATION_CONNECTION_STRING",
+      "AZURE_COGNITIVE_SERVICES_KEY",
+      "AZURE_COGNITIVE_SERVICES_ENDPOINT",
+      "OPENAI_API_KEY",
+      "AZURE_APPINSIGHTS_INSTRUMENTATIONKEY"
+    ]
+  },
+  "azureServices": {
+    "cognitiveServices": {
+      "name": "detachd-cognitive-services",
+      "sku": "S0",
+      "kind": "ComputerVision",
+      "location": "South Africa North"
+    },
+    "openAI": {
+      "name": "detachd-openai",
+      "sku": "S0",
+      "models": ["gpt-4", "gpt-3.5-turbo"],
+      "location": "South Africa North"
+    },
+    "applicationInsights": {
+      "name": "detachd-app-insights",
+      "location": "South Africa North"
+    },
+    "communicationServices": {
+      "name": "detachd-communication",
+      "location": "Global"
+    }
+  }
+} 

@@ -1,10 +1,15 @@
 
 export enum UserRole {
+  SUPER_ADMIN = 'Super Admin',
   POLICYHOLDER = 'Policyholder',
   THIRD_PARTY = 'Third Party',
   WITNESS = 'Witness',
   RESPONDER = 'Responder', // e.g. Police, Fire
   INSURER_PARTY = 'Insurer Party', // e.g. Claims Adjuster, Admin
+  INSURER_ADMIN = 'Insurer Admin',
+  INSURER_AGENT = 'Insurer Agent',
+  MEDICAL_PROFESSIONAL = 'Medical Professional',
+  LEGAL_PROFESSIONAL = 'Legal Professional',
   GOVERNMENT_OFFICIAL = 'Government Official'
 }
 

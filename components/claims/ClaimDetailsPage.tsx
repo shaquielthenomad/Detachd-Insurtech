@@ -320,13 +320,26 @@ export const ClaimDetailsPage: React.FC = () => {
                 </div>
               )}
             </div>
-             <div className="mt-4 border-t border-slate-700 pt-4">
-                <Link to={`${ROUTES.CLAIMS}/${claim.id}/certificate`}>
-                    <Button variant="outline" className="border-blue-400 text-blue-300 hover:bg-blue-700/30" leftIcon={<ShieldCheckIcon className="w-4 h-4"/>}>
-                        View Verification Certificate
-                    </Button>
-                </Link>
-            </div>
+             {claim.status === ClaimStatus.APPROVED && (
+               <div className="mt-4 border-t border-slate-700 pt-4">
+                  <Link to={`${ROUTES.CLAIMS}/${claim.id}/certificate`}>
+                      <Button variant="outline" className="border-blue-400 text-blue-300 hover:bg-blue-700/30" leftIcon={<ShieldCheckIcon className="w-4 h-4"/>}>
+                          View Verification Certificate
+                      </Button>
+                  </Link>
+              </div>
+             )}
+             
+             {claim.status !== ClaimStatus.APPROVED && (
+               <div className="mt-4 border-t border-slate-700 pt-4">
+                 <div className="p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+                   <p className="text-yellow-300 text-sm">
+                     <Icon name="clock" className="h-4 w-4 inline mr-2" />
+                     Certificate will be available once claim is approved
+                   </p>
+                 </div>
+               </div>
+             )}
           </PixelCard>
 
           <PixelCard 

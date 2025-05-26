@@ -17,6 +17,7 @@ interface ClaimFormData {
   claimType: string;
   dateOfLoss: string;
   incidentDescription: string;
+  thirdPartyAccessCode?: string;
 }
 
 interface VerificationData {
@@ -33,6 +34,7 @@ export const StartClaimPage: React.FC = () => {
     claimType: '',
     dateOfLoss: '',
     incidentDescription: '',
+    thirdPartyAccessCode: '',
   });
   const [currentStep, setCurrentStep] = useState(1); // Step management will be simple for now
   const [isLoading, setIsLoading] = useState(false);
@@ -162,6 +164,16 @@ export const StartClaimPage: React.FC = () => {
               rows={5}
               // Labels inside PixelCard need to be light
               containerClassName="[&>label]:text-text-on-dark-secondary"
+            />
+            
+            <Input
+              label="Third Party Access Code (Optional)"
+              name="thirdPartyAccessCode"
+              value={formData.thirdPartyAccessCode}
+              onChange={handleChange}
+              placeholder="Enter access code if provided by witness/third party"
+              containerClassName="[&>label]:text-text-on-dark-secondary"
+              helperText="If you received an access code from a witness or involved party, enter it here to link their information to your claim."
             />
              {error && <p className="text-sm text-red-400">{error}</p>}
             <div className="flex justify-end pt-2">

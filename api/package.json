@@ -1,0 +1,35 @@
+{
+  "name": "detachd-api",
+  "version": "1.0.0",
+  "description": "Detachd Insurtech Platform API - Azure Functions",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "prestart": "npm run build",
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "@azure/communication-email": "^1.0.0",
+    "@azure/functions": "^4.0.0",
+    "@azure/storage-blob": "^12.17.0",
+    "@azure/cognitiveservices-computervision": "^8.2.0",
+    "@azure/ms-rest-azure-js": "^2.1.0",
+    "openai": "^4.20.1",
+    "bcryptjs": "^2.4.3",
+    "crypto": "^1.0.1",
+    "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "mssql": "^11.0.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.2",
+    "azure-functions-core-tools": "^4.0.5455",
+    "typescript": "^5.0.0"
+  }
+}

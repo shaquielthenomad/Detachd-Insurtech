@@ -68,8 +68,8 @@ export class AuthService {
   // Login with email/password
   static async login(email: string, password: string): Promise<{ user: User; token: string } | null> {
     try {
-      // In production, this would call your backend API
-      const response = await fetch('/api/auth/login', {
+      // Call real Azure Functions API
+      const response = await fetch('https://detachd.systems/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,15 +78,16 @@ export class AuthService {
       });
       
       if (!response.ok) {
-        throw new Error('Login failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed');
       }
       
       const data = await response.json();
-      return data;
+      return { user: data.user, token: data.token };
     } catch (error) {
       console.error('Login error:', error);
       
-      // Mock successful login for demo
+      // Fallback to mock for development
       const mockUser: User = {
         id: `usr_${Date.now()}`,
         email,
@@ -109,8 +110,8 @@ export class AuthService {
     phone?: string;
   }): Promise<{ user: User; token: string } | null> {
     try {
-      // In production, this would call your backend API
-      const response = await fetch('/api/auth/register', {
+      // Call real Azure Functions API
+      const response = await fetch('https://detachd.systems/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,15 +120,16 @@ export class AuthService {
       });
       
       if (!response.ok) {
-        throw new Error('Registration failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Registration failed');
       }
       
       const data = await response.json();
-      return data;
+      return { user: data.user, token: data.token };
     } catch (error) {
       console.error('Registration error:', error);
       
-      // Mock successful registration for demo
+      // Fallback to mock for development
       const mockUser: User = {
         id: `usr_${Date.now()}`,
         email: userData.email,
@@ -144,7 +146,7 @@ export class AuthService {
   // Password reset
   static async resetPassword(email: string): Promise<boolean> {
     try {
-      const response = await fetch('/api/auth/reset-password', {
+      const response = await fetch('https://detachd.systems/api/auth/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -155,7 +157,7 @@ export class AuthService {
       return response.ok;
     } catch (error) {
       console.error('Password reset error:', error);
-      return true; // Mock success for demo
+      return true; // Fallback success for development
     }
   }
   

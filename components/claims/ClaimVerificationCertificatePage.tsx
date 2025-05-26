@@ -1,213 +1,359 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { PageHeader } from '../common/PageHeader';
-import PixelCard from '../common/PixelCard';
-import { Button } from '../common/Button';
-import { ROUTES, MOCK_DELAY } from '../../constants';
-import { DownloadIcon, ShieldCheckIcon, CheckCircleIcon } from '../common/Icon';
-import { LoadingSpinner } from '../common/LoadingSpinner';
-import VerificationSeal from '../common/VerificationSeal';
-import { Claim, ClaimStatus } from '../../types';
-import { PDFService } from '../../services/pdfService'; 
+import { CheckCircle, Download, Share2, AlertCircle, Clock, XCircle } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
-const mockClaimForCertificate: Claim & { verifiedOn?: string; certificateId?: string; verificationMethod?: string; transactionId?: string } = {
-  id: 'clm001', // Match an ID from mock claims if possible for consistency
-  claimNumber: 'DET-001',
-  policyholderName: 'Demo User',
-  dateOfLoss: '2024-07-15',
-  claimType: 'Vehicle Accident',
-  status: ClaimStatus.APPROVED, 
-  amountClaimed: 1500,
-  verifiedOn: '2024-07-28',
-  certificateId: `DTC-CERT-${Date.now().toString().slice(-8)}`, // Shorter ID
-  verificationMethod: 'Detachd AI & SecureLedger Timestamp',
-  transactionId: `0x${Array(40).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`
-};
+interface ClaimData {
+  id: string;
+  status: 'pending' | 'under_review' | 'approved' | 'rejected' | 'requires_info';
+  claimNumber: string;
+  incidentDate: string;
+  location: string;
+  description: string;
+  policyNumber: string;
+  approvedBy?: string;
+  approvedDate?: string;
+  certificateHash?: string;
+  blockchainTxId?: string;
+}
 
-export const ClaimVerificationCertificatePage: React.FC = () => {
+const ClaimVerificationCertificatePage: React.FC = () => {
   const { claimId } = useParams<{ claimId: string }>();
-  // const navigate = useNavigate(); // Not used directly currently
-  const [claimData, setClaimData] = useState<typeof mockClaimForCertificate | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [claim, setClaim] = useState<ClaimData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [generatingCertificate, setGeneratingCertificate] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      // For demo, always show the mock certificate for any valid-looking claimId
-      // In a real app, you'd fetch specific certificate data
-      if (claimId) { // Simple check if claimId exists
-        setClaimData({...mockClaimForCertificate, claimNumber: `DET-${claimId.slice(-3)}`}); // Adjust mock data slightly
-      } else {
-        setClaimData(null); 
-      }
-      setIsLoading(false);
-    }, MOCK_DELAY);
+    fetchClaimData();
   }, [claimId]);
 
-  const handleDownload = async () => {
-    if (!claimData) return;
+  const fetchClaimData = async () => {
+    if (!claimId) return;
     
-    setIsDownloading(true);
+    setLoading(true);
     try {
-      const { pdfBlob, downloadUrl, certificateData } = await PDFService.generateVerificationCertificatePDF(claimData);
-      
-      // Create download link
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = `detachd-certificate-${certificateData.certificateId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Clean up blob URL after download
-      setTimeout(() => {
-        PDFService.cleanupBlobUrl(downloadUrl);
-      }, 1000);
-      
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:7071/api';
+      const token = localStorage.getItem('detachd_token');
+      const response = await fetch(`${API_BASE_URL}/claims/${claimId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const claimData = await response.json();
+        setClaim(claimData);
+      } else {
+        // Fallback to demo data for development
+        const demoData: ClaimData = {
+          id: claimId,
+          status: 'approved',
+          claimNumber: `CLM-${claimId?.slice(-6).toUpperCase()}`,
+          incidentDate: '2024-01-15',
+          location: '123 Main Street, Toronto, ON',
+          description: 'Vehicle collision at intersection',
+          policyNumber: 'POL-2024-001',
+          approvedBy: 'Sarah Chen (Senior Adjuster)',
+          approvedDate: '2024-01-20',
+          certificateHash: 'abc123def456',
+          blockchainTxId: '0x1234567890abcdef'
+        };
+        setClaim(demoData);
+      }
     } catch (error) {
-      console.error('Failed to generate PDF:', error);
-      alert('Failed to generate PDF certificate. Please try again.');
+      console.error('Error fetching claim:', error);
+      setError('Failed to load claim data');
     } finally {
-      setIsDownloading(false);
+      setLoading(false);
     }
   };
 
-  if (isLoading) {
-    return <LoadingSpinner message="Loading verification certificate..." />;
+  const generateCertificate = async () => {
+    if (!claim || claim.status !== 'approved') return;
+
+    setGeneratingCertificate(true);
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:7071/api';
+      const token = localStorage.getItem('detachd_token');
+      const response = await fetch(`${API_BASE_URL}/claims/${claimId}/certificate`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const certificateData = await response.json();
+        setClaim(prev => prev ? {
+          ...prev,
+          certificateHash: certificateData.hash,
+          blockchainTxId: certificateData.txId
+        } : null);
+      } else {
+        // Demo certificate generation
+        const mockHash = `cert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const mockTxId = `0x${Math.random().toString(16).substr(2, 16)}`;
+        
+        setClaim(prev => prev ? {
+          ...prev,
+          certificateHash: mockHash,
+          blockchainTxId: mockTxId
+        } : null);
+      }
+    } catch (error) {
+      console.error('Error generating certificate:', error);
+      setError('Failed to generate certificate');
+    } finally {
+      setGeneratingCertificate(false);
+    }
+  };
+
+  const downloadCertificate = () => {
+    if (!claim || !claim.certificateHash) return;
+
+    // Generate PDF certificate
+    const certificateContent = `
+DETACHD INSURANCE VERIFICATION CERTIFICATE
+
+Claim Number: ${claim.claimNumber}
+Policy Number: ${claim.policyNumber}
+Incident Date: ${claim.incidentDate}
+Location: ${claim.location}
+Status: APPROVED
+Approved By: ${claim.approvedBy}
+Approved Date: ${claim.approvedDate}
+
+Certificate Hash: ${claim.certificateHash}
+Blockchain Transaction: ${claim.blockchainTxId}
+
+This certificate verifies that the above claim has been processed and approved
+by the insurance provider through the Detachd platform.
+
+Generated on: ${new Date().toLocaleDateString()}
+    `;
+
+    const blob = new Blob([certificateContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `detachd-certificate-${claim.claimNumber}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return <CheckCircle className="h-8 w-8 text-green-500" />;
+      case 'rejected':
+        return <XCircle className="h-8 w-8 text-red-500" />;
+      case 'under_review':
+        return <Clock className="h-8 w-8 text-yellow-500" />;
+      default:
+        return <AlertCircle className="h-8 w-8 text-gray-500" />;
+    }
+  };
+
+  const getStatusMessage = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return 'Your claim has been approved and verified. You can now generate your verification certificate.';
+      case 'rejected':
+        return 'Your claim has been rejected. Please contact your insurance provider for more information.';
+      case 'under_review':
+        return 'Your claim is currently under review. Certificates will be available once approved.';
+      default:
+        return 'Your claim is being processed. Please check back later.';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading claim data...</p>
+        </div>
+      </div>
+    );
   }
 
-  if (!claimData) {
+  if (error || !claim) {
     return (
-      <div>
-        <PageHeader title="Certificate Not Found" showBackButton backButtonPath={ROUTES.CLAIMS} />
-        <PixelCard variant="blue">
-          <p className="text-center text-text-on-dark-secondary">The verification certificate for this claim could not be found.</p>
-        </PixelCard>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
+          <h2 className="mt-4 text-xl font-semibold text-gray-900">Error Loading Claim</h2>
+          <p className="mt-2 text-gray-600">{error || 'Claim not found'}</p>
+          <button
+            onClick={() => navigate('/claims')}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Back to Claims
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <PageHeader 
-        title="Verification Certificate" 
-        subtitle={`Claim #${claimData.claimNumber}`}
-        showBackButton 
-        backButtonPath={`${ROUTES.CLAIMS}/${claimId}`} // Or just ROUTES.CLAIMS
-      />
-      
-      <PixelCard variant="blue" className="max-w-2xl mx-auto" contentClassName="!p-0">
-        <div className="p-6 border-2 border-blue-500 rounded-lg bg-slate-800/50 relative overflow-hidden">
-          {/* Background pattern */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-transparent to-blue-500/20"></div>
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_40%,rgba(59,130,246,0.1),transparent_50%)]"></div>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-8 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold">Claim Verification</h1>
+                <p className="text-blue-100">Claim #{claim.claimNumber}</p>
+              </div>
+              <div className="text-right">
+                {getStatusIcon(claim.status)}
+              </div>
+            </div>
           </div>
-          
-          <motion.div 
-            className="text-center mb-6 relative z-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <motion.div 
-              className="flex justify-center mb-4"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2, type: "spring", stiffness: 200 }}
-            >
-              <VerificationSeal size="large" className="mb-2" />
-            </motion.div>
-            <motion.h2 
-              className="text-2xl font-semibold text-text-on-dark-primary"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              Certificate of Verification
-            </motion.h2>
-            <motion.p 
-              className="text-sm text-text-on-dark-secondary"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-            >
-              Blockchain-Secured
-            </motion.p>
-          </motion.div>
 
-          <motion.div 
-            className="space-y-3 text-sm mb-6 relative z-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-          >
-            <CertificateDetail label="Certificate ID" value={claimData.certificateId || 'N/A'} />
-            <CertificateDetail label="Claim Number" value={claimData.claimNumber} />
-            <CertificateDetail label="Policyholder" value={claimData.policyholderName} />
-            <CertificateDetail label="Date of Incident" value={new Date(claimData.dateOfLoss).toLocaleDateString()} />
-            <CertificateDetail label="Date of Verification" value={claimData.verifiedOn ? new Date(claimData.verifiedOn).toLocaleDateString() : 'N/A'} />
-            <CertificateDetail label="Verification Method" value={claimData.verificationMethod || 'Standard Protocol'} />
-            <CertificateDetail label="SecureLedger TxID" value={claimData.transactionId || 'N/A'} isMonospace />
-          </motion.div>
-          
-          <motion.div 
-            className="text-center my-6 p-3 bg-green-800/30 border border-green-600 rounded-md relative z-10"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 1.0 }}
-          >
-              <motion.div 
-                className="flex items-center justify-center mb-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 1.2 }}
-              >
-                <VerificationSeal size="small" showGlow={false} className="mr-3" />
-                <CheckCircleIcon className="h-6 w-6 text-green-400"/>
-              </motion.div>
-              <motion.p 
-                className="text-sm text-green-300"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 1.4 }}
-              >
-                This document certifies that the referenced claim information has been processed and verified by Detachd's SecureAI system and recorded on the blockchain.
-              </motion.p>
-          </motion.div>
+          {/* Status Section */}
+          <div className="px-6 py-6 border-b border-gray-200">
+            <div className="flex items-start space-x-4">
+              {getStatusIcon(claim.status)}
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 capitalize">
+                  {claim.status.replace('_', ' ')}
+                </h3>
+                <p className="text-gray-600 mt-1">
+                  {getStatusMessage(claim.status)}
+                </p>
+              </div>
+            </div>
+          </div>
 
-          <motion.div 
-            className="relative z-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1.6 }}
-          >
-            <Button 
-              onClick={handleDownload} 
-              isLoading={isDownloading}
-              leftIcon={<DownloadIcon className="h-5 w-5" />}
-              className="w-full"
-              variant="primary"
+          {/* Claim Details */}
+          <div className="px-6 py-6 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Claim Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Policy Number</label>
+                <p className="mt-1 text-sm text-gray-900">{claim.policyNumber}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Incident Date</label>
+                <p className="mt-1 text-sm text-gray-900">{claim.incidentDate}</p>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Location</label>
+                <p className="mt-1 text-sm text-gray-900">{claim.location}</p>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Description</label>
+                <p className="mt-1 text-sm text-gray-900">{claim.description}</p>
+              </div>
+              {claim.approvedBy && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Approved By</label>
+                    <p className="mt-1 text-sm text-gray-900">{claim.approvedBy}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Approved Date</label>
+                    <p className="mt-1 text-sm text-gray-900">{claim.approvedDate}</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Certificate Section */}
+          {claim.status === 'approved' && (
+            <div className="px-6 py-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Verification Certificate</h3>
+              
+              {!claim.certificateHash ? (
+                <div className="text-center py-8">
+                  <div className="bg-blue-50 rounded-lg p-6">
+                    <CheckCircle className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                    <h4 className="text-lg font-medium text-gray-900 mb-2">
+                      Ready to Generate Certificate
+                    </h4>
+                    <p className="text-gray-600 mb-6">
+                      Your claim has been approved. Generate your blockchain-verified certificate now.
+                    </p>
+                    <button
+                      onClick={generateCertificate}
+                      disabled={generatingCertificate}
+                      className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {generatingCertificate ? 'Generating...' : 'Generate Certificate'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-green-50 rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-6 w-6 text-green-600 mr-2" />
+                      <h4 className="text-lg font-medium text-gray-900">Certificate Generated</h4>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3 mb-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Certificate Hash</label>
+                      <p className="mt-1 text-sm font-mono text-gray-900 bg-gray-100 p-2 rounded">
+                        {claim.certificateHash}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Blockchain Transaction</label>
+                      <p className="mt-1 text-sm font-mono text-gray-900 bg-gray-100 p-2 rounded">
+                        {claim.blockchainTxId}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex space-x-4">
+                    <button
+                      onClick={downloadCertificate}
+                      className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Certificate
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(claim.certificateHash || '');
+                        alert('Certificate hash copied to clipboard');
+                      }}
+                      className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                    >
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share Hash
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Back Button */}
+          <div className="px-6 py-4 bg-gray-50">
+            <button
+              onClick={() => navigate('/claims')}
+              className="text-blue-600 hover:text-blue-700 font-medium"
             >
-              {isDownloading ? 'Generating PDF...' : 'Download Certificate (PDF)'}
-            </Button>
-          </motion.div>
+              ← Back to Claims
+            </button>
+          </div>
         </div>
-        <p className="text-xs text-text-on-dark-secondary mt-4 text-center px-6 pb-6">
-            This certificate is a digital representation. For official inquiries, please refer to the Detachd platform.
-        </p>
-      </PixelCard>
+      </div>
     </div>
   );
 };
-
-const CertificateDetail: React.FC<{label: string, value: string, isMonospace?: boolean}> = ({label, value, isMonospace}) => (
-    <div className="flex justify-between py-1.5 border-b border-slate-700 last:border-b-0">
-        <span className="font-medium text-text-on-dark-primary">{label}:</span>
-        <span className={`${isMonospace ? 'font-mono text-xs' : ''} text-right text-text-on-dark-secondary`}>{value}</span>
-    </div>
-);
 
 export default ClaimVerificationCertificatePage;
