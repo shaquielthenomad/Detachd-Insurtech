@@ -130,6 +130,27 @@ const VARIANTS = {
     colors: "#93c5fd,#60a5fa,#3b82f6", // Tailwind blue-300, blue-400, blue-500
     noFocus: false
   },
+  yellow: { // For warnings and pending items
+    activeColor: "#fef3c7", // Tailwind yellow-100
+    gap: 6,
+    speed: 40,
+    colors: "#fbbf24,#f59e0b,#d97706", // Tailwind yellow-400, yellow-500, yellow-600
+    noFocus: false
+  },
+  green: { // For success states
+    activeColor: "#d1fae5", // Tailwind green-100
+    gap: 6,
+    speed: 35,
+    colors: "#34d399,#10b981,#059669", // Tailwind green-400, green-500, green-600
+    noFocus: false
+  },
+  red: { // For errors and critical states
+    activeColor: "#fee2e2", // Tailwind red-100
+    gap: 6,
+    speed: 45,
+    colors: "#f87171,#ef4444,#dc2626", // Tailwind red-400, red-500, red-600
+    noFocus: false
+  },
   pink: { // Kept from example, can be removed if not needed
     activeColor: "#fecdd3",
     gap: 6,

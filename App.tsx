@@ -206,11 +206,11 @@ const App: React.FC = () => {
         <Route path={ROUTES.HELP_REPORT_ISSUE} element={<ProtectedRoute><Layout><ReportIssuePage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.HELP_MESSAGES} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
         
-        {/* Witness - minimal claim view, no dashboard */}
+        {/* Witness Claims - accessible through dashboard or direct link */}
         <Route path="/witness/claims" element={
           <ProtectedRoute>
             <RoleGuard allowedRoles={['witness', 'third_party']}>
-              <WitnessClaimPage />
+              <Layout><WitnessClaimPage /></Layout>
             </RoleGuard>
           </ProtectedRoute>
         } />
@@ -232,6 +232,9 @@ const App: React.FC = () => {
             </RoleGuard>
           </ProtectedRoute>
         } />
+        
+        {/* Direct certificate test route */}
+        <Route path="/test-certificate" element={<ProtectedRoute><Layout><ClaimVerificationCertificatePage /></Layout></ProtectedRoute>} />
         
         {/* Fallback Route */}
         <Route path="*" element={<Navigate to={ROUTES.WELCOME} replace />} />

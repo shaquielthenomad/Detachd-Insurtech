@@ -82,28 +82,79 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:7071/api';
-      
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
-      const data = await response.json();
-      
-      if (data.success && data.token && data.user) {
-        localStorage.setItem('detachd_token', data.token);
-        if (data.refreshToken) {
-          localStorage.setItem('detachd_refresh_token', data.refreshToken);
+      // Demo authentication - no API needed!
+      const demoAccounts = {
+        'admin@detachd.com': { 
+          password: 'admin123', 
+          user: { 
+            id: '1', 
+            email: 'admin@detachd.com', 
+            name: 'Super Admin', 
+            role: 'super_admin',
+            avatarUrl: 'https://ui-avatars.com/api/?name=Super+Admin&background=1e40af&color=fff'
+          }
+        },
+        'insurer@detachd.com': { 
+          password: 'insurer123', 
+          user: { 
+            id: '2', 
+            email: 'insurer@detachd.com', 
+            name: 'Insurer Admin', 
+            role: 'insurer_admin',
+            avatarUrl: 'https://ui-avatars.com/api/?name=Insurer+Admin&background=059669&color=fff'
+          }
+        },
+        'policyholder@detachd.com': { 
+          password: 'policy123', 
+          user: { 
+            id: '3', 
+            email: 'policyholder@detachd.com', 
+            name: 'John Policyholder', 
+            role: 'policyholder',
+            avatarUrl: 'https://ui-avatars.com/api/?name=John+Policyholder&background=3b82f6&color=fff'
+          }
+        },
+        'witness@detachd.com': { 
+          password: 'witness123', 
+          user: { 
+            id: '4', 
+            email: 'witness@detachd.com', 
+            name: 'Jane Witness', 
+            role: 'witness',
+            avatarUrl: 'https://ui-avatars.com/api/?name=Jane+Witness&background=f59e0b&color=fff'
+          }
+        },
+        'doctor@detachd.com': { 
+          password: 'doctor123', 
+          user: { 
+            id: '5', 
+            email: 'doctor@detachd.com', 
+            name: 'Dr. Smith', 
+            role: 'medical_professional',
+            avatarUrl: 'https://ui-avatars.com/api/?name=Dr+Smith&background=ef4444&color=fff'
+          }
         }
-        setUser(data.user);
-        
-        // Redirect to role-based route instead of dashboard
-        window.location.href = '/redirect';
-      } else {
-        throw new Error(data.message || 'Login failed');
+      };
+
+      const account = demoAccounts[email as keyof typeof demoAccounts];
+      
+      if (!account || account.password !== password) {
+        throw new Error('Invalid email or password');
       }
+
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const user = account.user;
+      const token = 'demo_token';
+
+      localStorage.setItem('detachd_token', token);
+      localStorage.setItem('detachd_user', JSON.stringify(user));
+      setUser(user);
+      
+      // Redirect to role-based route
+      window.location.href = '#/redirect';
+      
     } catch (error) {
       console.error('Login error:', error);
       throw error;

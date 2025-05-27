@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PixelCard } from '../common/PixelCard';
+import PixelCard from '../common/PixelCard';
 import { PageHeader } from '../common/PageHeader';
 import { 
   ShieldCheckIcon, 

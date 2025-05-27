@@ -5,7 +5,7 @@ import PixelCard from '../common/PixelCard';
 import { Button } from '../common/Button';
 import { Claim, ClaimStatus } from '../../types';
 import { ROUTES } from '../../constants';
-import { PlusCircleIcon, ChevronRightIcon, FileTextIcon } from '../common/Icon'; 
+import { PlusCircleIcon, ChevronRightIcon, FileTextIcon, DownloadIcon, CheckCircleIcon } from '../common/Icon'; 
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -50,6 +50,7 @@ export const MyClaimsPage: React.FC = () => {
     <div>
       <PageHeader 
         title="My Claims" 
+        subtitle={`${claims.length} total claims • ${claims.filter(c => c.status === ClaimStatus.APPROVED).length} approved`}
         actions={
           <Link to={ROUTES.NEW_CLAIM}>
             <Button variant="primary" leftIcon={<PlusCircleIcon className="h-5 w-5" />}>
@@ -77,37 +78,86 @@ export const MyClaimsPage: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {claims.map((claim) => (
-            <PixelCard key={claim.id} variant="blue" className="hover:border-blue-400 transition-colors" onClick={() => { /* Navigate to claim details */ }}>
-               <Link to={`${ROUTES.CLAIMS}/${claim.id}`} className="block p-1 text-text-on-dark-primary">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold text-blue-300 hover:underline">
-                      Claim #{claim.claimNumber}
-                    </h3>
-                    <p className="text-sm text-text-on-dark-secondary">{claim.claimType}</p>
+            <PixelCard key={claim.id} variant="blue" className="hover:border-blue-400 transition-colors">
+              <div className="p-1">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex-1">
+                    <Link to={`${ROUTES.CLAIMS}/${claim.id}`} className="block">
+                      <h3 className="text-lg font-semibold text-blue-300 hover:underline">
+                        Claim #{claim.claimNumber}
+                      </h3>
+                      <p className="text-sm text-text-on-dark-secondary">{claim.claimType}</p>
+                    </Link>
                   </div>
-                  <ChevronRightIcon className="h-6 w-6 text-text-on-dark-secondary" />
+                  <div className="flex items-center space-x-3">
+                    {claim.status === ClaimStatus.APPROVED && (
+                      <>
+                        <Link 
+                          to="/test-certificate"
+                          className="flex items-center px-3 py-2 bg-green-700/30 text-green-300 rounded-md hover:bg-green-700/50 transition-colors border border-green-500/50"
+                          title="Download Certificate"
+                        >
+                          <CheckCircleIcon className="h-4 w-4 mr-2" />
+                          <span className="text-sm font-medium">Certificate</span>
+                        </Link>
+                      </>
+                    )}
+                    <Link to={`${ROUTES.CLAIMS}/${claim.id}`} className="text-text-on-dark-secondary hover:text-blue-300">
+                      <ChevronRightIcon className="h-6 w-6" />
+                    </Link>
+                  </div>
                 </div>
-                <div className="mt-2 sm:flex sm:justify-between">
-                  <div className="sm:flex">
-                    <p className="flex items-center text-sm text-text-on-dark-secondary">
-                      Date of Loss: {new Date(claim.dateOfLoss).toLocaleDateString()}
-                    </p>
+                
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex flex-wrap gap-4 text-sm text-text-on-dark-secondary">
+                    <div className="flex items-center">
+                      <span className="font-medium mr-1">Date:</span>
+                      {new Date(claim.dateOfLoss).toLocaleDateString()}
+                    </div>
                     {claim.amountClaimed && (
-                      <p className="mt-2 flex items-center text-sm text-text-on-dark-secondary sm:mt-0 sm:ml-6">
-                        Amount: R {claim.amountClaimed.toLocaleString()}
-                      </p>
+                      <div className="flex items-center">
+                        <span className="font-medium mr-1">Amount:</span>
+                        R {claim.amountClaimed.toLocaleString()}
+                      </div>
                     )}
                   </div>
-                  <div className="mt-2 flex items-center text-sm sm:mt-0">
-                     <span className={`px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusBadgeStyles(claim.status)}`}>
-                        {claim.status}
-                      </span>
+                  <div className="flex items-center space-x-3">
+                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusBadgeStyles(claim.status)}`}>
+                      {claim.status}
+                    </span>
                   </div>
                 </div>
-              </Link>
+              </div>
             </PixelCard>
           ))}
+          
+          {/* Quick Stats */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <PixelCard variant="blue" className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-400">
+                  {claims.filter(c => c.status === ClaimStatus.APPROVED).length}
+                </div>
+                <div className="text-sm text-text-on-dark-secondary">Approved Claims</div>
+              </div>
+            </PixelCard>
+            <PixelCard variant="blue" className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-400">
+                  {claims.filter(c => c.status === ClaimStatus.IN_REVIEW).length}
+                </div>
+                <div className="text-sm text-text-on-dark-secondary">Under Review</div>
+              </div>
+            </PixelCard>
+            <PixelCard variant="blue" className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-400">
+                  R {claims.filter(c => c.status === ClaimStatus.APPROVED).reduce((sum, claim) => sum + (claim.amountClaimed || 0), 0).toLocaleString()}
+                </div>
+                <div className="text-sm text-text-on-dark-secondary">Total Approved</div>
+              </div>
+            </PixelCard>
+          </div>
         </div>
       )}
     </div>

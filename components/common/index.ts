@@ -10,6 +10,7 @@ export { LoadingSpinner } from './LoadingSpinner';
 export { default as Masonry } from './Masonry';
 export { PageHeader } from './PageHeader';
 export { default as PixelCard } from './PixelCard';
+export { default } from './PixelCard';
 export { PlaceholderPage } from './PlaceholderPage';
 export { Select } from './Select';
 export { Textarea } from './Textarea';

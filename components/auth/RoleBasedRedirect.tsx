@@ -23,11 +23,11 @@ export const RoleBasedRedirect: React.FC<RoleBasedRedirectProps> = ({ fallbackRo
         case 'policyholder':
           return '/dashboard'; // Policyholder gets full dashboard
         case 'witness':
-          return '/witness/claims'; // Witness gets minimal claim view
+          return '/dashboard'; // Witness gets witness-specific dashboard view
         case 'medical_professional':
           return '/medical/join-claim'; // Medical pro gets QR scanner
         case 'third_party':
-          return '/witness/claims'; // Third party similar to witness
+          return '/dashboard'; // Third party gets dashboard
         default:
           return fallbackRoute;
       }
