@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
@@ -47,6 +46,8 @@ import { InsurerDepartmentPage } from './components/onboarding/InsurerDepartment
 import { LogoutSuccessPage } from './components/auth/LogoutSuccessPage';
 import { NewPolicyPage } from './components/policy/NewPolicyPage';
 import PolicyDetailsPage from './components/policy/PolicyDetailsPage';
+import { WitnessClaimPage } from './components/claims/WitnessClaimPage';
+import { MedicalProClaimJoinPage } from './components/claims/MedicalProClaimJoinPage';
 
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -153,6 +154,11 @@ const App: React.FC = () => {
                   <Route path={ROUTES.HELP_CONTACT_SUPPORT} element={<ProtectedRoute><Layout><ContactSupportPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.HELP_REPORT_ISSUE} element={<ProtectedRoute><Layout><ReportIssuePage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.HELP_MESSAGES} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
+        
+        {/* Witness - minimal claim view, no dashboard */}
+        <Route path="/witness/claims" element={<ProtectedRoute><WitnessClaimPage /></ProtectedRoute>} />
+        {/* Medical Professional - QR scanner to join claim */}
+        <Route path="/medical/join-claim" element={<ProtectedRoute><MedicalProClaimJoinPage /></ProtectedRoute>} />
         
         {/* Fallback Route */}
         <Route path="*" element={<Navigate to={ROUTES.WELCOME} replace />} />

@@ -70,7 +70,9 @@ const httpTrigger: AzureFunction = async (context: Context, req: HttpRequest): P
   try {
     switch (method) {
       case 'GET':
-        if (claimId && !action) {
+        if (req.query.witness === '1') {
+          await getWitnessClaims(context, authReq);
+        } else if (claimId && !action) {
           // Get specific claim
           await getClaim(context, authReq, claimId);
         } else if (!claimId) {
@@ -83,8 +85,14 @@ const httpTrigger: AzureFunction = async (context: Context, req: HttpRequest): P
 
       case 'POST':
         if (!claimId) {
-          // Create new claim
-          await createClaim(context, authReq);
+          if (action === 'join-by-code') {
+            await joinClaimByCode(context, authReq);
+          } else {
+            // Create new claim
+            await createClaim(context, authReq);
+          }
+        } else if (action === 'witness-statement') {
+          await submitWitnessStatement(context, authReq, claimId);
         } else if (action === 'certificate') {
           // Generate certificate
           await generateCertificate(context, authReq, claimId);
@@ -533,5 +541,79 @@ async function getUserClaimHistory(userId: string): Promise<any> {
     rejectedClaims: rejectedClaims[0]?.count || 0
   };
 }
+
+// Add: Get claims for witness
+const getWitnessClaims = async (context: Context, req: AuthenticatedRequest) => {
+  const db = new DatabaseService();
+  try {
+    // Find claims where this user is a witness (assume witness_claims table or similar)
+    const query = `
+      SELECT c.* FROM claims c
+      JOIN third_party_access_codes tpa ON tpa.claim_id = c.id
+      WHERE tpa.recipient_email = @email AND tpa.recipient_type = 'witness'
+    `;
+    const result = await db.query(query, [
+      { name: 'email', value: req.user!.email }
+    ]);
+    context.res = {
+      status: 200,
+      body: { claims: result.recordset }
+    };
+  } catch (error) {
+    throw error;
+  } finally {
+    await db.close();
+  }
+};
+
+// Add: Witness statement submission
+const submitWitnessStatement = async (context: Context, req: AuthenticatedRequest, claimId: string) => {
+  const db = new DatabaseService();
+  const { statement } = req.body;
+  try {
+    const query = `
+      INSERT INTO witness_statements (claim_id, witness_email, statement, created_at)
+      VALUES (@claimId, @witnessEmail, @statement, GETDATE())
+    `;
+    await db.query(query, [
+      { name: 'claimId', value: claimId },
+      { name: 'witnessEmail', value: req.user!.email },
+      { name: 'statement', value: statement }
+    ]);
+    context.res = { status: 200, body: { message: 'Statement submitted' } };
+  } catch (error) {
+    throw error;
+  } finally {
+    await db.close();
+  }
+};
+
+// Add: Medical pro join by code
+const joinClaimByCode = async (context: Context, req: AuthenticatedRequest) => {
+  const db = new DatabaseService();
+  const { code } = req.body;
+  try {
+    // Find claim by code
+    const codeQuery = `SELECT claim_id FROM third_party_access_codes WHERE access_code = @code AND recipient_type = 'medical_professional' AND expires_at > GETDATE()`;
+    const codeResult = await db.query(codeQuery, [ { name: 'code', value: code } ]);
+    if (codeResult.recordset.length === 0) {
+      context.res = { status: 404, body: { error: 'Invalid or expired code' } };
+      return;
+    }
+    const claimId = codeResult.recordset[0].claim_id;
+    // Add this user as a medical professional on the claim (assume a join table)
+    await db.query(
+      `INSERT INTO claim_medical_professionals (claim_id, email, joined_at) VALUES (@claimId, @email, GETDATE())`,
+      [ { name: 'claimId', value: claimId }, { name: 'email', value: req.user!.email } ]
+    );
+    // Return claim info
+    const claimResult = await db.query('SELECT * FROM claims WHERE id = @claimId', [ { name: 'claimId', value: claimId } ]);
+    context.res = { status: 200, body: { claim: claimResult.recordset[0] } };
+  } catch (error) {
+    throw error;
+  } finally {
+    await db.close();
+  }
+};
 
 export default httpTrigger; 
