@@ -48,6 +48,9 @@ import { NewPolicyPage } from './components/policy/NewPolicyPage';
 import PolicyDetailsPage from './components/policy/PolicyDetailsPage';
 import { WitnessClaimPage } from './components/claims/WitnessClaimPage';
 import { MedicalProClaimJoinPage } from './components/claims/MedicalProClaimJoinPage';
+import { RoleGuard } from './components/auth/RoleGuard';
+import { RoleBasedRedirect } from './components/auth/RoleBasedRedirect';
+import { SuperAdminDashboard } from './components/admin/SuperAdminDashboard';
 
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -106,6 +109,9 @@ const App: React.FC = () => {
         {/* Authenticated Routes with Layout */}
         <Route path={ROUTES.DASHBOARD} element={<ProtectedRoute><Layout><DashboardOverviewPage /></Layout></ProtectedRoute>} />
         
+        {/* Role-based redirect route */}
+        <Route path="/redirect" element={<ProtectedRoute><RoleBasedRedirect /></ProtectedRoute>} />
+        
         <Route path={ROUTES.CLAIMS} element={<ProtectedRoute><Layout><MyClaimsPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.CLAIM_DETAILS} element={<ProtectedRoute><Layout><ClaimDetailsPage /></Layout></ProtectedRoute>} /> 
         <Route path={ROUTES.CLAIM_VERIFICATION_CERTIFICATE} element={<ProtectedRoute><Layout><ClaimVerificationCertificatePage /></Layout></ProtectedRoute>} />
@@ -121,23 +127,68 @@ const App: React.FC = () => {
         <Route path={ROUTES.POLICY_DETAILS} element={<ProtectedRoute><Layout><PolicyDetailsPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.NEW_POLICY} element={<ProtectedRoute><Layout><NewPolicyPage /></Layout></ProtectedRoute>} />
 
-                  <Route path={ROUTES.TASKS_OVERVIEW} element={<ProtectedRoute><Layout><TasksPage /></Layout></ProtectedRoute>} />
+        <Route path={ROUTES.TASKS_OVERVIEW} element={<ProtectedRoute><Layout><TasksPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.TASKS_INFO_REQUESTS} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.TASKS_FLAGGED_ITEMS} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
         
-        <Route path={ROUTES.REPORTS} element={<ProtectedRoute><Layout><ReportsPage /></Layout></ProtectedRoute>} />
-        <Route path={ROUTES.REPORTS_SCHEDULE} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
-        <Route path={ROUTES.REPORTS_EXPORT} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
+        {/* Admin routes - only super_admin and insurer_admin */}
+        <Route path={ROUTES.REPORTS} element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['super_admin', 'insurer_admin']}>
+              <Layout><ReportsPage /></Layout>
+            </RoleGuard>
+          </ProtectedRoute>
+        } />
+        <Route path={ROUTES.REPORTS_SCHEDULE} element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['super_admin', 'insurer_admin']}>
+              <Layout><PlaceholderPage /></Layout>
+            </RoleGuard>
+          </ProtectedRoute>
+        } />
+        <Route path={ROUTES.REPORTS_EXPORT} element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['super_admin', 'insurer_admin']}>
+              <Layout><PlaceholderPage /></Layout>
+            </RoleGuard>
+          </ProtectedRoute>
+        } />
         
-        <Route path={ROUTES.ANALYTICS} element={<ProtectedRoute><Layout><AnalyticsPage /></Layout></ProtectedRoute>} />
+        {/* Analytics - super_admin and insurer_admin only */}
+        <Route path={ROUTES.ANALYTICS} element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['super_admin', 'insurer_admin']}>
+              <Layout><AnalyticsPage /></Layout>
+            </RoleGuard>
+          </ProtectedRoute>
+        } />
         
-                  <Route path={ROUTES.NOTIFICATIONS_OVERVIEW} element={<ProtectedRoute><Layout><NotificationsPage /></Layout></ProtectedRoute>} />
+        <Route path={ROUTES.NOTIFICATIONS_OVERVIEW} element={<ProtectedRoute><Layout><NotificationsPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.NOTIFICATIONS_SETTINGS} element={<ProtectedRoute><Layout><NotificationSettingsPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.NOTIFICATIONS_SUSPICIOUS_ACTIVITY} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
         
-        <Route path={ROUTES.TEAM} element={<ProtectedRoute><Layout><TeamDirectoryPage /></Layout></ProtectedRoute>} />
-        <Route path={ROUTES.TEAM_EDIT_MEMBER} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
-        <Route path={ROUTES.TEAM_ROLES} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
+        {/* Team management - admin roles only */}
+        <Route path={ROUTES.TEAM} element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['super_admin', 'insurer_admin']}>
+              <Layout><TeamDirectoryPage /></Layout>
+            </RoleGuard>
+          </ProtectedRoute>
+        } />
+        <Route path={ROUTES.TEAM_EDIT_MEMBER} element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['super_admin', 'insurer_admin']}>
+              <Layout><PlaceholderPage /></Layout>
+            </RoleGuard>
+          </ProtectedRoute>
+        } />
+        <Route path={ROUTES.TEAM_ROLES} element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['super_admin', 'insurer_admin']}>
+              <Layout><PlaceholderPage /></Layout>
+            </RoleGuard>
+          </ProtectedRoute>
+        } />
         
         <Route path={ROUTES.SETTINGS} element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.SETTINGS_UPDATE_PASSWORD} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
@@ -151,14 +202,36 @@ const App: React.FC = () => {
         <Route path={ROUTES.PROFILE} element={<ProtectedRoute><Layout><UserProfilePage /></Layout></ProtectedRoute>} />
         
         <Route path={ROUTES.HELP} element={<ProtectedRoute><Layout><HelpCenterPage /></Layout></ProtectedRoute>} />
-                  <Route path={ROUTES.HELP_CONTACT_SUPPORT} element={<ProtectedRoute><Layout><ContactSupportPage /></Layout></ProtectedRoute>} />
+        <Route path={ROUTES.HELP_CONTACT_SUPPORT} element={<ProtectedRoute><Layout><ContactSupportPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.HELP_REPORT_ISSUE} element={<ProtectedRoute><Layout><ReportIssuePage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.HELP_MESSAGES} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
         
         {/* Witness - minimal claim view, no dashboard */}
-        <Route path="/witness/claims" element={<ProtectedRoute><WitnessClaimPage /></ProtectedRoute>} />
+        <Route path="/witness/claims" element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['witness', 'third_party']}>
+              <WitnessClaimPage />
+            </RoleGuard>
+          </ProtectedRoute>
+        } />
+        
         {/* Medical Professional - QR scanner to join claim */}
-        <Route path="/medical/join-claim" element={<ProtectedRoute><MedicalProClaimJoinPage /></ProtectedRoute>} />
+        <Route path="/medical/join-claim" element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['medical_professional']}>
+              <MedicalProClaimJoinPage />
+            </RoleGuard>
+          </ProtectedRoute>
+        } />
+        
+        {/* Super Admin Dashboard */}
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['super_admin']}>
+              <Layout><SuperAdminDashboard /></Layout>
+            </RoleGuard>
+          </ProtectedRoute>
+        } />
         
         {/* Fallback Route */}
         <Route path="*" element={<Navigate to={ROUTES.WELCOME} replace />} />

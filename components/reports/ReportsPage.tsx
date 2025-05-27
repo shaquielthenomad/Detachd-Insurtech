@@ -59,6 +59,33 @@ export const ReportsPage: React.FC = () => {
   const groupedReports = groupReportsByDate(reports);
   const dateGroups = ['Today', 'Yesterday', 'Older'].filter(group => groupedReports[group] && groupedReports[group].length > 0);
 
+  const handleExport = async (format: 'csv' | 'pdf') => {
+    try {
+      setIsLoading(true);
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:7071/api';
+      const token = localStorage.getItem('detachd_token');
+      const res = await fetch(`${API_BASE_URL}/reports/export?format=${format}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!res.ok) throw new Error('Export failed');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = format === 'csv' ? 'claims-report.csv' : 'claims-report.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Export failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div>
       <PageHeader 
@@ -115,7 +142,7 @@ export const ReportsPage: React.FC = () => {
                             </p>
                         </div>
                         <div className="ml-4 flex-shrink-0">
-                            <Button variant="outline" size="sm" className="border-blue-400 text-blue-300 hover:bg-blue-700/30" leftIcon={<DownloadIcon className="h-4 w-4" />}>
+                            <Button variant="outline" size="sm" className="border-blue-400 text-blue-300 hover:bg-blue-700/30" leftIcon={<DownloadIcon className="h-4 w-4" />} onClick={() => handleExport('csv')} disabled={isLoading}>
                             Download
                             </Button>
                         </div>

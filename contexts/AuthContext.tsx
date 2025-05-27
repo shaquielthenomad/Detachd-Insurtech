@@ -82,83 +82,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      // Check for demo accounts first
-      const demoAccounts = [
-        { email: 'admin@detachd.com', password: 'admin123', role: UserRole.SUPER_ADMIN, name: 'Super Admin' },
-        { email: 'insurer@detachd.com', password: 'insurer123', role: UserRole.INSURER_PARTY, name: 'Insurer Admin' },
-        { email: 'policyholder@detachd.com', password: 'policy123', role: UserRole.POLICYHOLDER, name: 'John Policyholder' },
-        { email: 'witness@detachd.com', password: 'witness123', role: UserRole.WITNESS, name: 'Jane Witness' },
-        { email: 'doctor@detachd.com', password: 'doctor123', role: UserRole.MEDICAL_PROFESSIONAL, name: 'Dr. Smith' }
-      ];
-
-      const demoAccount = demoAccounts.find(acc => acc.email === email && acc.password === password);
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:7071/api';
       
-      if (demoAccount) {
-        const userData: User = {
-          id: `demo_${demoAccount.role.toLowerCase().replace(/\s+/g, '_')}`,
-          email: demoAccount.email,
-          name: demoAccount.name,
-          role: demoAccount.role,
-          avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(demoAccount.name)}&background=1e40af&color=fff`
-        };
-
-        setUser(userData);
-        localStorage.setItem('detachd_token', 'demo_token');
-        localStorage.setItem('detachd_user', JSON.stringify(userData));
-        return;
-      }
-
-      // Try API login for non-demo accounts
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Login failed' }));
-        throw new Error(errorData.error || 'Invalid email or password');
-      }
-
       const data = await response.json();
-      const userData: User = {
-        id: data.user.id,
-        email: data.user.email,
-        name: data.user.name,
-        role: data.user.role as UserRole,
-        avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.user.name)}&background=1e40af&color=fff`
-      };
-
-      setUser(userData);
-      localStorage.setItem('detachd_token', data.token);
-      localStorage.setItem('detachd_user', JSON.stringify(userData));
+      
+      if (data.success && data.token && data.user) {
+        localStorage.setItem('detachd_token', data.token);
+        if (data.refreshToken) {
+          localStorage.setItem('detachd_refresh_token', data.refreshToken);
+        }
+        setUser(data.user);
+        
+        // Redirect to role-based route instead of dashboard
+        window.location.href = '/redirect';
+      } else {
+        throw new Error(data.message || 'Login failed');
+      }
     } catch (error) {
       console.error('Login error:', error);
-      
-      // Enhanced fallback for development
-      if (import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_MODE === 'true') {
-        // Create a demo user based on email pattern
-        const userData: User = {
-          id: `demo_${Date.now()}`,
-          email,
-          name: email.split('@')[0].replace(/[^a-zA-Z]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-          role: email.includes('admin') ? UserRole.SUPER_ADMIN : 
-                email.includes('insurer') ? UserRole.INSURER_PARTY : 
-                email.includes('witness') ? UserRole.WITNESS :
-                email.includes('doctor') || email.includes('medical') ? UserRole.MEDICAL_PROFESSIONAL :
-                UserRole.POLICYHOLDER,
-          avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=1e40af&color=fff`
-        };
-        
-        setUser(userData);
-        localStorage.setItem('detachd_user', JSON.stringify(userData));
-        localStorage.setItem('detachd_token', 'demo_token');
-        console.log('Demo mode: Logged in as', userData);
-      } else {
-        throw error;
-      }
+      throw error;
     } finally {
       setLoading(false);
     }
