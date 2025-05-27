@@ -18,12 +18,15 @@ import {
   EditIcon,
   DownloadIcon
 } from '../common/Icon';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { QRCodeCanvas } from 'qrcode.react';
 
 interface PolicyDetails {
   id: string;
   policyNumber: string;
   policyType: string;
-  status: 'active' | 'expired' | 'pending' | 'cancelled';
+  status: 'active' | 'expired' | 'pending' | 'cancelled' | 'pending_update_review';
   coverageStartDate: string;
   coverageEndDate: string;
   premiumAmount: number;
@@ -61,9 +64,32 @@ interface PolicyDetails {
     scheduleOfAssets: string;
     termsAndConditions: string;
   };
+  updatesPendingReview?: boolean;
 }
 
 const createMockPolicyDetails = (policyId: string, userName: string): PolicyDetails => {
+  // Try to load from localStorage first to reflect edits
+  try {
+    const storedPolicies = localStorage.getItem('userPolicies');
+    if (storedPolicies) {
+      const allPolicies: PolicyDetails[] = JSON.parse(storedPolicies);
+      const existingPolicy = allPolicies.find(p => p.id === policyId);
+      if (existingPolicy) {
+        // Ensure policyholder details are personalized if not already part of stored data
+        if (!existingPolicy.policyholder || !existingPolicy.policyholder.name) {
+            existingPolicy.policyholder = {
+                name: userName || 'John Smith',
+                address: existingPolicy.policyholder?.address || '123 Main Street, Cape Town, 8001',
+                phone: existingPolicy.policyholder?.phone || '+27 82 123 4567',
+                email: existingPolicy.policyholder?.email || (userName ? `${userName.toLowerCase().replace(/\s+/g, '.')}@example.com` : 'john.smith@example.com')
+            };
+        }
+        return existingPolicy;
+      }
+    }
+  } catch (e) { console.error("Failed to parse userPolicies from localStorage for details page", e); }
+  
+  // Fallback to original mock generation if not in localStorage or error
   const policyData: { [key: string]: Partial<PolicyDetails> } = {
     '1': {
       id: '1',
@@ -151,6 +177,7 @@ export const PolicyDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const [policy, setPolicy] = useState<PolicyDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPdfDownloading, setIsPdfDownloading] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPolicyDetails = async () => {
@@ -194,9 +221,120 @@ export const PolicyDetailsPage: React.FC = () => {
         return 'text-yellow-300 bg-yellow-700/30 border-yellow-500';
       case 'cancelled':
         return 'text-gray-300 bg-gray-700/30 border-gray-500';
+      case 'pending_update_review':
+        return 'text-yellow-300 bg-yellow-700/30 border-yellow-500';
       default:
         return 'text-slate-300 bg-slate-700/30 border-slate-500';
     }
+  };
+
+  const handleDownloadEnhancedPolicyPdf = async (policyData: PolicyDetails, documentName: string) => {
+    setIsPdfDownloading(documentName);
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    const ReactDOM = await import('react-dom');
+
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    let yPos = 40;
+    const margin = 40;
+    const contentWidth = pageWidth - (2 * margin);
+
+    pdf.setFontSize(18);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Policy Document', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 30;
+
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFillColor(200, 200, 200);
+    pdf.circle(margin + 10, yPos + 5, 8, 'F');
+    pdf.text('Verified by Detachd', margin + 25, yPos + 10);
+    yPos += 30;
+
+    pdf.text(`Generated: ${new Date().toLocaleDateString('en-ZA', { dateStyle: 'long' })} ${new Date().toLocaleTimeString('en-ZA')}`, margin, yPos);
+    yPos += 20;
+
+    const blockchainTxId = `DETACHD-BC-TX-${policyData.id}-${Date.now()}`;
+    pdf.text(`Blockchain Ref: ${blockchainTxId}`, margin, yPos);
+    yPos += 30;
+
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Policy Information', margin, yPos);
+    yPos += 20;
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Policy Number: ${policyData.policyNumber}`, margin, yPos); yPos += 15;
+    pdf.text(`Policyholder: ${policyData.policyholder.name}`, margin, yPos); yPos += 15;
+    pdf.text(`Policy Type: ${policyData.policyType}`, margin, yPos); yPos += 15;
+    pdf.text(`Coverage: ${new Date(policyData.coverageStartDate).toLocaleDateString('en-ZA')} - ${new Date(policyData.coverageEndDate).toLocaleDateString('en-ZA')}`, margin, yPos);
+    yPos += 30;
+
+    const verificationUrl = `https://verify.detachd.systems/verify?docId=${policyData.id}&num=${policyData.policyNumber}&ts=${Date.now()}`;
+    const tempQrContainerId = 'temp-qr-code-container';
+    let tempDiv = document.createElement('div');
+    tempDiv.id = tempQrContainerId;
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    document.body.appendChild(tempDiv);
+
+    const qrCanvas = document.createElement('canvas');
+    tempDiv.appendChild(qrCanvas);
+    
+    try {
+      const qrCodeDiv = document.createElement('div');
+      qrCodeDiv.style.position = 'absolute';
+      qrCodeDiv.style.left = '-10000px';
+      document.body.appendChild(qrCodeDiv);
+      
+      await new Promise<void>(resolve => {
+        ReactDOM.render(
+          <QRCodeCanvas value={verificationUrl} size={128} id="pdf-qr-code" />, 
+          qrCodeDiv,
+          () => {
+            const canvasElement = document.getElementById('pdf-qr-code') as HTMLCanvasElement;
+            if (canvasElement) {
+              const qrImageData = canvasElement.toDataURL('image/png');
+              pdf.addImage(qrImageData, 'PNG', margin, yPos, 80, 80);
+            }
+            ReactDOM.unmountComponentAtNode(qrCodeDiv);
+            document.body.removeChild(qrCodeDiv);
+            resolve();
+          }
+        );
+      });
+
+    } catch (e) {
+      console.error("Error generating QR code for PDF:", e);
+      pdf.text('[QR Code Error]', margin, yPos + 40);
+    } finally {
+       if (document.getElementById(tempQrContainerId)) {
+         document.body.removeChild(document.getElementById(tempQrContainerId)!);
+       }
+    }
+    yPos += 100;
+    
+    pdf.setFontSize(8);
+    pdf.text('Scan the QR code with your mobile device to verify this document online.', pageWidth / 2, yPos, {align: 'center'});
+
+    pdf.save(`${documentName.replace(/\s+/g, '_')}-${policyData.policyNumber}.pdf`);
+    setIsPdfDownloading(null);
+  };
+
+  const handleDownloadSimplePdf = async (documentName: string, policyNumber: string) => {
+    setIsPdfDownloading(documentName);
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    pdf.setFontSize(18);
+    pdf.text(documentName, 40, 40);
+    pdf.setFontSize(12);
+    pdf.text(`This is a mock document for: ${documentName}`, 40, 70);
+    pdf.text(`Policy Number: ${policyNumber}`, 40, 90);
+    pdf.text('Generated on: ' + new Date().toLocaleDateString(), 40, 110);
+    pdf.save(`${documentName.replace(/\s+/g, '_')}-${policyNumber}.pdf`);
+    setIsPdfDownloading(null);
   };
 
   if (isLoading) {
@@ -233,14 +371,56 @@ export const PolicyDetailsPage: React.FC = () => {
             <Button 
               variant="outline" 
               leftIcon={<EditIcon className="h-4 w-4" />}
-              onClick={() => navigate(`${ROUTES.MY_POLICY}/${policy.id}/edit`)}
+              onClick={() => navigate(ROUTES.EDIT_POLICY.replace(':policyId', policy.id))}
+              disabled={policy.updatesPendingReview || policy.status === 'pending_update_review'}
             >
-              Edit Policy
+              {policy.updatesPendingReview || policy.status === 'pending_update_review' ? 'Review Pending' : 'Edit Policy'}
             </Button>
             <Button 
               variant="primary" 
               leftIcon={<DownloadIcon className="h-4 w-4" />}
-              onClick={() => window.open(policy.documents.policyDocument, '_blank')}
+              onClick={async () => {
+                const input = document.getElementById('policy-details-content');
+                if (input && policy) {
+                  setIsLoading(true);
+                  await new Promise(resolve => setTimeout(resolve, 50));
+                  try {
+                    const canvas = await html2canvas(input, {
+                      scale: 2,
+                      useCORS: true,
+                      backgroundColor: '#1e293b',
+                      onclone: (document) => {
+                        Array.from(document.querySelectorAll('*')).forEach(el => {
+                            const htmlElement = el as HTMLElement;
+                            htmlElement.style.color = window.getComputedStyle(htmlElement).color === 'rgb(0, 0, 0)' || htmlElement.style.color === '' ? '#cbd5e1' : htmlElement.style.color;
+                            if(window.getComputedStyle(htmlElement).backgroundColor === 'rgba(0, 0, 0, 0)'){
+                            } else {
+                                htmlElement.style.backgroundColor = window.getComputedStyle(htmlElement).backgroundColor;
+                            }
+                        });
+                      }
+                    });
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    const imgWidth = canvas.width;
+                    const imgHeight = canvas.height;
+                    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+                    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+                    const imgY = 10;
+
+                    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+                    pdf.save(`policy-${policy.policyNumber}.pdf`);
+                  } catch (pdfError) {
+                    console.error("Error generating PDF:", pdfError);
+                    alert("Could not generate PDF. Please try again.")
+                  }
+                  setIsLoading(false);
+                } else {
+                  alert("Could not find policy content to download.");
+                }
+              }}
             >
               Download PDF
             </Button>
@@ -248,10 +428,18 @@ export const PolicyDetailsPage: React.FC = () => {
         }
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
+      {(policy.updatesPendingReview || policy.status === 'pending_update_review') && (
+        <PixelCard variant="yellow" className="mb-6">
+          <div className="p-4 text-center">
+            <p className="font-semibold text-yellow-700">
+              Your requested policy changes have been submitted and are currently pending review by an insurer.
+            </p>
+          </div>
+        </PixelCard>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="policy-details-content">
         <div className="lg:col-span-2 space-y-6">
-          {/* Policy Overview */}
           <PixelCard 
             variant="blue" 
             title="Policy Overview" 
@@ -295,7 +483,6 @@ export const PolicyDetailsPage: React.FC = () => {
             </div>
           </PixelCard>
 
-          {/* Vehicle Information */}
           {policy.vehicle && (
             <PixelCard 
               variant="blue" 
@@ -311,55 +498,60 @@ export const PolicyDetailsPage: React.FC = () => {
             </PixelCard>
           )}
 
-          {/* Coverage Details */}
           <PixelCard 
             variant="blue" 
             title="Coverage Details" 
             icon={<ShieldCheckIcon className="h-5 w-5 text-blue-400" />}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {policy.coverageDetails.vehicleDamage && (
+              {policy.coverageDetails && policy.coverageDetails.vehicleDamage !== undefined && (
                 <DetailItem 
                   label="Vehicle Damage" 
                   value={formatCurrency(policy.coverageDetails.vehicleDamage)} 
                 />
               )}
-              {policy.coverageDetails.thirdParty && (
+              {policy.coverageDetails && policy.coverageDetails.thirdParty !== undefined && (
                 <DetailItem 
                   label="Third Party Liability" 
                   value={formatCurrency(policy.coverageDetails.thirdParty)} 
                 />
               )}
-              {policy.coverageDetails.theft && (
+              {policy.coverageDetails && policy.coverageDetails.theft !== undefined && (
                 <DetailItem 
                   label="Theft Cover" 
                   value={formatCurrency(policy.coverageDetails.theft)} 
                 />
               )}
-              {policy.coverageDetails.personalAccident && (
+              {policy.coverageDetails && policy.coverageDetails.personalAccident !== undefined && (
                 <DetailItem 
                   label="Personal Accident" 
                   value={formatCurrency(policy.coverageDetails.personalAccident)} 
                 />
               )}
-              {policy.coverageDetails.medicalExpenses && (
+              {policy.coverageDetails && policy.coverageDetails.medicalExpenses !== undefined && (
                 <DetailItem 
                   label="Medical Expenses" 
                   value={formatCurrency(policy.coverageDetails.medicalExpenses)} 
                 />
               )}
-              <DetailItem 
-                label="Roadside Assistance" 
-                value={policy.coverageDetails.roadside ? 'Included' : 'Not Included'} 
-              />
-              <DetailItem 
-                label="Rental Car" 
-                value={policy.coverageDetails.rental ? 'Included' : 'Not Included'} 
-              />
+              {policy.coverageDetails && policy.coverageDetails.roadside !== undefined && (
+                <DetailItem 
+                  label="Roadside Assistance" 
+                  value={policy.coverageDetails.roadside ? 'Included' : 'Not Included'} 
+                />
+              )}
+              {policy.coverageDetails && policy.coverageDetails.rental !== undefined && (
+                <DetailItem 
+                  label="Rental Car" 
+                  value={policy.coverageDetails.rental ? 'Included' : 'Not Included'} 
+                />
+              )}
+              {!policy.coverageDetails && (
+                <p className="text-sm text-text-on-dark-secondary md:col-span-2">Coverage details are not available for this policy.</p>
+              )}
             </div>
           </PixelCard>
 
-          {/* Documents */}
           <PixelCard 
             variant="blue" 
             title="Policy Documents" 
@@ -368,23 +560,27 @@ export const PolicyDetailsPage: React.FC = () => {
             <div className="space-y-3">
               <DocumentLink 
                 name="Policy Document" 
-                url={policy.documents.policyDocument} 
+                policy={policy}
+                onDownload={() => handleDownloadEnhancedPolicyPdf(policy, "Policy Document")}
+                isDownloading={isPdfDownloading === "Policy Document"}
               />
               <DocumentLink 
                 name="Schedule of Assets" 
-                url={policy.documents.scheduleOfAssets} 
+                policy={policy}
+                onDownload={() => handleDownloadSimplePdf("Schedule of Assets", policy.policyNumber)}
+                isDownloading={isPdfDownloading === "Schedule of Assets"}
               />
               <DocumentLink 
                 name="Terms & Conditions" 
-                url={policy.documents.termsAndConditions} 
+                policy={policy}
+                onDownload={() => handleDownloadSimplePdf("Terms & Conditions", policy.policyNumber)}
+                isDownloading={isPdfDownloading === "Terms & Conditions"}
               />
             </div>
           </PixelCard>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Policyholder Information */}
           <PixelCard 
             variant="blue" 
             title="Policyholder" 
@@ -414,7 +610,6 @@ export const PolicyDetailsPage: React.FC = () => {
             </div>
           </PixelCard>
 
-          {/* Agent Information */}
           <PixelCard 
             variant="blue" 
             title="Insurance Agent" 
@@ -448,13 +643,17 @@ export const PolicyDetailsPage: React.FC = () => {
             </div>
           </PixelCard>
 
-          {/* Quick Actions */}
           <PixelCard variant="blue" title="Quick Actions">
             <div className="space-y-2">
               <Button 
                 variant="primary" 
                 className="w-full"
-                onClick={() => navigate(ROUTES.NEW_CLAIM)}
+                onClick={() => navigate(ROUTES.NEW_CLAIM, { 
+                  state: { 
+                    policyId: policy.id, 
+                    policyNumber: policy.policyNumber 
+                  }
+                })}
               >
                 File a Claim
               </Button>
@@ -498,21 +697,28 @@ const DetailItem: React.FC<{
 
 const DocumentLink: React.FC<{
   name: string;
-  url: string;
-}> = ({ name, url }) => (
-  <div className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
-    <div className="flex items-center space-x-3">
-      <FileTextIcon className="h-5 w-5 text-blue-400" />
-      <span className="text-sm text-text-on-dark-primary">{name}</span>
+  policy: PolicyDetails; 
+  onDownload: () => void;
+  isDownloading: boolean;
+}> = ({ name, policy, onDownload, isDownloading }) => {
+
+  return (
+    <div className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
+      <div className="flex items-center space-x-3">
+        <FileTextIcon className="h-5 w-5 text-blue-400" />
+        <span className="text-sm text-text-on-dark-primary">{name}</span>
+      </div>
+      <Button 
+        variant="ghost" 
+        size="sm"
+        onClick={onDownload} 
+        isLoading={isDownloading}
+        disabled={isDownloading}
+      >
+        {isDownloading ? <LoadingSpinner size="sm" /> : <DownloadIcon className="h-4 w-4" />}
+      </Button>
     </div>
-    <Button 
-      variant="ghost" 
-      size="sm"
-      onClick={() => window.open(url, '_blank')}
-    >
-      <DownloadIcon className="h-4 w-4" />
-    </Button>
-  </div>
-);
+  );
+};
 
 export default PolicyDetailsPage; 

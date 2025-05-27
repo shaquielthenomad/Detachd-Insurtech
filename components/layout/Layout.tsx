@@ -1,10 +1,11 @@
 import React from 'react';
 import Dock, { DockAppItem } from '../common/Dock';
-import { useAuth } from '../../contexts/AuthContext';
+import { useSecureAuth } from '../../contexts/SecureAuthContext';
 import { UserRole, NavItemType } from '../../types';
 import { ROUTES, APP_NAME } from '../../constants';
 import { useNavigate } from 'react-router-dom';
 import { HomeIcon, FileTextIcon, BarChartIcon, UsersIcon, SettingsIcon, UserCircleIcon, HelpCircleIcon, LogOutIcon, ShieldCheckIcon } from '../common/Icon';
+import { IntelligentAgentPanel } from '../common/IntelligentAgentPanel';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -36,12 +37,12 @@ const universalPostNavItems: NavItemType[] = [
 
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { user, logout } = useAuth();
+  const { user, logout } = useSecureAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
-    navigate(ROUTES.LOGIN);
+    navigate('/welcome');
   };
 
   let baseNavItems: NavItemType[];
@@ -81,6 +82,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </main>
       <Dock items={dockItems} baseItemSize={44} magnification={28} distance={80} />
+      <IntelligentAgentPanel />
     </div>
   );
 };

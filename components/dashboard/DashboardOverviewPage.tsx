@@ -170,7 +170,7 @@ export const DashboardOverviewPage: React.FC = () => {
         },
         {
           id: 'ai-insights',
-          height: 250,
+          height: 280,
           renderContent: () => (
             <PixelCard title="AI Risk Insights" variant="blue">
               <div className="space-y-4">
@@ -194,7 +194,7 @@ export const DashboardOverviewPage: React.FC = () => {
                 </div>
                 <div className="bg-green-900/20 border border-green-700 p-3 rounded">
                   <div className="text-green-400 text-sm font-medium">💡 AI Tip</div>
-                  <div className="text-text-on-dark-secondary text-sm mt-1">
+                  <div className="text-text-on-dark-secondary text-sm mt-1 pb-2">
                     Your excellent driving record qualifies you for a 15% discount renewal!
                   </div>
                 </div>

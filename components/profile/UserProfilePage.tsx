@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { PageHeader } from '../common/PageHeader';
 import PixelCard from '../common/PixelCard';
 import { User, Claim, ClaimStatus, UserRole } from '../../types';
@@ -6,7 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { MailIcon, PhoneIcon, MapPinIcon, ShieldCheckIcon, HistoryIcon, XMarkIcon, InfoIcon } from '../common/Icon';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { Button } from '../common/Button';
-import { MOCK_DELAY } from '../../constants';
+import { MOCK_DELAY, ROUTES } from '../../constants';
 
 // Simple QR Code component using QR Server API
 const QRCode: React.FC<{ value: string; size?: number }> = ({ value, size = 120 }) => {
@@ -34,12 +35,12 @@ const RiskAssessmentModal: React.FC<{
 
   const getRiskFactors = (score: number) => {
     const factors = [
-      { name: 'Claims History', impact: score > 70 ? 'High' : score > 50 ? 'Medium' : 'Low', description: 'Previous claims frequency and patterns' },
-      { name: 'Verification Status', impact: 'Low', description: 'Complete identity and document verification' },
-      { name: 'Policy Duration', impact: 'Low', description: 'Length of time as policyholder' },
-      { name: 'Claim Complexity', impact: score > 60 ? 'Medium' : 'Low', description: 'Average complexity of submitted claims' },
-      { name: 'Geographic Risk', impact: 'Medium', description: 'Risk factors based on location' },
-      { name: 'Blockchain Verification', impact: 'Low', description: 'SecureAI blockchain verification score' },
+      { name: 'Claims History', impact: score > 70 ? 'High' : score > 50 ? 'Medium' : 'Low', description: 'Previous claims frequency and patterns', route: ROUTES.CLAIMS },
+      { name: 'Verification Status', impact: 'Low', description: 'Complete identity and document verification', route: ROUTES.PROFILE },
+      { name: 'Policy Duration', impact: 'Low', description: 'Length of time as policyholder', route: ROUTES.MY_POLICY },
+      { name: 'Claim Complexity', impact: score > 60 ? 'Medium' : 'Low', description: 'Average complexity of submitted claims', route: ROUTES.ANALYTICS },
+      { name: 'Geographic Risk', impact: 'Medium', description: 'Risk factors based on location', route: ROUTES.ANALYTICS },
+      { name: 'Blockchain Verification', impact: 'Low', description: 'SecureAI blockchain verification score', route: ROUTES.CLAIM_VERIFICATION_CERTIFICATE },
     ];
     return factors;
   };
@@ -79,21 +80,32 @@ const RiskAssessmentModal: React.FC<{
             <div>
               <h3 className="text-lg font-semibold text-text-on-dark-primary mb-4">Risk Factors Analysis</h3>
               <div className="space-y-4">
-                {factors.map((factor, index) => (
-                  <div key={index} className="bg-slate-700/20 p-4 rounded-lg">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium text-text-on-dark-primary">{factor.name}</h4>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        factor.impact === 'High' ? 'bg-red-900/30 text-red-300' :
-                        factor.impact === 'Medium' ? 'bg-yellow-900/30 text-yellow-300' :
-                        'bg-green-900/30 text-green-300'
-                      }`}>
-                        {factor.impact} Impact
-                      </span>
+                {factors.map((factor, index) => {
+                  const content = (
+                    <>
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-medium text-text-on-dark-primary">{factor.name}</h4>
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          factor.impact === 'High' ? 'bg-red-900/30 text-red-300' :
+                          factor.impact === 'Medium' ? 'bg-yellow-900/30 text-yellow-300' :
+                          'bg-green-900/30 text-green-300'
+                        }`}>
+                          {factor.impact} Impact
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-400">{factor.description}</p>
+                    </>
+                  );
+                  return factor.route ? (
+                    <Link to={factor.route} key={index} className="block bg-slate-700/20 p-4 rounded-lg hover:bg-slate-600/30 transition-colors" onClick={onClose}>
+                      {content}
+                    </Link>
+                  ) : (
+                    <div key={index} className="bg-slate-700/20 p-4 rounded-lg">
+                      {content}
                     </div>
-                    <p className="text-sm text-slate-400">{factor.description}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

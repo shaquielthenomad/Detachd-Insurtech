@@ -30,17 +30,34 @@ export const MyClaimsPage: React.FC = () => {
     const fetchClaims = async () => {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 500)); 
-       // Mock data for demonstration, replace with actual API call
-      const mockUserClaims: Claim[] = [
-        { id: 'clm001', claimNumber: 'DET-001', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-07-15', claimType: 'Auto Accident', status: ClaimStatus.IN_REVIEW, amountClaimed: 25000 },
-        { id: 'clm002', claimNumber: 'DET-002', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-06-20', claimType: 'Property Damage', status: ClaimStatus.APPROVED, amountClaimed: 12000 },
-        { id: 'clm003', claimNumber: 'DET-003', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-05-01', claimType: 'Theft', status: ClaimStatus.REJECTED, amountClaimed: 8000 },
-      ];
-      setClaims(mockUserClaims);
+
+      let userClaims: Claim[] = [];
+      try {
+        const storedClaims = localStorage.getItem('userClaims');
+        if (storedClaims) {
+          userClaims = JSON.parse(storedClaims);
+        }
+      } catch (error) {
+        console.error('Error fetching claims from localStorage:', error);
+        // Fallback to mock data if localStorage fails
+      }
+
+      if (userClaims.length === 0) {
+         // Fallback mock data if localStorage is empty or failed
+        userClaims = [
+          { id: 'clm001', claimNumber: 'DET-001', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-07-15', claimType: 'Auto Accident', status: ClaimStatus.IN_REVIEW, amountClaimed: 25000 },
+          { id: 'clm002', claimNumber: 'DET-002', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-06-20', claimType: 'Property Damage', status: ClaimStatus.APPROVED, amountClaimed: 12000 },
+          { id: 'clm003', claimNumber: 'DET-003', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-05-01', claimType: 'Theft', status: ClaimStatus.REJECTED, amountClaimed: 8000 },
+        ];
+      }
+      // Ensure claims are sorted, newest first, assuming ids like 'clm735833' are sortable by time if generated via Date.now()
+      // Or if they have a submissionDate field, sort by that.
+      // For now, let's assume new claims are pushed to the end and we want them at the top.
+      setClaims(userClaims.slice().reverse()); 
       setIsLoading(false);
     };
     fetchClaims();
-  }, [user?.name]);
+  }, [user?.name]); // Consider adding a dependency that changes when a new claim is submitted for auto-refresh, or use a focus event listener.
 
   if (isLoading) {
     return <LoadingSpinner message="Loading your claims..." />;

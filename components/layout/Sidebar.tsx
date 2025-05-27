@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { HomeIcon, FileTextIcon, BarChartIcon, UsersIcon, SettingsIcon, UserCircleIcon, HelpCircleIcon, LogOutIcon, XCircleIcon, ShieldCheckIcon } from '../common/Icon';
 import { NavItemType, UserRole } from '../../types';
 import { ROUTES, APP_NAME } from '../../constants';
-import { useAuth } from '../../contexts/AuthContext';
+import { useSecureAuth } from '../../contexts/SecureAuthContext';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -15,22 +15,47 @@ const commonNavItems: NavItemType[] = [
   { href: ROUTES.CLAIMS, label: 'Claims', icon: FileTextIcon },
 ];
 
+// Role-specific navigation items
+const superAdminNavItems: NavItemType[] = [
+  { href: ROUTES.DASHBOARD, label: 'Admin Dashboard', icon: HomeIcon },
+  { href: ROUTES.ANALYTICS, label: 'System Analytics', icon: BarChartIcon },
+  { href: ROUTES.TEAM, label: 'User Management', icon: UsersIcon },
+  { href: ROUTES.REPORTS, label: 'System Reports', icon: BarChartIcon },
+];
+
 const insurerNavItems: NavItemType[] = [
-  ...commonNavItems,
-  { href: ROUTES.REPORTS, label: 'Reports', icon: BarChartIcon },
+  { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: HomeIcon },
+  { href: ROUTES.CLAIMS, label: 'All Claims', icon: FileTextIcon },
+  { href: ROUTES.TASKS_OVERVIEW, label: 'Tasks', icon: FileTextIcon },
   { href: ROUTES.ANALYTICS, label: 'Analytics', icon: BarChartIcon },
+  { href: ROUTES.REPORTS, label: 'Reports', icon: BarChartIcon },
   { href: ROUTES.TEAM, label: 'Team Management', icon: UsersIcon },
 ];
 
 const policyholderNavItems: NavItemType[] = [
-  ...commonNavItems,
-  { href: ROUTES.MY_POLICY, label: 'My Policy', icon: ShieldCheckIcon }, // Added My Policy
-  { href: ROUTES.PROFILE, label: 'My Profile', icon: UserCircleIcon },
+  { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: HomeIcon },
+  { href: ROUTES.CLAIMS, label: 'My Claims', icon: FileTextIcon },
+  { href: ROUTES.MY_POLICY, label: 'My Policy', icon: ShieldCheckIcon },
 ];
 
+const thirdPartyNavItems: NavItemType[] = [
+  { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: HomeIcon },
+  { href: ROUTES.CLAIMS, label: 'Related Claims', icon: FileTextIcon },
+];
+
+const witnessNavItems: NavItemType[] = [
+  { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: HomeIcon },
+  { href: ROUTES.CLAIMS, label: 'Witness Reports', icon: FileTextIcon },
+];
+
+const medicalProfessionalNavItems: NavItemType[] = [
+  { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: HomeIcon },
+  { href: ROUTES.CLAIMS, label: 'Medical Claims', icon: FileTextIcon },
+  { href: ROUTES.REPORTS, label: 'Medical Reports', icon: BarChartIcon },
+];
 
 export const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loading } = useSecureAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -40,22 +65,47 @@ export const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen })
   
   let navItems: NavItemType[];
   switch (user?.role) {
+    case UserRole.SUPER_ADMIN:
+      navItems = superAdminNavItems;
+      break;
     case UserRole.INSURER_PARTY:
+    case UserRole.INSURER_ADMIN:
+    case UserRole.INSURER_AGENT:
       navItems = insurerNavItems;
       break;
     case UserRole.POLICYHOLDER:
       navItems = policyholderNavItems;
       break;
+    case UserRole.THIRD_PARTY:
+      navItems = thirdPartyNavItems;
+      break;
+    case UserRole.WITNESS:
+      navItems = witnessNavItems;
+      break;
+    case UserRole.MEDICAL_PROFESSIONAL:
+      navItems = medicalProfessionalNavItems;
+      break;
+    case UserRole.LEGAL_PROFESSIONAL:
+    case UserRole.GOVERNMENT_OFFICIAL:
+    case UserRole.RESPONDER:
+      navItems = [
+        { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: HomeIcon },
+        { href: ROUTES.CLAIMS, label: 'Assigned Claims', icon: FileTextIcon },
+      ];
+      break;
     default:
-      navItems = commonNavItems; 
+      navItems = [
+        { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: HomeIcon },
+      ]; 
   }
 
+  // Add universal items for all authenticated users
   navItems = [
     ...navItems,
+    { href: ROUTES.PROFILE, label: 'Profile', icon: UserCircleIcon },
     { href: ROUTES.SETTINGS, label: 'Settings', icon: SettingsIcon },
     { href: ROUTES.HELP, label: 'Help', icon: HelpCircleIcon },
   ];
-
 
   return (
     <>

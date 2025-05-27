@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserCircleIcon } from '../common/Icon'; 
-import { useAuth } from '../../contexts/AuthContext';
+import { useSecureAuth } from '../../contexts/SecureAuthContext';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../../constants';
 
@@ -10,7 +10,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
 
   return (
     <header className="relative bg-card-bg shadow-md z-10"> {/* card-bg is white */}

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircle, Download, Share2, AlertCircle, Clock, XCircle } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useSecureAuth } from '../../contexts/SecureAuthContext';
+import { PDFService } from '../../services/pdfService';
+import { Claim } from '../../types';
 
 interface ClaimData {
   id: string;
@@ -19,11 +21,12 @@ interface ClaimData {
 
 const ClaimVerificationCertificatePage: React.FC = () => {
   const { claimId } = useParams<{ claimId: string }>();
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const navigate = useNavigate();
   const [claim, setClaim] = useState<ClaimData | null>(null);
   const [loading, setLoading] = useState(true);
   const [generatingCertificate, setGeneratingCertificate] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -113,39 +116,49 @@ const ClaimVerificationCertificatePage: React.FC = () => {
     }
   };
 
-  const downloadCertificate = () => {
+  const downloadCertificate = async () => {
     if (!claim || !claim.certificateHash) return;
 
-    // Generate PDF certificate
-    const certificateContent = `
-DETACHD INSURANCE VERIFICATION CERTIFICATE
+    setDownloadingPdf(true);
+    try {
+      // Convert ClaimData to Claim format for PDF service
+      const claimForPdf: Claim = {
+        id: claim.id,
+        claimNumber: claim.claimNumber,
+        policyholderName: user?.name || 'Policyholder',
+        policyId: claim.policyNumber,
+        policyNumber: claim.policyNumber,
+        dateOfLoss: claim.incidentDate,
+        claimType: claim.description.includes('vehicle') ? 'Auto Accident' : 'Property Damage',
+        status: claim.status as any,
+        amountClaimed: 15000, // Default amount - in real app this would come from API
+        description: claim.description,
+        riskScore: 25
+      };
 
-Claim Number: ${claim.claimNumber}
-Policy Number: ${claim.policyNumber}
-Incident Date: ${claim.incidentDate}
-Location: ${claim.location}
-Status: APPROVED
-Approved By: ${claim.approvedBy}
-Approved Date: ${claim.approvedDate}
-
-Certificate Hash: ${claim.certificateHash}
-Blockchain Transaction: ${claim.blockchainTxId}
-
-This certificate verifies that the above claim has been processed and approved
-by the insurance provider through the Detachd platform.
-
-Generated on: ${new Date().toLocaleDateString()}
-    `;
-
-    const blob = new Blob([certificateContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `detachd-certificate-${claim.claimNumber}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+      // Generate PDF certificate
+      const { pdfBlob, downloadUrl, certificateData } = await PDFService.generateVerificationCertificatePDF(claimForPdf);
+      
+      // Create download link
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `detachd-certificate-${claim.claimNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      // Clean up blob URL
+      setTimeout(() => {
+        PDFService.cleanupBlobUrl(downloadUrl);
+      }, 1000);
+      
+      console.log('Certificate PDF generated with hash:', certificateData.certificateId);
+    } catch (error) {
+      console.error('Error generating certificate PDF:', error);
+      setError('Failed to generate certificate PDF');
+    } finally {
+      setDownloadingPdf(false);
+    }
   };
 
   const getStatusIcon = (status: string) => {

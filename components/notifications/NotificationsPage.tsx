@@ -3,6 +3,7 @@ import { PageHeader } from '../common/PageHeader';
 import PixelCard from '../common/PixelCard';
 import { BellIcon, CheckCircleIcon, AlertTriangleIcon, InfoIcon } from '../common/Icon';
 import { LoadingSpinner } from '../common/LoadingSpinner';
+import { NotificationDetailsModal } from './NotificationDetailsModal';
 
 interface Notification {
   id: string;
@@ -18,6 +19,8 @@ export const NotificationsPage: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unread' | 'claims'>('all');
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -83,12 +86,20 @@ export const NotificationsPage: React.FC = () => {
         notif.id === id ? { ...notif, read: true } : notif
       )
     );
+    if (selectedNotification && selectedNotification.id === id) {
+      setSelectedNotification(prev => prev ? { ...prev, read: true } : null);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notif => ({ ...notif, read: true }))
-    );
+  const handleNotificationClick = (notification: Notification) => {
+    markAsRead(notification.id);
+    setSelectedNotification(notification);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedNotification(null);
   };
 
   const getIcon = (type: Notification['type']) => {
@@ -124,7 +135,7 @@ export const NotificationsPage: React.FC = () => {
         actions={
           unreadCount > 0 ? (
             <button
-              onClick={markAllAsRead}
+              onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}
               className="text-blue-400 hover:text-blue-300 text-sm font-medium"
             >
               Mark all as read
@@ -188,7 +199,7 @@ export const NotificationsPage: React.FC = () => {
                 className={`cursor-pointer transition-opacity ${
                   notification.read ? 'opacity-75' : ''
                 }`}
-                onClick={() => markAsRead(notification.id)}
+                onClick={() => handleNotificationClick(notification)}
               >
                 <div className="flex items-start space-x-3">
                   <div className="flex-shrink-0 mt-1">
@@ -228,6 +239,11 @@ export const NotificationsPage: React.FC = () => {
           </div>
         )}
       </div>
+      <NotificationDetailsModal 
+        isOpen={isModalOpen} 
+        onClose={handleCloseModal} 
+        notification={selectedNotification} 
+      />
     </div>
   );
 };

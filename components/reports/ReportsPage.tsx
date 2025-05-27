@@ -23,6 +23,7 @@ const mockReports: ReportItem[] = [
 export const ReportsPage: React.FC = () => {
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState<string | null>(null);
   
   useEffect(() => {
     const fetchReports = async () => {
@@ -33,6 +34,43 @@ export const ReportsPage: React.FC = () => {
     };
     fetchReports();
   }, []);
+
+  const handleDownloadReport = async (report: ReportItem) => {
+    setIsDownloading(report.id);
+    await new Promise(resolve => setTimeout(resolve, MOCK_DELAY / 2));
+
+    let fileContent = '';
+    let fileName = `${report.title.replace(/ /g, '_')}_${report.reportNumber}.txt`;
+    let mimeType = 'text/plain';
+
+    if (report.format === 'CSV') {
+      fileName = `${report.title.replace(/ /g, '_')}_${report.reportNumber}.csv`;
+      mimeType = 'text/csv;charset=utf-8;';
+      const csvHeader = ['ReportID', 'Title', 'GeneratedAt', 'FilterCriteria', 'Status'];
+      const csvData = [
+        [report.reportNumber, report.title, report.createdAt, report.filters, 'Sample Status 1'],
+        ['SubData-001', 'Detail A', 'Value X', 'Criteria Y', 'Status Z'],
+        ['SubData-002', 'Detail B', 'Value P', 'Criteria Q', 'Status R'],
+      ];
+      fileContent = [csvHeader.join(','), ...csvData.map(row => row.join(','))].join('\r\n');
+    } else if (report.format === 'PDF') {
+      fileName = `${report.title.replace(/ /g, '_')}_${report.reportNumber}.pdf.txt`;
+      mimeType = 'text/plain';
+      fileContent = `Mock PDF Content for: ${report.title}\nReport Number: ${report.reportNumber}\nCreated: ${report.createdAt}\nFilters: ${report.filters}\n\nThis is a placeholder for PDF content. Actual PDF generation would require a library like jsPDF.`;
+    } else {
+      fileContent = `Unsupported format: ${report.format} for report: ${report.title}`;
+    }
+
+    const blob = new Blob([fileContent], { type: mimeType });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+    setIsDownloading(null);
+  };
 
   if (isLoading) {
     return <LoadingSpinner message="Loading reports..." />;
@@ -93,7 +131,7 @@ export const ReportsPage: React.FC = () => {
       ) : (
         dateGroups.map(groupName => (
             <div key={groupName} className="mb-8">
-                <h2 className="text-xl font-semibold text-text-light mb-3">{groupName}</h2> {/* Page level heading, so light theme text */}
+                <h2 className="text-xl font-semibold text-text-light mb-3">{groupName}</h2>
                 <div className="space-y-4">
                     {groupedReports[groupName].map((report) => (
                     <PixelCard key={report.id} variant="blue" className="hover:border-blue-400 transition-colors">
@@ -115,8 +153,16 @@ export const ReportsPage: React.FC = () => {
                             </p>
                         </div>
                         <div className="ml-4 flex-shrink-0">
-                            <Button variant="outline" size="sm" className="border-blue-400 text-blue-300 hover:bg-blue-700/30" leftIcon={<DownloadIcon className="h-4 w-4" />}>
-                            Download
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="border-blue-400 text-blue-300 hover:bg-blue-700/30" 
+                                leftIcon={<DownloadIcon className="h-4 w-4" />}
+                                onClick={() => handleDownloadReport(report)}
+                                isLoading={isDownloading === report.id}
+                                disabled={isDownloading === report.id}
+                            >
+                            {isDownloading === report.id ? 'Downloading...' : 'Download'}
                             </Button>
                         </div>
                         </div>

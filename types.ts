@@ -1,4 +1,3 @@
-
 export enum UserRole {
   SUPER_ADMIN = 'Super Admin',
   POLICYHOLDER = 'Policyholder',
@@ -34,6 +33,8 @@ export interface Claim {
   id: string;
   claimNumber: string;
   policyholderName: string;
+  policyId?: string;
+  policyNumber?: string;
   dateOfLoss: string;
   claimType: string; // e.g., Auto Accident, Property Damage
   status: ClaimStatus;
@@ -119,6 +120,7 @@ export enum Page {
   POLICY_DETAILS = '/my-policy/:policyId', // Individual policy details page
   POLICY_PLANS = '/policy/plans', // Policy plans management page
   NEW_POLICY = '/policy/new', // New policy creation route
+  EDIT_POLICY = '/my-policy/:policyId/edit', // For editing an existing policy
   HELP_VERIFICATION = '/help/verification', // Verification issues help
 
   ONBOARDING_INSURANCE_CODE = '/onboarding/insurance-code', // Insurance code entry for policyholders
