@@ -25,6 +25,8 @@ interface ClaimFormData {
 interface VerificationData {
   photoDataUrl: string;
   timestamp: string;
+  sessionId?: string;
+  verificationId?: string;
 }
 
 export const StartClaimPage: React.FC = () => {
