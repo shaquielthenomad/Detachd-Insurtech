@@ -134,7 +134,7 @@ export const DashboardOverviewPage: React.FC = () => {
               </div>
             </PixelCard>
             
-            <PixelCard variant="gray" className="p-4">
+                          <PixelCard variant="default" className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="text-sm font-medium text-text-on-dark-primary">Account Settings</h4>

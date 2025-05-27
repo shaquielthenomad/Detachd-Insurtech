@@ -282,7 +282,7 @@ export const WitnessClaimPage: React.FC = () => {
 
         {/* Quick Actions */}
         <div className="mt-8">
-          <PixelCard variant="gray" className="p-6">
+          <PixelCard variant="default" className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-medium text-text-on-dark-primary">Account Settings</h4>
@@ -304,7 +304,7 @@ export const WitnessClaimPage: React.FC = () => {
 
         {/* Important Notice */}
         <div className="mt-6">
-          <PixelCard variant="gray" className="p-6">
+          <PixelCard variant="default" className="p-6">
             <div className="flex items-start space-x-3">
               <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400 mt-0.5" />
               <div>

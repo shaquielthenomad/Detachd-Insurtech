@@ -532,7 +532,7 @@ export const ClaimDetailsPage: React.FC = () => {
           </PixelCard>
           
            {/* Role-based Actions */}
-          {user?.role === UserRole.INSURER || user?.role === UserRole.SUPER_ADMIN ? (
+          {user?.role === UserRole.INSURER_ADMIN || user?.role === UserRole.SUPER_ADMIN ? (
             <PixelCard variant="blue" title="Adjuster Actions">
               <div className="space-y-2">
                 <Button 

@@ -29,7 +29,7 @@ export const PolicyholderWelcomePage: React.FC = () => {
     
     if (!user) {
         try {
-            await login( `${fullName.replace(/\s+/g, '.').toLowerCase()}@example.com`, fullName, UserRole.POLICYHOLDER); 
+            await login( `${fullName.replace(/\s+/g, '.').toLowerCase()}@example.com`, 'demo123'); 
         } catch (err) {
             setError("Failed to process your information. Please try again.");
             setIsLoading(false);

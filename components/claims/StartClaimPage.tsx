@@ -42,7 +42,7 @@ export const StartClaimPage: React.FC = () => {
     location: '',
     thirdPartyAccessCode: '',
   });
-  const [currentStep, setCurrentStep] = useState(1); // Step management will be simple for now
+  const [currentStep] = useState(1); // Step management will be simple for now
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showLivenessCheck, setShowLivenessCheck] = useState(false);

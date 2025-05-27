@@ -4,6 +4,7 @@ import React from 'react';
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  helperText?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   containerClassName?: string;
@@ -13,6 +14,7 @@ export const Input: React.FC<InputProps> = ({
   label, 
   id, 
   error, 
+  helperText,
   className = '', 
   leftIcon, 
   rightIcon, 
@@ -46,6 +48,7 @@ export const Input: React.FC<InputProps> = ({
         )}
       </div>
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {helperText && !error && <p className="mt-1 text-xs text-text-dim">{helperText}</p>}
     </div>
   );
 };

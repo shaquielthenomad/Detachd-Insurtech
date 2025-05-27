@@ -17,7 +17,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: UserRole | string; // Allow both enum and string values for flexibility
   avatarUrl?: string;
 }
 
@@ -40,6 +40,8 @@ export interface Claim {
   amountClaimed?: number;
   description?: string;
   riskScore?: number;
+  submittedAt?: string | Date;
+  documents?: Document[];
 }
 
 export interface RecentActivityItem {
