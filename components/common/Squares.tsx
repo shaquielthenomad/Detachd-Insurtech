@@ -33,6 +33,10 @@ const Squares = ({
     const drawGrid = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Add dark background fill
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
       const startX = Math.floor(gridOffset.current.x / squareSize) * squareSize;
       const startY = Math.floor(gridOffset.current.y / squareSize) * squareSize;
 
@@ -48,6 +52,13 @@ const Squares = ({
           ) {
             ctx.fillStyle = hoverFillColor;
             ctx.fillRect(squareX, squareY, squareSize, squareSize);
+            
+            // Add neon glow effect
+            ctx.shadowColor = 'rgba(0, 191, 255, 0.8)';
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = hoverFillColor;
+            ctx.fillRect(squareX, squareY, squareSize, squareSize);
+            ctx.shadowBlur = 0; // Reset shadow
           }
 
           ctx.strokeStyle = borderColor;

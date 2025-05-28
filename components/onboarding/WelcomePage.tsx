@@ -43,8 +43,8 @@ export const WelcomePage: React.FC = () => {
           speed={0.5}
           squareSize={40}
           direction='diagonal'
-          borderColor='rgba(59, 130, 246, 0.3)'
-          hoverFillColor='rgba(59, 130, 246, 0.1)'
+          borderColor='rgba(20, 20, 20, 0.8)'
+          hoverFillColor='rgba(0, 191, 255, 0.3)'
         />
       </div>
       <div className="relative z-10 w-full max-w-lg text-center"> 
