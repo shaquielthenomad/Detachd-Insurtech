@@ -1,0 +1,263 @@
+{
+  "users": {
+    "policyholder": {
+      "id": "user-123",
+      "email": "john.doe@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "policyholder",
+      "phone": "+1234567890",
+      "address": {
+        "street": "123 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "zipCode": "12345"
+      }
+    },
+    "insurer_admin": {
+      "id": "admin-123",
+      "email": "admin@detachd.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "role": "insurer_admin",
+      "department": "Claims"
+    },
+    "super_admin": {
+      "id": "superadmin-123",
+      "email": "superadmin@detachd.com",
+      "firstName": "Super",
+      "lastName": "Admin",
+      "role": "super_admin"
+    },
+    "witness": {
+      "id": "witness-123",
+      "email": "witness@example.com",
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "role": "witness"
+    },
+    "medical_professional": {
+      "id": "medical-123",
+      "email": "doctor@hospital.com",
+      "firstName": "Dr. Sarah",
+      "lastName": "Johnson",
+      "role": "medical_professional"
+    }
+  },
+  "claims": [
+    {
+      "id": "claim-123",
+      "title": "Auto Accident on Highway 101",
+      "description": "Rear-end collision during rush hour traffic",
+      "status": "Under Review",
+      "type": "Auto",
+      "incidentDate": "2024-01-15",
+      "submittedAt": "2024-01-16T10:30:00Z",
+      "claimNumber": "CLM-2024-001",
+      "amount": 15000,
+      "documents": [
+        {
+          "id": "doc-1",
+          "name": "police-report.pdf",
+          "type": "Police Report",
+          "uploadedAt": "2024-01-16T10:35:00Z"
+        },
+        {
+          "id": "doc-2",
+          "name": "vehicle-damage.jpg",
+          "type": "Photo Evidence",
+          "uploadedAt": "2024-01-16T10:40:00Z"
+        }
+      ]
+    },
+    {
+      "id": "claim-456",
+      "title": "Property Damage - Storm",
+      "description": "Roof damage from severe storm",
+      "status": "Approved",
+      "type": "Property",
+      "incidentDate": "2024-02-01",
+      "submittedAt": "2024-02-02T09:15:00Z",
+      "claimNumber": "CLM-2024-002",
+      "amount": 8500
+    },
+    {
+      "id": "claim-789",
+      "title": "Medical Claim - Emergency Room",
+      "description": "Emergency room visit after accident",
+      "status": "Pending",
+      "type": "Medical",
+      "incidentDate": "2024-01-15",
+      "submittedAt": "2024-01-17T14:20:00Z",
+      "claimNumber": "CLM-2024-003",
+      "amount": 2500
+    }
+  ],
+  "policies": [
+    {
+      "id": "policy-456",
+      "policyNumber": "POL-2024-001",
+      "type": "Auto Insurance",
+      "status": "Active",
+      "startDate": "2024-01-01",
+      "endDate": "2024-12-31",
+      "premium": 1200,
+      "coverage": {
+        "liability": 100000,
+        "collision": 50000,
+        "comprehensive": 50000
+      }
+    },
+    {
+      "id": "policy-789",
+      "policyNumber": "POL-2024-002",
+      "type": "Home Insurance",
+      "status": "Active",
+      "startDate": "2024-01-01",
+      "endDate": "2024-12-31",
+      "premium": 800,
+      "coverage": {
+        "dwelling": 250000,
+        "personalProperty": 100000,
+        "liability": 300000
+      }
+    }
+  ],
+  "team": [
+    {
+      "id": "member-789",
+      "firstName": "Alice",
+      "lastName": "Johnson",
+      "email": "alice@detachd.com",
+      "role": "Claims Adjuster",
+      "department": "Claims",
+      "phone": "+1234567891",
+      "status": "Active"
+    },
+    {
+      "id": "member-101",
+      "firstName": "Bob",
+      "lastName": "Wilson",
+      "email": "bob@detachd.com",
+      "role": "Underwriter",
+      "department": "Underwriting",
+      "phone": "+1234567892",
+      "status": "Active"
+    },
+    {
+      "id": "member-102",
+      "firstName": "Carol",
+      "lastName": "Brown",
+      "email": "carol@detachd.com",
+      "role": "Manager",
+      "department": "Claims",
+      "phone": "+1234567893",
+      "status": "Active"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-1",
+      "title": "Claim Update",
+      "message": "Your claim CLM-2024-001 has been updated",
+      "type": "claim_update",
+      "read": false,
+      "createdAt": "2024-01-20T10:00:00Z"
+    },
+    {
+      "id": "notif-2",
+      "title": "Payment Processed",
+      "message": "Payment of $8,500 has been processed for claim CLM-2024-002",
+      "type": "payment",
+      "read": true,
+      "createdAt": "2024-01-19T15:30:00Z"
+    },
+    {
+      "id": "notif-3",
+      "title": "Document Required",
+      "message": "Additional documentation required for claim CLM-2024-003",
+      "type": "document_request",
+      "read": false,
+      "createdAt": "2024-01-18T09:45:00Z"
+    }
+  ],
+  "analytics": {
+    "claimsSummary": {
+      "total": 150,
+      "pending": 45,
+      "approved": 85,
+      "rejected": 20,
+      "averageProcessingTime": 5.2
+    },
+    "monthlyTrends": [
+      { "month": "Jan", "claims": 25, "amount": 125000 },
+      { "month": "Feb", "claims": 30, "amount": 150000 },
+      { "month": "Mar", "claims": 28, "amount": 140000 },
+      { "month": "Apr", "claims": 35, "amount": 175000 },
+      { "month": "May", "claims": 32, "amount": 160000 }
+    ],
+    "claimTypes": [
+      { "type": "Auto", "count": 85, "percentage": 56.7 },
+      { "type": "Property", "count": 45, "percentage": 30.0 },
+      { "type": "Medical", "count": 20, "percentage": 13.3 }
+    ]
+  },
+  "reports": [
+    {
+      "id": "report-1",
+      "name": "Monthly Claims Report",
+      "type": "Claims",
+      "status": "Completed",
+      "generatedAt": "2024-01-31T23:59:59Z",
+      "downloadUrl": "/reports/monthly-claims-jan-2024.pdf"
+    },
+    {
+      "id": "report-2",
+      "name": "Fraud Detection Report",
+      "type": "Fraud",
+      "status": "Processing",
+      "startedAt": "2024-02-01T10:00:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Review claim documentation",
+      "description": "Review and verify all submitted documents for claim CLM-2024-001",
+      "assignedTo": "Alice Johnson",
+      "priority": "High",
+      "status": "In Progress",
+      "dueDate": "2024-01-25",
+      "claimId": "claim-123"
+    },
+    {
+      "id": "task-2",
+      "title": "Schedule property inspection",
+      "description": "Arrange property inspection for storm damage claim",
+      "assignedTo": "Bob Wilson",
+      "priority": "Medium",
+      "status": "Pending",
+      "dueDate": "2024-01-30",
+      "claimId": "claim-456"
+    }
+  ],
+  "settings": {
+    "notifications": {
+      "email": true,
+      "sms": false,
+      "push": true,
+      "frequency": "immediate"
+    },
+    "preferences": {
+      "language": "en",
+      "timezone": "America/New_York",
+      "currency": "USD",
+      "dateFormat": "MM/DD/YYYY"
+    },
+    "privacy": {
+      "shareDataWithPartners": false,
+      "allowAnalytics": true,
+      "marketingEmails": false
+    }
+  }
+} 

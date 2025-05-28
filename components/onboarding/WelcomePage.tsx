@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '../common/Button';
 import { APP_NAME, ROUTES } from '../../constants';
 import { ShieldCheckIcon, ZapIcon, SearchIcon, CheckCircleIcon } from '../common/Icon'; 
-import LetterGlitch from '../common/LetterGlitch';
+import Dither from '../common/Dither';
 import GlassIcons from '../common/GlassIcons'; // Import GlassIcons
 
 export const WelcomePage: React.FC = () => {
@@ -38,14 +38,19 @@ export const WelcomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      <LetterGlitch 
-        glitchSpeed={70}
-        glitchColors={['#1e3a8a', '#3b82f6', '#93c5fd']} 
-        centerVignette={true}
-        outerVignette={true}
-        smooth={true}
-        blurAmount="1px" // Apply blur to LetterGlitch
-      />
+      <div className="absolute inset-0 z-0">
+        <Dither
+          waveColor={[0.3, 0.4, 0.6]}
+          disableAnimation={false}
+          enableMouseInteraction={true}
+          mouseRadius={0.5}
+          colorNum={6}
+          waveAmplitude={0.2}
+          waveFrequency={2}
+          waveSpeed={0.03}
+          pixelSize={3}
+        />
+      </div>
       <div className="relative z-10 w-full max-w-lg text-center"> 
         <header className="mb-12">
           <h1 className="text-5xl font-bold tracking-tight text-slate-100 mb-4">{APP_NAME}</h1>
