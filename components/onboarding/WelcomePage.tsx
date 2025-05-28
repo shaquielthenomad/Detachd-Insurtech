@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '../common/Button';
 import { APP_NAME, ROUTES } from '../../constants';
 import { ShieldCheckIcon, ZapIcon, SearchIcon, CheckCircleIcon } from '../common/Icon'; 
-import Dither from '../common/Dither';
+import Squares from '../common/Squares';
 import GlassIcons from '../common/GlassIcons'; // Import GlassIcons
 
 export const WelcomePage: React.FC = () => {
@@ -39,16 +39,12 @@ export const WelcomePage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <Dither
-          waveColor={[0.3, 0.4, 0.6]}
-          disableAnimation={false}
-          enableMouseInteraction={true}
-          mouseRadius={0.5}
-          colorNum={6}
-          waveAmplitude={0.2}
-          waveFrequency={2}
-          waveSpeed={0.03}
-          pixelSize={3}
+        <Squares 
+          speed={0.5}
+          squareSize={40}
+          direction='diagonal'
+          borderColor='rgba(59, 130, 246, 0.3)'
+          hoverFillColor='rgba(59, 130, 246, 0.1)'
         />
       </div>
       <div className="relative z-10 w-full max-w-lg text-center"> 
