@@ -11,6 +11,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import Masonry, { MasonryDataItem } from '../common/Masonry';
 
+// Import MUI enhanced dashboard
+import { MuiEnhancedDashboard } from './MuiEnhancedDashboard';
+import { MuiThemeProvider } from '../common/MuiThemeProvider';
+
 // Color palette for charts
 const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
@@ -53,6 +57,7 @@ export const DashboardOverviewPage: React.FC = () => {
   const [activePolicies, setActivePolicies] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
   const [monthlyRevenue, setMonthlyRevenue] = useState(0);
+  const [useMuiDashboard, setUseMuiDashboard] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -89,6 +94,8 @@ export const DashboardOverviewPage: React.FC = () => {
           { name: 'Week 4', avgRiskScore: 70 },
           { name: 'Week 5', avgRiskScore: 67 },
         ]);
+        // Enable MUI dashboard for insurers by default
+        setUseMuiDashboard(true);
       } else if (isPolicyholder) {
         // Policyholder-specific data
         setMyClaimsCount(3);
@@ -109,6 +116,28 @@ export const DashboardOverviewPage: React.FC = () => {
   const isInsurer = user?.role === 'insurer_admin' || user?.role === 'super_admin';
   const isPolicyholder = user?.role === 'policyholder';
   const isWitness = user?.role === 'witness';
+
+  // For insurers, show MUI enhanced dashboard
+  if (isInsurer && useMuiDashboard) {
+    return (
+      <MuiThemeProvider>
+        <div className="relative">
+          {/* Toggle button to switch between dashboards */}
+          <div className="absolute top-4 right-4 z-10">
+            <Button 
+              onClick={() => setUseMuiDashboard(false)}
+              variant="outline"
+              size="sm"
+              className="bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700"
+            >
+              Switch to Classic View
+            </Button>
+          </div>
+          <MuiEnhancedDashboard />
+        </div>
+      </MuiThemeProvider>
+    );
+  }
 
   // Role-specific dashboard content
   if (isWitness) {
@@ -134,7 +163,7 @@ export const DashboardOverviewPage: React.FC = () => {
               </div>
             </PixelCard>
             
-                          <PixelCard variant="default" className="p-4">
+            <PixelCard variant="default" className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="text-sm font-medium text-text-on-dark-primary">Account Settings</h4>
@@ -297,18 +326,28 @@ export const DashboardOverviewPage: React.FC = () => {
     );
   }
 
-  // Insurer/Admin Dashboard
+  // Insurer/Admin Dashboard (Classic View)
   return (
     <div className="min-h-screen bg-slate-900">
       <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto">
-        <PageHeader 
-          title="Insurance Dashboard" 
-          subtitle="Comprehensive overview of claims, users, and system performance"
-        />
+        <div className="flex justify-between items-center">
+          <PageHeader 
+            title="Insurance Dashboard" 
+            subtitle="Comprehensive overview of claims, users, and system performance"
+          />
+          <Button 
+            onClick={() => setUseMuiDashboard(true)}
+            variant="primary"
+            size="sm"
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Switch to Enhanced View
+          </Button>
+        </div>
         
         {/* Top Stats */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <PixelCard variant="blue" className="p-8">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <PixelCard variant="blue" className="p-6">
             <div className="flex items-center">
               <FileTextIcon className="h-8 w-8 text-blue-400 mr-4 flex-shrink-0" />
               <div>
@@ -318,68 +357,85 @@ export const DashboardOverviewPage: React.FC = () => {
             </div>
           </PixelCard>
           
-          <PixelCard variant="blue" className="p-8">
+          <PixelCard variant="blue" className="p-6">
+            <div className="flex items-center">
+              <AlertTriangleIcon className="h-8 w-8 text-yellow-400 mr-4 flex-shrink-0" />
+              <div>
+                <p className="text-2xl font-bold text-yellow-400">{openClaims}</p>
+                <p className="text-sm text-text-on-dark-secondary">Open Claims</p>
+              </div>
+            </div>
+          </PixelCard>
+          
+          <PixelCard variant="blue" className="p-6">
             <div className="flex items-center">
               <UsersIcon className="h-8 w-8 text-green-400 mr-4 flex-shrink-0" />
               <div>
-                <p className="text-2xl font-bold text-green-400">{totalUsers}</p>
-                <p className="text-sm text-text-on-dark-secondary">Active Users</p>
+                <p className="text-2xl font-bold text-green-400">{totalUsers.toLocaleString()}</p>
+                <p className="text-sm text-text-on-dark-secondary">Total Users</p>
               </div>
             </div>
           </PixelCard>
           
-          <PixelCard variant="blue" className="p-8">
-            <div className="flex items-center">
-              <AlertTriangleIcon className="h-8 w-8 text-red-400 mr-4 flex-shrink-0" />
-              <div>
-                <p className="text-2xl font-bold text-red-400">{urgentTasks}</p>
-                <p className="text-sm text-text-on-dark-secondary">Urgent Tasks</p>
-              </div>
-            </div>
-          </PixelCard>
-          
-          <PixelCard variant="blue" className="p-8">
+          <PixelCard variant="blue" className="p-6">
             <div className="flex items-center">
               <ChartBarIcon className="h-8 w-8 text-purple-400 mr-4 flex-shrink-0" />
               <div>
-                <p className="text-2xl font-bold text-purple-400">R{(monthlyRevenue/1000000).toFixed(1)}M</p>
+                <p className="text-2xl font-bold text-purple-400">R{(monthlyRevenue / 1000000).toFixed(1)}M</p>
                 <p className="text-sm text-text-on-dark-secondary">Monthly Revenue</p>
               </div>
             </div>
           </PixelCard>
         </div>
 
-        {/* Charts Section */}
+        {/* Charts */}
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Claims by Month Chart */}
-          <PixelCard variant="blue" className="p-8">
-            <h3 className="text-lg font-semibold text-text-on-dark-primary mb-6">Claims Overview</h3>
-            <div className="h-80">
+          <PixelCard variant="blue" className="p-6">
+            <h3 className="text-lg font-semibold text-text-on-dark-primary mb-4">Claims by Month</h3>
+            <div style={{ height: '300px' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={claimsByMonthData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="name" stroke="#9ca3af" />
-                  <YAxis stroke="#9ca3af" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1e293b', 
-                      border: '1px solid #334155',
-                      borderRadius: '8px'
-                    }}
-                  />
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
                   <Legend />
-                  <Bar dataKey="Submitted" fill="#3b82f6" />
-                  <Bar dataKey="Approved" fill="#10b981" />
-                  <Bar dataKey="Rejected" fill="#ef4444" />
+                  <Bar dataKey="Submitted" fill={CHART_COLORS[0]} name="Submitted" />
+                  <Bar dataKey="Approved" fill={CHART_COLORS[1]} name="Approved" />
+                  <Bar dataKey="Rejected" fill={CHART_COLORS[3]} name="Rejected" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </PixelCard>
+          
+          <PixelCard variant="blue" className="p-6">
+            <h3 className="text-lg font-semibold text-text-on-dark-primary mb-4">Risk Score Trend</h3>
+            <div style={{ height: '300px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={riskScoreTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="avgRiskScore" 
+                    stroke={CHART_COLORS[0]} 
+                    strokeWidth={3}
+                    name="Average Risk Score"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </PixelCard>
+        </div>
 
-          {/* Claim Types Distribution */}
-          <PixelCard variant="blue" className="p-8">
-            <h3 className="text-lg font-semibold text-text-on-dark-primary mb-6">Claim Types Distribution</h3>
-            <div className="h-80">
+        {/* Claim Types Distribution */}
+        <div className="mt-8">
+          <PixelCard variant="blue" className="p-6">
+            <h3 className="text-lg font-semibold text-text-on-dark-primary mb-4">Claim Types Distribution</h3>
+            <div style={{ height: '300px' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -389,92 +445,15 @@ export const DashboardOverviewPage: React.FC = () => {
                     outerRadius={100}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={(entry) => `${entry.name}: ${entry.value}%`}
                   >
                     {claimTypesData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1e293b', 
-                      border: '1px solid #334155',
-                      borderRadius: '8px'
-                    }}
-                  />
+                  <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
-          </PixelCard>
-        </div>
-
-        {/* Action Items */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Link to={ROUTES.TASKS_OVERVIEW}>
-            <PixelCard variant="blue" className="p-8 hover:bg-slate-800/50 transition-colors h-full">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-2xl font-bold text-red-400">{urgentTasks}</p>
-                  <p className="text-sm text-text-on-dark-secondary">Urgent Tasks</p>
-                </div>
-                <AlertTriangleIcon className="h-8 w-8 text-red-400 flex-shrink-0" />
-              </div>
-            </PixelCard>
-          </Link>
-          
-          <PixelCard variant="blue" className="p-8 h-full">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-yellow-400">{pendingApprovals}</p>
-                <p className="text-sm text-text-on-dark-secondary">Pending Approvals</p>
-              </div>
-              <CheckCircleIcon className="h-8 w-8 text-yellow-400 flex-shrink-0" />
-            </div>
-          </PixelCard>
-          
-          <PixelCard variant="blue" className="p-8 h-full">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-orange-400">{fraudAlerts}</p>
-                <p className="text-sm text-text-on-dark-secondary">Fraud Alerts</p>
-              </div>
-              <ShieldCheckIcon className="h-8 w-8 text-orange-400 flex-shrink-0" />
-            </div>
-          </PixelCard>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mt-8 mb-12">
-          <PixelCard variant="blue" className="p-8">
-            <h3 className="text-lg font-semibold text-text-on-dark-primary mb-6">Quick Actions</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Link to={ROUTES.REPORTS}>
-                <Button variant="secondary" className="w-full justify-center h-full">
-                  <ChartBarIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-                  Generate Reports
-                </Button>
-              </Link>
-              <Link to={ROUTES.ANALYTICS}>
-                <Button variant="secondary" className="w-full justify-center h-full">
-                  <ChartBarIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-                  View Analytics
-                </Button>
-              </Link>
-              <Link to={ROUTES.TEAM}>
-                <Button variant="secondary" className="w-full justify-center h-full">
-                  <UsersIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-                  Manage Team
-                </Button>
-              </Link>
-              <Link to={ROUTES.SETTINGS}>
-                <Button variant="secondary" className="w-full justify-center h-full">
-                  <svg className="h-5 w-5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  Settings
-                </Button>
-              </Link>
             </div>
           </PixelCard>
         </div>
