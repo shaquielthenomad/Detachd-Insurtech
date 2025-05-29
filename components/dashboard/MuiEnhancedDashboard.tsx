@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, Card, CardContent, Typography, Paper, Chip, Avatar, IconButton, Divider } from '@mui/material';
+import { Box, Card, CardContent, Typography, Paper, Chip, Avatar, IconButton, Divider } from '@mui/material';
 import { TrendingUp, TrendingDown, MoreVert, Assessment, People, Security, AccountBalance } from '@mui/icons-material';
 import { PageHeader } from '../common/PageHeader';
 import { useAuth } from '../../contexts/AuthContext';
@@ -185,8 +185,8 @@ export const MuiEnhancedDashboard: React.FC = () => {
       
       {/* Key Metrics */}
       <Box mt={3}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={3}>
+        <Box display="flex" flexWrap="wrap" gap={3}>
+          <Box flexGrow={1} minWidth="250px">
             <MetricCard
               title="Total Claims"
               value={dashboardData.totalClaims}
@@ -195,8 +195,8 @@ export const MuiEnhancedDashboard: React.FC = () => {
               icon={<Assessment />}
               color="primary"
             />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box flexGrow={1} minWidth="250px">
             <MetricCard
               title="Open Claims"
               value={dashboardData.openClaims}
@@ -205,8 +205,8 @@ export const MuiEnhancedDashboard: React.FC = () => {
               icon={<Security />}
               color="warning"
             />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box flexGrow={1} minWidth="250px">
             <MetricCard
               title="Total Users"
               value={`${(dashboardData.totalUsers / 1000).toFixed(1)}k`}
@@ -215,8 +215,8 @@ export const MuiEnhancedDashboard: React.FC = () => {
               icon={<People />}
               color="success"
             />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box flexGrow={1} minWidth="250px">
             <MetricCard
               title="Monthly Revenue"
               value={`R${(dashboardData.monthlyRevenue / 1000000).toFixed(1)}M`}
@@ -225,14 +225,14 @@ export const MuiEnhancedDashboard: React.FC = () => {
               icon={<AccountBalance />}
               color="info"
             />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Box>
 
       {/* Charts Section */}
       <Box mt={4}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} lg={8}>
+        <Box display="flex" flexWrap="wrap" gap={3}>
+          <Box flex="2" minWidth="500px">
             <ChartCard 
               title="Claims by Month"
               action={
@@ -254,8 +254,8 @@ export const MuiEnhancedDashboard: React.FC = () => {
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
-          </Grid>
-          <Grid item xs={12} lg={4}>
+          </Box>
+          <Box flex="1" minWidth="300px">
             <ChartCard title="Claim Types Distribution">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -276,8 +276,8 @@ export const MuiEnhancedDashboard: React.FC = () => {
                 </PieChart>
               </ResponsiveContainer>
             </ChartCard>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Box>
 
       {/* Risk Score Trend */}
