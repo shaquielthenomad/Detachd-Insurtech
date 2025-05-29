@@ -41,6 +41,9 @@
     "recharts": "^2.15.3",
     "three": "^0.176.0"
   },
+  "resolutions": {
+    "@rollup/rollup-linux-x64-gnu": "optional"
+  },
   "devDependencies": {
     "@cypress/code-coverage": "^3.14.3",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
