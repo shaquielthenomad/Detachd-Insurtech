@@ -11,10 +11,6 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import Masonry, { MasonryDataItem } from '../common/Masonry';
 
-// Import MUI enhanced dashboard
-import { MuiEnhancedDashboard } from './MuiEnhancedDashboard';
-import { MuiThemeProvider } from '../common/MuiThemeProvider';
-
 // Color palette for charts
 const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
@@ -57,7 +53,6 @@ export const DashboardOverviewPage: React.FC = () => {
   const [activePolicies, setActivePolicies] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
   const [monthlyRevenue, setMonthlyRevenue] = useState(0);
-  const [useMuiDashboard, setUseMuiDashboard] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -94,8 +89,6 @@ export const DashboardOverviewPage: React.FC = () => {
           { name: 'Week 4', avgRiskScore: 70 },
           { name: 'Week 5', avgRiskScore: 67 },
         ]);
-        // Enable MUI dashboard for insurers by default
-        setUseMuiDashboard(true);
       } else if (isPolicyholder) {
         // Policyholder-specific data
         setMyClaimsCount(3);
@@ -116,28 +109,6 @@ export const DashboardOverviewPage: React.FC = () => {
   const isInsurer = user?.role === 'insurer_admin' || user?.role === 'super_admin';
   const isPolicyholder = user?.role === 'policyholder';
   const isWitness = user?.role === 'witness';
-
-  // For insurers, show MUI enhanced dashboard
-  if (isInsurer && useMuiDashboard) {
-    return (
-      <MuiThemeProvider>
-        <div className="relative">
-          {/* Toggle button to switch between dashboards */}
-          <div className="absolute top-4 right-4 z-10">
-            <Button 
-              onClick={() => setUseMuiDashboard(false)}
-              variant="outline"
-              size="sm"
-              className="bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700"
-            >
-              Switch to Classic View
-            </Button>
-          </div>
-          <MuiEnhancedDashboard />
-        </div>
-      </MuiThemeProvider>
-    );
-  }
 
   // Role-specific dashboard content
   if (isWitness) {
@@ -344,14 +315,6 @@ export const DashboardOverviewPage: React.FC = () => {
             >
               Urgent Claims ({urgentTasks})
             </Button>
-            <Button 
-              onClick={() => setUseMuiDashboard(true)}
-              variant="outline"
-              size="sm"
-              className="border-slate-600 text-slate-300"
-            >
-              Enhanced View
-            </Button>
           </div>
         </div>
         
@@ -528,14 +491,6 @@ export const DashboardOverviewPage: React.FC = () => {
                 onClick={() => navigate(ROUTES.REPORTS)}
               >
                 Generate Reports
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start border-purple-400 text-purple-300 hover:bg-purple-900/20"
-                leftIcon={<UsersIcon className="h-4 w-4" />}
-                onClick={() => navigate(ROUTES.TEAM)}
-              >
-                Manage Team
               </Button>
             </div>
           </PixelCard>
