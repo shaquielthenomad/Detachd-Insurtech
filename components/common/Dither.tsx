@@ -135,25 +135,31 @@ void mainImage(in vec4 inputColor, in vec2 uv, out vec4 outputColor) {
 `;
 
 class RetroEffectImpl extends Effect {
+  private _uniforms: Map<string, THREE.Uniform>;
+  
   constructor() {
     const uniforms = new Map([
       ["colorNum", new THREE.Uniform(4.0)],
       ["pixelSize", new THREE.Uniform(2.0)]
     ]);
     super("RetroEffect", ditherFragmentShader, { uniforms });
-    this.uniforms = uniforms;
+    this._uniforms = uniforms;
   }
-  set colorNum(value) {
-    this.uniforms.get("colorNum").value = value;
+  
+  set colorNum(value: number) {
+    this._uniforms.get("colorNum")!.value = value;
   }
-  get colorNum() {
-    return this.uniforms.get("colorNum").value;
+  
+  get colorNum(): number {
+    return this._uniforms.get("colorNum")!.value;
   }
-  set pixelSize(value) {
-    this.uniforms.get("pixelSize").value = value;
+  
+  set pixelSize(value: number) {
+    this._uniforms.get("pixelSize")!.value = value;
   }
-  get pixelSize() {
-    return this.uniforms.get("pixelSize").value;
+  
+  get pixelSize(): number {
+    return this._uniforms.get("pixelSize")!.value;
   }
 }
 
