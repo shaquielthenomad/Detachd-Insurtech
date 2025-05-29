@@ -3,11 +3,34 @@ import { Link } from 'react-router-dom';
 import { PageHeader } from '../common/PageHeader';
 import PixelCard from '../common/PixelCard';
 import { Button } from '../common/Button';
-import { Claim, ClaimStatus } from '../../types';
+import { Input } from '../common/Input';
+import { Claim, ClaimStatus, UserRole } from '../../types';
 import { ROUTES } from '../../constants';
-import { PlusCircleIcon, ChevronRightIcon, FileTextIcon, DownloadIcon, CheckCircleIcon } from '../common/Icon'; 
+import { 
+  PlusCircleIcon, 
+  ChevronRightIcon, 
+  FileTextIcon, 
+  DownloadIcon, 
+  CheckCircleIcon,
+  SearchIcon,
+  FilterIcon,
+  UsersIcon,
+  CalendarIcon,
+  EyeIcon,
+  AlertTriangleIcon,
+  XCircleIcon
+} from '../common/Icon'; 
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { useAuth } from '../../contexts/AuthContext';
+
+// Extended claim interface for insurer view
+interface InsurerClaim extends Claim {
+  policyNumber?: string;
+  assignedTo?: string;
+  priority?: 'high' | 'medium' | 'low';
+  lastActivity?: string;
+  riskScore?: number;
+}
 
 const getStatusBadgeStyles = (status: ClaimStatus): string => {
   // Styles for dark PixelCard background
@@ -21,31 +44,371 @@ const getStatusBadgeStyles = (status: ClaimStatus): string => {
   }
 };
 
+const getPriorityBadgeStyles = (priority: 'high' | 'medium' | 'low'): string => {
+  switch (priority) {
+    case 'high': return 'text-red-300 bg-red-700/30 border-red-500';
+    case 'medium': return 'text-yellow-300 bg-yellow-700/30 border-yellow-500';
+    case 'low': return 'text-blue-300 bg-blue-700/30 border-blue-500';
+    default: return 'text-slate-400 bg-slate-700/30 border-slate-600';
+  }
+};
+
 export const MyClaimsPage: React.FC = () => {
   const { user } = useAuth();
-  const [claims, setClaims] = useState<Claim[]>([]);
+  const [claims, setClaims] = useState<InsurerClaim[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<ClaimStatus | 'all'>('all');
+  const [priorityFilter, setPriorityFilter] = useState<'high' | 'medium' | 'low' | 'all'>('all');
+
+  const isInsurer = user?.role === 'insurer_admin' || user?.role === 'super_admin';
 
   useEffect(() => {
     const fetchClaims = async () => {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 500)); 
-       // Mock data for demonstration, replace with actual API call
-      const mockUserClaims: Claim[] = [
-        { id: 'clm001', claimNumber: 'DET-001', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-07-15', claimType: 'Auto Accident', status: ClaimStatus.IN_REVIEW, amountClaimed: 25000 },
-        { id: 'clm002', claimNumber: 'DET-002', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-06-20', claimType: 'Property Damage', status: ClaimStatus.APPROVED, amountClaimed: 12000 },
-        { id: 'clm003', claimNumber: 'DET-003', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-05-01', claimType: 'Theft', status: ClaimStatus.REJECTED, amountClaimed: 8000 },
-      ];
-      setClaims(mockUserClaims);
+      
+      if (isInsurer) {
+        // Mock data for insurers - all claims across policyholders
+        const mockInsurerClaims: InsurerClaim[] = [
+          { 
+            id: 'clm001', 
+            claimNumber: 'DET-001', 
+            policyholderName: 'John Smith', 
+            dateOfLoss: '2024-07-15', 
+            claimType: 'Auto Accident', 
+            status: ClaimStatus.IN_REVIEW, 
+            amountClaimed: 25000,
+            policyNumber: 'POL-12345',
+            assignedTo: 'Sarah Johnson',
+            priority: 'high',
+            lastActivity: '2024-07-16',
+            riskScore: 75
+          },
+          { 
+            id: 'clm002', 
+            claimNumber: 'DET-002', 
+            policyholderName: 'Jane Doe', 
+            dateOfLoss: '2024-06-20', 
+            claimType: 'Property Damage', 
+            status: ClaimStatus.SUBMITTED, 
+            amountClaimed: 12000,
+            policyNumber: 'POL-67890',
+            assignedTo: 'Mike Wilson',
+            priority: 'medium',
+            lastActivity: '2024-07-14',
+            riskScore: 30
+          },
+          { 
+            id: 'clm003', 
+            claimNumber: 'DET-003', 
+            policyholderName: 'Bob Johnson', 
+            dateOfLoss: '2024-05-01', 
+            claimType: 'Theft', 
+            status: ClaimStatus.APPROVED, 
+            amountClaimed: 8000,
+            policyNumber: 'POL-11111',
+            assignedTo: 'Lisa Chen',
+            priority: 'low',
+            lastActivity: '2024-07-10',
+            riskScore: 20
+          },
+          { 
+            id: 'clm004', 
+            claimNumber: 'DET-004', 
+            policyholderName: 'Alice Brown', 
+            dateOfLoss: '2024-07-10', 
+            claimType: 'Medical', 
+            status: ClaimStatus.REJECTED, 
+            amountClaimed: 15000,
+            policyNumber: 'POL-22222',
+            assignedTo: 'David Kim',
+            priority: 'medium',
+            lastActivity: '2024-07-12',
+            riskScore: 85
+          },
+          { 
+            id: 'clm005', 
+            claimNumber: 'DET-005', 
+            policyholderName: 'Tom Wilson', 
+            dateOfLoss: '2024-07-08', 
+            claimType: 'Auto Accident', 
+            status: ClaimStatus.IN_REVIEW, 
+            amountClaimed: 32000,
+            policyNumber: 'POL-33333',
+            assignedTo: 'Sarah Johnson',
+            priority: 'high',
+            lastActivity: '2024-07-15',
+            riskScore: 65
+          },
+        ];
+        
+        // Update claims with localStorage data
+        const updatedClaims = mockInsurerClaims.map(claim => {
+          const savedClaimState = localStorage.getItem(`claim_${claim.id}`);
+          if (savedClaimState) {
+            const parsedState = JSON.parse(savedClaimState);
+            return {
+              ...claim,
+              status: parsedState.status || claim.status,
+              lastActivity: parsedState.auditTrail?.[0]?.timestamp || claim.lastActivity
+            };
+          }
+          return claim;
+        });
+        
+        setClaims(updatedClaims);
+      } else {
+        // Mock data for policyholders - their claims only
+        const mockUserClaims: InsurerClaim[] = [
+          { id: 'clm001', claimNumber: 'DET-001', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-07-15', claimType: 'Auto Accident', status: ClaimStatus.IN_REVIEW, amountClaimed: 25000 },
+          { id: 'clm002', claimNumber: 'DET-002', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-06-20', claimType: 'Property Damage', status: ClaimStatus.APPROVED, amountClaimed: 12000 },
+          { id: 'clm003', claimNumber: 'DET-003', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-05-01', claimType: 'Theft', status: ClaimStatus.REJECTED, amountClaimed: 8000 },
+        ];
+        
+        // Update claims with localStorage data
+        const updatedClaims = mockUserClaims.map(claim => {
+          const savedClaimState = localStorage.getItem(`claim_${claim.id}`);
+          if (savedClaimState) {
+            const parsedState = JSON.parse(savedClaimState);
+            return {
+              ...claim,
+              status: parsedState.status || claim.status
+            };
+          }
+          return claim;
+        });
+        
+        setClaims(updatedClaims);
+      }
       setIsLoading(false);
     };
     fetchClaims();
-  }, [user?.name]);
+  }, [user?.name, isInsurer]);
+
+  // Filter claims based on search and filters
+  const filteredClaims = claims.filter(claim => {
+    const matchesSearch = 
+      claim.claimNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      claim.policyholderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      claim.claimType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (claim.policyNumber && claim.policyNumber.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesStatus = statusFilter === 'all' || claim.status === statusFilter;
+    const matchesPriority = priorityFilter === 'all' || claim.priority === priorityFilter;
+    
+    return matchesSearch && matchesStatus && matchesPriority;
+  });
 
   if (isLoading) {
-    return <LoadingSpinner message="Loading your claims..." />;
+    return <LoadingSpinner message={isInsurer ? "Loading claims..." : "Loading your claims..."} />;
   }
 
+  if (isInsurer) {
+    // Insurer Claims Management View
+    return (
+      <div>
+        <PageHeader 
+          title="Claims Management" 
+          subtitle={`${claims.length} total claims • ${claims.filter(c => c.status === ClaimStatus.IN_REVIEW).length} pending review • ${claims.filter(c => c.priority === 'high').length} high priority`}
+          actions={
+            <div className="flex space-x-3">
+              <Button variant="outline" leftIcon={<FilterIcon className="h-5 w-5" />}>
+                Export Data
+              </Button>
+              <Button variant="primary" leftIcon={<UsersIcon className="h-5 w-5" />}>
+                Assign Claims
+              </Button>
+            </div>
+          }
+        />
+
+        {/* Search and Filters */}
+        <PixelCard variant="blue" className="mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="md:col-span-2">
+              <Input 
+                id="search-claims"
+                type="text"
+                placeholder="Search by claim number, policyholder, type..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                leftIcon={<SearchIcon className="h-5 w-5 text-slate-400"/>}
+                className="bg-slate-700 border-slate-600 text-text-on-dark-primary placeholder-slate-400"
+              />
+            </div>
+            <div>
+              <select 
+                value={statusFilter} 
+                onChange={(e) => setStatusFilter(e.target.value as ClaimStatus | 'all')}
+                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 text-text-on-dark-primary rounded-md focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="all">All Statuses</option>
+                <option value={ClaimStatus.SUBMITTED}>Submitted</option>
+                <option value={ClaimStatus.IN_REVIEW}>In Review</option>
+                <option value={ClaimStatus.APPROVED}>Approved</option>
+                <option value={ClaimStatus.REJECTED}>Rejected</option>
+                <option value={ClaimStatus.CLOSED}>Closed</option>
+              </select>
+            </div>
+            <div>
+              <select 
+                value={priorityFilter} 
+                onChange={(e) => setPriorityFilter(e.target.value as 'high' | 'medium' | 'low' | 'all')}
+                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 text-text-on-dark-primary rounded-md focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="all">All Priorities</option>
+                <option value="high">High Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="low">Low Priority</option>
+              </select>
+            </div>
+          </div>
+        </PixelCard>
+
+        {/* Claims Table/List */}
+        {filteredClaims.length === 0 ? (
+          <PixelCard variant="blue">
+            <div className="text-center py-12">
+              <FileTextIcon className="mx-auto h-12 w-12 text-text-on-dark-secondary" />
+              <h3 className="mt-2 text-sm font-medium text-text-on-dark-primary">No claims found</h3>
+              <p className="mt-1 text-sm text-text-on-dark-secondary">
+                {searchTerm || statusFilter !== 'all' || priorityFilter !== 'all' 
+                  ? 'Try adjusting your search or filters.' 
+                  : 'No claims have been submitted yet.'}
+              </p>
+            </div>
+          </PixelCard>
+        ) : (
+          <div className="space-y-4">
+            {filteredClaims.map((claim) => (
+              <PixelCard key={claim.id} variant="blue" className="hover:border-blue-400 transition-colors">
+                <div className="p-1">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex-1">
+                      <Link to={`${ROUTES.CLAIMS}/${claim.id}`} className="block">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <h3 className="text-lg font-semibold text-blue-300 hover:underline">
+                            Claim #{claim.claimNumber}
+                          </h3>
+                          {claim.priority && (
+                            <span className={`px-2 py-1 text-xs font-semibold rounded-full border ${getPriorityBadgeStyles(claim.priority)}`}>
+                              {claim.priority.toUpperCase()}
+                            </span>
+                          )}
+                          {claim.riskScore && claim.riskScore > 70 && (
+                            <span className="px-2 py-1 text-xs font-semibold rounded-full border border-red-500 text-red-300 bg-red-700/30">
+                              HIGH RISK ({claim.riskScore}%)
+                            </span>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-text-on-dark-secondary">
+                          <div>Policyholder: <span className="text-text-on-dark-primary">{claim.policyholderName}</span></div>
+                          <div>Type: <span className="text-text-on-dark-primary">{claim.claimType}</span></div>
+                          {claim.policyNumber && (
+                            <div>Policy: <span className="text-text-on-dark-primary">{claim.policyNumber}</span></div>
+                          )}
+                          {claim.assignedTo && (
+                            <div>Assigned to: <span className="text-text-on-dark-primary">{claim.assignedTo}</span></div>
+                          )}
+                        </div>
+                      </Link>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      {claim.status === ClaimStatus.APPROVED && (
+                        <Link 
+                          to="/test-certificate"
+                          className="flex items-center px-3 py-2 bg-green-700/30 text-green-300 rounded-md hover:bg-green-700/50 transition-colors border border-green-500/50"
+                          title="Download Certificate"
+                        >
+                          <CheckCircleIcon className="h-4 w-4 mr-2" />
+                          <span className="text-sm font-medium">
+                            {(() => {
+                              const savedClaimState = localStorage.getItem(`claim_${claim.id}`);
+                              const certificateIssued = savedClaimState ? JSON.parse(savedClaimState).certificateIssued : false;
+                              return certificateIssued ? 'Certificate Issued' : 'Certificate Available';
+                            })()}
+                          </span>
+                        </Link>
+                      )}
+                      <Link to={`${ROUTES.CLAIMS}/${claim.id}`} className="text-text-on-dark-secondary hover:text-blue-300">
+                        <ChevronRightIcon className="h-6 w-6" />
+                      </Link>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex flex-wrap gap-4 text-sm text-text-on-dark-secondary">
+                      <div className="flex items-center">
+                        <CalendarIcon className="h-4 w-4 mr-1" />
+                        <span className="font-medium mr-1">Date:</span>
+                        {new Date(claim.dateOfLoss).toLocaleDateString()}
+                      </div>
+                      {claim.amountClaimed && (
+                        <div className="flex items-center">
+                          <span className="font-medium mr-1">Amount:</span>
+                          R {claim.amountClaimed.toLocaleString()}
+                        </div>
+                      )}
+                      {claim.lastActivity && (
+                        <div className="flex items-center">
+                          <span className="font-medium mr-1">Last Activity:</span>
+                          {new Date(claim.lastActivity).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusBadgeStyles(claim.status)}`}>
+                        {claim.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </PixelCard>
+            ))}
+            
+            {/* Claims Management Stats */}
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+              <PixelCard variant="blue" className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-400">
+                    {claims.filter(c => c.status === ClaimStatus.SUBMITTED || c.status === ClaimStatus.IN_REVIEW).length}
+                  </div>
+                  <div className="text-sm text-text-on-dark-secondary">Pending Review</div>
+                </div>
+              </PixelCard>
+              <PixelCard variant="blue" className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-400">
+                    {claims.filter(c => c.status === ClaimStatus.APPROVED).length}
+                  </div>
+                  <div className="text-sm text-text-on-dark-secondary">Approved</div>
+                </div>
+              </PixelCard>
+              <PixelCard variant="blue" className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-400">
+                    {claims.filter(c => c.priority === 'high').length}
+                  </div>
+                  <div className="text-sm text-text-on-dark-secondary">High Priority</div>
+                </div>
+              </PixelCard>
+              <PixelCard variant="blue" className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-yellow-400">
+                    {claims.filter(c => c.riskScore && c.riskScore > 70).length}
+                  </div>
+                  <div className="text-sm text-text-on-dark-secondary">High Risk</div>
+                </div>
+              </PixelCard>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Policyholder "My Claims" View (original functionality)
   return (
     <div>
       <PageHeader 

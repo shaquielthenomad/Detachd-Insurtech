@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { UserRole, NavItemType } from '../../types';
 import { ROUTES, APP_NAME } from '../../constants';
 import { useNavigate } from 'react-router-dom';
-import { HomeIcon, FileTextIcon, BarChartIcon, UsersIcon, SettingsIcon, UserCircleIcon, HelpCircleIcon, LogOutIcon, ShieldCheckIcon } from '../common/Icon';
+import { HomeIcon, FileTextIcon, BarChartIcon, UsersIcon, CogIcon, UserCircleIcon, HelpCircleIcon, LogOutIcon, ShieldCheckIcon } from '../common/Icon';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,6 +20,7 @@ const insurerNavItems: NavItemType[] = [
   { href: ROUTES.REPORTS, label: 'Reports', icon: BarChartIcon },
   { href: ROUTES.ANALYTICS, label: 'Analytics', icon: BarChartIcon }, // Re-using, consider unique icon
   { href: ROUTES.TEAM, label: 'Team', icon: UsersIcon },
+  { href: '/portfolio', label: 'Portfolio', icon: ShieldCheckIcon }, // Portfolio management for insurers
 ];
 
 const policyholderNavItems: NavItemType[] = [
@@ -30,7 +31,7 @@ const policyholderNavItems: NavItemType[] = [
 // Common items for all authenticated users, appearing after role-specific ones
 const universalPostNavItems: NavItemType[] = [
     { href: ROUTES.PROFILE, label: 'Profile', icon: UserCircleIcon },
-    { href: ROUTES.SETTINGS, label: 'Settings', icon: SettingsIcon },
+    { href: ROUTES.SETTINGS, label: 'Settings', icon: CogIcon },
     { href: ROUTES.HELP, label: 'Help', icon: HelpCircleIcon },
 ];
 

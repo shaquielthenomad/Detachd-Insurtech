@@ -24,7 +24,8 @@ import {
   FlagIcon,
   UploadCloudIcon,
   XMarkIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  UsersIcon
 } from '../common/Icon';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 
@@ -47,81 +48,133 @@ interface MockClaimFull extends Claim {
     auditTrail: { timestamp: string; event: string; user?: string }[];
 }
 
-const createMockClaimDetails = (claimId: string, userName: string): MockClaimFull => {
-  // Create different claim details based on the claimId
+const createMockClaimDetails = (claimId: string, userRole?: string): MockClaimFull => {
+  // Create different claim details based on the claimId - consistent with MyClaimsPage
   const claimData: { [key: string]: Partial<MockClaimFull> } = {
     'clm001': {
       id: 'clm001',
       claimNumber: 'DET-001',
+      policyholderName: 'John Smith', // Fixed - always use actual policyholder name
       claimType: 'Auto Accident',
       status: ClaimStatus.IN_REVIEW,
       amountClaimed: 25000,
       dateOfLoss: '2024-07-15',
       description: 'Minor fender bender at the intersection of Adderley Street and Strand Street, Cape Town. Other party involved: Nomsa Dlamini.',
-      riskScore: 45,
+      riskScore: 75, // Fixed - consistent with MyClaimsPage (was 45)
       documents: [
         { id: 'doc1', name: 'police_report.pdf', type: 'PDF', url: '#', uploadedAt: '2024-07-16', size: '1.2MB' },
         { id: 'doc2', name: 'damage_photo_front.jpg', type: 'Photo', url: 'https://picsum.photos/seed/damage1/200/150', uploadedAt: '2024-07-16', size: '850KB' },
       ],
       notes: [
-        { id: 'note1', author: 'Sarah Naidoo (Adjuster)', content: 'Initial review complete. Contacted policyholder for statement.', timestamp: '2024-07-17 10:30 AM', avatarUrl: 'https://picsum.photos/seed/sarah/40/40' },
+        { id: 'note1', author: 'Sarah Johnson (Adjuster)', content: 'Initial review complete. Contacted policyholder for statement.', timestamp: '2024-07-17 10:30 AM', avatarUrl: 'https://picsum.photos/seed/sarah/40/40' },
       ],
       auditTrail: [
         { timestamp: '2024-07-15 02:30 PM', event: 'Claim Submitted by Policyholder' },
         { timestamp: '2024-07-16 09:00 AM', event: 'Document "police_report.pdf" Uploaded' },
         { timestamp: '2024-07-16 09:05 AM', event: 'Document "damage_photo_front.jpg" Uploaded' },
-        { timestamp: '2024-07-16 09:10 AM', event: 'Initial Risk Assessment by System - Score: 45' },
-        { timestamp: '2024-07-16 11:00 AM', event: 'Claim Assigned to Adjuster: Sarah Naidoo' },
-        { timestamp: '2024-07-17 10:30 AM', event: 'Note added by Sarah Naidoo', user: 'Sarah Naidoo' },
-        { timestamp: '2024-07-17 03:00 PM', event: 'Status changed to "In Review" by Sarah Naidoo', user: 'Sarah Naidoo' },
+        { timestamp: '2024-07-16 09:10 AM', event: 'Initial Risk Assessment by System - Score: 75' }, // Fixed
+        { timestamp: '2024-07-16 11:00 AM', event: 'Claim Assigned to Adjuster: Sarah Johnson' }, // Fixed name
+        { timestamp: '2024-07-17 10:30 AM', event: 'Note added by Sarah Johnson', user: 'Sarah Johnson' },
+        { timestamp: '2024-07-17 03:00 PM', event: 'Status changed to "In Review" by Sarah Johnson', user: 'Sarah Johnson' },
       ]
     },
     'clm002': {
       id: 'clm002',
       claimNumber: 'DET-002',
+      policyholderName: 'Jane Doe', // Fixed - actual policyholder name
       claimType: 'Property Damage',
-      status: ClaimStatus.APPROVED,
+      status: ClaimStatus.SUBMITTED,
       amountClaimed: 12000,
       dateOfLoss: '2024-06-20',
       description: 'Water damage to home office due to burst pipe in upstairs bathroom. Affected electronics and furniture.',
-      riskScore: 25,
+      riskScore: 30, // Fixed - consistent with MyClaimsPage
       documents: [
         { id: 'doc3', name: 'water_damage_photos.jpg', type: 'Photo', url: 'https://picsum.photos/seed/water/200/150', uploadedAt: '2024-06-21', size: '2.1MB' },
         { id: 'doc4', name: 'plumber_report.pdf', type: 'PDF', url: '#', uploadedAt: '2024-06-22', size: '890KB' },
       ],
       notes: [
-        { id: 'note2', author: 'Mike Johnson (Adjuster)', content: 'Claim approved. Low risk assessment. Payment processed.', timestamp: '2024-06-25 02:15 PM', avatarUrl: 'https://picsum.photos/seed/mike/40/40' },
+        { id: 'note2', author: 'Mike Wilson (Adjuster)', content: 'Awaiting additional documentation from policyholder.', timestamp: '2024-06-25 02:15 PM', avatarUrl: 'https://picsum.photos/seed/mike/40/40' },
       ],
       auditTrail: [
         { timestamp: '2024-06-20 04:45 PM', event: 'Claim Submitted by Policyholder' },
         { timestamp: '2024-06-21 09:30 AM', event: 'Document "water_damage_photos.jpg" Uploaded' },
         { timestamp: '2024-06-22 11:15 AM', event: 'Document "plumber_report.pdf" Uploaded' },
-        { timestamp: '2024-06-22 11:20 AM', event: 'Initial Risk Assessment by System - Score: 25' },
-        { timestamp: '2024-06-23 10:00 AM', event: 'Claim Assigned to Adjuster: Mike Johnson' },
-        { timestamp: '2024-06-25 02:15 PM', event: 'Claim Approved by Mike Johnson', user: 'Mike Johnson' },
+        { timestamp: '2024-06-22 11:20 AM', event: 'Initial Risk Assessment by System - Score: 30' },
+        { timestamp: '2024-06-23 10:00 AM', event: 'Claim Assigned to Adjuster: Mike Wilson' },
       ]
     },
     'clm003': {
       id: 'clm003',
       claimNumber: 'DET-003',
+      policyholderName: 'Bob Johnson', // Fixed - actual policyholder name
       claimType: 'Theft',
-      status: ClaimStatus.REJECTED,
+      status: ClaimStatus.APPROVED,
       amountClaimed: 8000,
       dateOfLoss: '2024-05-01',
       description: 'Laptop and camera stolen from vehicle parked at shopping center. Window was broken to gain entry.',
-      riskScore: 85,
+      riskScore: 20, // Fixed - consistent with MyClaimsPage
       documents: [
         { id: 'doc5', name: 'police_case_number.pdf', type: 'PDF', url: '#', uploadedAt: '2024-05-02', size: '450KB' },
       ],
       notes: [
-        { id: 'note3', author: 'Lisa Chen (Adjuster)', content: 'Claim rejected due to inconsistencies in timeline and high risk score. Appeal process available.', timestamp: '2024-05-10 11:30 AM', avatarUrl: 'https://picsum.photos/seed/lisa/40/40' },
+        { id: 'note3', author: 'Lisa Chen (Adjuster)', content: 'Claim approved after verification with police report. Payment processed.', timestamp: '2024-05-10 11:30 AM', avatarUrl: 'https://picsum.photos/seed/lisa/40/40' },
       ],
       auditTrail: [
         { timestamp: '2024-05-01 08:20 PM', event: 'Claim Submitted by Policyholder' },
         { timestamp: '2024-05-02 10:45 AM', event: 'Document "police_case_number.pdf" Uploaded' },
-        { timestamp: '2024-05-02 10:50 AM', event: 'Initial Risk Assessment by System - Score: 85' },
+        { timestamp: '2024-05-02 10:50 AM', event: 'Initial Risk Assessment by System - Score: 20' },
         { timestamp: '2024-05-03 09:00 AM', event: 'Claim Assigned to Adjuster: Lisa Chen' },
-        { timestamp: '2024-05-10 11:30 AM', event: 'Claim Rejected by Lisa Chen', user: 'Lisa Chen' },
+        { timestamp: '2024-05-10 11:30 AM', event: 'Claim Approved by Lisa Chen', user: 'Lisa Chen' },
+      ]
+    },
+    'clm004': {
+      id: 'clm004',
+      claimNumber: 'DET-004',
+      policyholderName: 'Alice Brown', // New claim data consistent with MyClaimsPage
+      claimType: 'Medical',
+      status: ClaimStatus.REJECTED,
+      amountClaimed: 15000,
+      dateOfLoss: '2024-07-10',
+      description: 'Medical expenses following a slip and fall incident at shopping mall.',
+      riskScore: 85,
+      documents: [
+        { id: 'doc6', name: 'medical_reports.pdf', type: 'PDF', url: '#', uploadedAt: '2024-07-11', size: '2.1MB' },
+      ],
+      notes: [
+        { id: 'note4', author: 'David Kim (Adjuster)', content: 'Claim rejected due to pre-existing condition. High risk assessment confirmed.', timestamp: '2024-07-12 03:20 PM', avatarUrl: 'https://picsum.photos/seed/david/40/40' },
+      ],
+      auditTrail: [
+        { timestamp: '2024-07-10 06:15 PM', event: 'Claim Submitted by Policyholder' },
+        { timestamp: '2024-07-11 09:20 AM', event: 'Document "medical_reports.pdf" Uploaded' },
+        { timestamp: '2024-07-11 09:25 AM', event: 'Initial Risk Assessment by System - Score: 85' },
+        { timestamp: '2024-07-11 02:00 PM', event: 'Claim Assigned to Adjuster: David Kim' },
+        { timestamp: '2024-07-12 03:20 PM', event: 'Claim Rejected by David Kim', user: 'David Kim' },
+      ]
+    },
+    'clm005': {
+      id: 'clm005',
+      claimNumber: 'DET-005',
+      policyholderName: 'Tom Wilson', // New claim data consistent with MyClaimsPage
+      claimType: 'Auto Accident',
+      status: ClaimStatus.IN_REVIEW,
+      amountClaimed: 32000,
+      dateOfLoss: '2024-07-08',
+      description: 'Multi-vehicle collision on highway. Significant vehicle damage reported.',
+      riskScore: 65,
+      documents: [
+        { id: 'doc7', name: 'highway_accident_report.pdf', type: 'PDF', url: '#', uploadedAt: '2024-07-09', size: '1.8MB' },
+        { id: 'doc8', name: 'vehicle_damage_photos.jpg', type: 'Photo', url: 'https://picsum.photos/seed/accident/200/150', uploadedAt: '2024-07-09', size: '3.2MB' },
+      ],
+      notes: [
+        { id: 'note5', author: 'Sarah Johnson (Adjuster)', content: 'Complex case under review. Awaiting traffic police final report.', timestamp: '2024-07-15 11:45 AM', avatarUrl: 'https://picsum.photos/seed/sarah/40/40' },
+      ],
+      auditTrail: [
+        { timestamp: '2024-07-08 07:30 PM', event: 'Claim Submitted by Policyholder' },
+        { timestamp: '2024-07-09 08:15 AM', event: 'Document "highway_accident_report.pdf" Uploaded' },
+        { timestamp: '2024-07-09 08:20 AM', event: 'Document "vehicle_damage_photos.jpg" Uploaded' },
+        { timestamp: '2024-07-09 08:25 AM', event: 'Initial Risk Assessment by System - Score: 65' },
+        { timestamp: '2024-07-10 10:00 AM', event: 'Claim Assigned to Adjuster: Sarah Johnson' },
+        { timestamp: '2024-07-15 11:45 AM', event: 'Note added by Sarah Johnson', user: 'Sarah Johnson' },
       ]
     }
   };
@@ -131,7 +184,7 @@ const createMockClaimDetails = (claimId: string, userName: string): MockClaimFul
   const result: MockClaimFull = {
     id: baseData.id || claimId,
     claimNumber: baseData.claimNumber || `DET-${claimId.slice(-3)}`,
-    policyholderName: userName || 'John Smith',
+    policyholderName: baseData.policyholderName || 'John Smith', // Use actual policyholder name from data
     dateOfLoss: baseData.dateOfLoss || '2024-07-15',
     claimType: baseData.claimType || 'General Claim',
     status: baseData.status || ClaimStatus.SUBMITTED,
@@ -166,6 +219,9 @@ export const ClaimDetailsPage: React.FC = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showRequestInfoModal, setShowRequestInfoModal] = useState(false);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
+  const [certificateIssued, setCertificateIssued] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
   
   // Form states
   const [actionReason, setActionReason] = useState('');
@@ -180,7 +236,20 @@ export const ClaimDetailsPage: React.FC = () => {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 500)); 
       if (claimId) {
-        const mockClaimDetails = createMockClaimDetails(claimId, user?.name || 'John Smith');
+        const mockClaimDetails = createMockClaimDetails(claimId, user?.role);
+        
+        // Check for saved claim state in localStorage
+        const savedClaimState = localStorage.getItem(`claim_${claimId}`);
+        if (savedClaimState) {
+          const parsedState = JSON.parse(savedClaimState);
+          // Merge saved state with mock data
+          mockClaimDetails.status = parsedState.status || mockClaimDetails.status;
+          if (parsedState.auditTrail) {
+            mockClaimDetails.auditTrail = [...parsedState.auditTrail, ...mockClaimDetails.auditTrail];
+          }
+          setCertificateIssued(parsedState.certificateIssued || false);
+        }
+        
         setClaim(mockClaimDetails);
       } else {
         setClaim(null);
@@ -188,7 +257,29 @@ export const ClaimDetailsPage: React.FC = () => {
       setIsLoading(false);
     };
     fetchClaimDetails();
-  }, [claimId, user?.name]);
+  }, [claimId, user?.role]);
+
+  // Auto-close success toast after 3 seconds
+  useEffect(() => {
+    if (showSuccessToast) {
+      const timer = setTimeout(() => {
+        setShowSuccessToast(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessToast]);
+
+  // Save claim state to localStorage
+  const saveClaimState = (updatedClaim: MockClaimFull) => {
+    if (claimId) {
+      const stateToSave = {
+        status: updatedClaim.status,
+        auditTrail: updatedClaim.auditTrail.slice(0, 10), // Save only recent audit entries
+        certificateIssued: certificateIssued
+      };
+      localStorage.setItem(`claim_${claimId}`, JSON.stringify(stateToSave));
+    }
+  };
 
   const handleAction = async (action: 'approve' | 'reject' | 'flag') => {
     if (!actionReason.trim()) return;
@@ -208,11 +299,46 @@ export const ClaimDetailsPage: React.FC = () => {
       };
       updatedClaim.auditTrail = [newAuditEntry, ...updatedClaim.auditTrail];
       setClaim(updatedClaim);
+      saveClaimState(updatedClaim);
+      
+      // If approved, show certificate issuance option for insurers
+      if (action === 'approve' && isInsurer) {
+        setShowCertificateModal(true);
+      }
     }
     
     setIsSubmitting(false);
     setShowActionModal(null);
     setActionReason('');
+  };
+
+  const issueCertificate = async () => {
+    setIsSubmitting(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    if (claim) {
+      const updatedClaim = { ...claim };
+      const certificateEntry = {
+        timestamp: new Date().toLocaleString(),
+        event: `Certificate issued by Sarah Johnson - Policy payout certificate generated`,
+        user: 'Sarah Johnson'
+      };
+      updatedClaim.auditTrail = [certificateEntry, ...updatedClaim.auditTrail];
+      setClaim(updatedClaim);
+      setCertificateIssued(true);
+      setShowSuccessToast(true);
+      
+      // Save updated state with certificate issued
+      const stateToSave = {
+        status: updatedClaim.status,
+        auditTrail: updatedClaim.auditTrail.slice(0, 10),
+        certificateIssued: true
+      };
+      localStorage.setItem(`claim_${claimId}`, JSON.stringify(stateToSave));
+    }
+    
+    setIsSubmitting(false);
+    setShowCertificateModal(false);
   };
 
   const handleFileUpload = (files: FileList | null) => {
@@ -292,10 +418,10 @@ export const ClaimDetailsPage: React.FC = () => {
     if (claim) {
       const newNoteObj = {
         id: `note${claim.notes.length + 1}`,
-        author: 'Sarah Naidoo (Adjuster)',
+        author: isInsurer ? 'Sarah Johnson (Adjuster)' : `${user?.name || 'John Smith'} (Policyholder)`,
         content: newNote,
         timestamp: new Date().toLocaleString(),
-        avatarUrl: 'https://picsum.photos/seed/sarah/40/40'
+        avatarUrl: isInsurer ? 'https://picsum.photos/seed/sarah/40/40' : `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'John Smith')}&background=4A5568&color=E0E7FF`
       };
       
       const updatedClaim = { 
@@ -305,8 +431,8 @@ export const ClaimDetailsPage: React.FC = () => {
       
       const auditEntry = {
         timestamp: new Date().toLocaleString(),
-        event: `Note added by Sarah Naidoo`,
-        user: 'Sarah Naidoo'
+        event: isInsurer ? `Internal note added by Sarah Johnson` : `Note added by ${user?.name || 'Policyholder'}`,
+        user: isInsurer ? 'Sarah Johnson' : user?.name || 'Policyholder'
       };
       updatedClaim.auditTrail = [auditEntry, ...updatedClaim.auditTrail];
       setClaim(updatedClaim);
@@ -323,18 +449,32 @@ export const ClaimDetailsPage: React.FC = () => {
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Navigate to support request with claim context
-    navigate(ROUTES.HELP_CONTACT_SUPPORT, {
-      state: {
-        claimContext: {
-          claimNumber: claim?.claimNumber,
-          claimType: claim?.claimType,
-          policyholderName: claim?.policyholderName,
-          subject: requestInfo.subject,
-          message: requestInfo.message
-        }
+    if (isInsurer) {
+      // For insurers, add a communication log to the claim
+      if (claim) {
+        const auditEntry = {
+          timestamp: new Date().toLocaleString(),
+          event: `Policyholder contacted by Sarah Johnson - ${requestInfo.subject}`,
+          user: 'Sarah Johnson'
+        };
+        const updatedClaim = { ...claim };
+        updatedClaim.auditTrail = [auditEntry, ...updatedClaim.auditTrail];
+        setClaim(updatedClaim);
       }
-    });
+    } else {
+      // For policyholders, navigate to support request with claim context
+      navigate(ROUTES.HELP_CONTACT_SUPPORT, {
+        state: {
+          claimContext: {
+            claimNumber: claim?.claimNumber,
+            claimType: claim?.claimType,
+            policyholderName: claim?.policyholderName,
+            subject: requestInfo.subject,
+            message: requestInfo.message
+          }
+        }
+      });
+    }
     
     setIsSubmitting(false);
     setShowRequestInfoModal(false);
@@ -362,22 +502,53 @@ export const ClaimDetailsPage: React.FC = () => {
   }
   
   const riskScoreColor = claim.riskScore && claim.riskScore > 70 ? 'text-red-400' : claim.riskScore && claim.riskScore > 50 ? 'text-yellow-400' : 'text-green-400';
+  const isInsurer = user?.role === 'insurer_admin' || user?.role === 'super_admin';
 
   return (
     <div>
       <PageHeader 
         title={`Claim #${claim.claimNumber}`} 
-        subtitle={claim.claimType}
+        subtitle={isInsurer ? `${claim.claimType} • Policyholder: ${claim.policyholderName}` : claim.claimType}
         showBackButton 
         backButtonPath={ROUTES.CLAIMS}
         actions={
-          <Button 
-            variant="primary" 
-            leftIcon={<EditIcon className="h-4 w-4" />}
-            onClick={() => setShowRequestInfoModal(true)}
-          >
-            Request Information
-          </Button>
+          isInsurer ? (
+            <div className="flex space-x-3">
+              {claim.status === ClaimStatus.IN_REVIEW && (
+                <>
+                  <Button 
+                    variant="primary" 
+                    leftIcon={<CheckCircleIcon className="h-4 w-4" />}
+                    onClick={() => setShowActionModal('approve')}
+                  >
+                    Approve Claim
+                  </Button>
+                  <Button 
+                    variant="danger" 
+                    leftIcon={<XCircleIcon className="h-4 w-4" />}
+                    onClick={() => setShowActionModal('reject')}
+                  >
+                    Reject Claim
+                  </Button>
+                </>
+              )}
+              <Button 
+                variant="outline" 
+                leftIcon={<MessageSquareIcon className="h-4 w-4" />}
+                onClick={() => setShowNoteModal(true)}
+              >
+                Add Note
+              </Button>
+            </div>
+          ) : (
+            <Button 
+              variant="primary" 
+              leftIcon={<EditIcon className="h-4 w-4" />}
+              onClick={() => setShowRequestInfoModal(true)}
+            >
+              Request Information
+            </Button>
+          )
         }
       />
 
@@ -386,9 +557,15 @@ export const ClaimDetailsPage: React.FC = () => {
           <PixelCard variant="blue" title="Claim Summary" icon={<FileTextIcon className="h-5 w-5 text-blue-400" />}>
             <div className="space-y-3">
               <InfoItem icon={<UserCircleIcon className="h-5 w-5 text-text-on-dark-secondary" />} label="Policyholder" value={claim.policyholderName} />
+              {isInsurer && (
+                <InfoItem icon={<ShieldCheckIcon className="h-5 w-5 text-text-on-dark-secondary" />} label="Policy Number" value="POL-12345" />
+              )}
               <InfoItem icon={<CalendarIcon className="h-5 w-5 text-text-on-dark-secondary" />} label="Date of Loss" value={new Date(claim.dateOfLoss).toLocaleDateString()} />
               <InfoItem icon={<DollarSignIcon className="h-5 w-5 text-text-on-dark-secondary" />} label="Amount Claimed" value={claim.amountClaimed ? `R ${claim.amountClaimed.toLocaleString()}` : 'N/A'} />
               <InfoItem icon={<FileTextIcon className="h-5 w-5 text-text-on-dark-secondary" />} label="Status" value={<span className={`px-2 py-0.5 text-xs font-semibold rounded-full border ${getStatusBadgeStyles(claim.status)}`}>{claim.status}</span>} />
+              {isInsurer && (
+                <InfoItem icon={<UsersIcon className="h-5 w-5 text-text-on-dark-secondary" />} label="Assigned Adjuster" value="Sarah Johnson" />
+              )}
               {claim.description && (
                 <div>
                   <dt className="text-sm font-medium text-text-on-dark-secondary">Description</dt>
@@ -400,17 +577,17 @@ export const ClaimDetailsPage: React.FC = () => {
                <div className="mt-4 border-t border-slate-700 pt-4">
                   <Link to={`${ROUTES.CLAIMS}/${claim.id}/certificate`}>
                       <Button variant="outline" className="border-blue-400 text-blue-300 hover:bg-blue-700/30" leftIcon={<ShieldCheckIcon className="w-4 h-4"/>}>
-                          View Verification Certificate
+                          {isInsurer ? 'Issue Verification Certificate' : 'View Verification Certificate'}
                       </Button>
                   </Link>
               </div>
              )}
              
-             {claim.status !== ClaimStatus.APPROVED && (
+             {claim.status !== ClaimStatus.IN_REVIEW && (
                <div className="mt-4 border-t border-slate-700 pt-4">
                  <div className="p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
                    <p className="text-yellow-300 text-sm">
-                     Certificate will be available once claim is approved
+                     {isInsurer ? 'Certificate can be issued once claim is approved' : 'Certificate will be available once claim is approved'}
                    </p>
                  </div>
                </div>
@@ -429,7 +606,7 @@ export const ClaimDetailsPage: React.FC = () => {
                 leftIcon={<PaperclipIcon className="h-4 w-4" />}
                 onClick={() => setShowUploadModal(true)}
               >
-                Upload Document
+                {isInsurer ? 'Upload Additional Evidence' : 'Upload Document'}
               </Button>
             }
           >
@@ -450,7 +627,7 @@ export const ClaimDetailsPage: React.FC = () => {
 
           <PixelCard 
             variant="blue" 
-            title="Claim Notes" 
+            title={isInsurer ? 'Internal Notes & Communication' : 'Claim Notes'} 
             icon={<MessageSquareIcon className="h-5 w-5 text-blue-400" />} 
             actions={
               <Button 
@@ -460,7 +637,7 @@ export const ClaimDetailsPage: React.FC = () => {
                 leftIcon={<MessageSquareIcon className="h-4 w-4" />}
                 onClick={() => setShowNoteModal(true)}
               >
-                Add Note
+                {isInsurer ? 'Add Internal Note' : 'Add Note'}
               </Button>
             }
           >
@@ -479,7 +656,7 @@ export const ClaimDetailsPage: React.FC = () => {
                         </li>
                     ))}
                 </ul>
-            ) : <p className="text-sm text-text-on-dark-secondary">No notes for this claim yet.</p>}
+            ) : <p className="text-sm text-text-on-dark-secondary">{isInsurer ? 'No internal notes for this claim yet.' : 'No notes for this claim yet.'}</p>}
           </PixelCard>
           
           <PixelCard variant="blue" title="Claim Audit Trail" icon={<HistoryIcon className="h-5 w-5 text-blue-400" />}>
@@ -507,6 +684,11 @@ export const ClaimDetailsPage: React.FC = () => {
                 {claim.riskScore !== undefined ? claim.riskScore : 'N/A'}
               </p>
             </div>
+            {claim.riskScore && claim.riskScore > 70 && isInsurer && (
+              <div className="mt-2 p-2 bg-red-900/20 border border-red-500/30 rounded-lg">
+                <p className="text-red-300 text-xs font-medium">⚠ HIGH RISK - Requires additional scrutiny</p>
+              </div>
+            )}
             {claim.fraudIndicators.length > 0 && (
               <div className="mt-4">
                 <h4 className="text-sm font-medium text-text-on-dark-primary mb-1">Potential Fraud Indicators:</h4>
@@ -532,33 +714,106 @@ export const ClaimDetailsPage: React.FC = () => {
           </PixelCard>
           
            {/* Role-based Actions */}
-          {user?.role === UserRole.INSURER_ADMIN || user?.role === UserRole.SUPER_ADMIN ? (
-            <PixelCard variant="blue" title="Adjuster Actions">
-              <div className="space-y-2">
-                <Button 
-                  className="w-full" 
-                  variant="primary"
-                  leftIcon={<CheckCircleIcon className="h-4 w-4" />}
-                  onClick={() => setShowActionModal('approve')}
-                >
-                  Approve Claim
-                </Button>
-                <Button 
-                  className="w-full" 
-                  variant="danger"
-                  leftIcon={<XCircleIcon className="h-4 w-4" />}
-                  onClick={() => setShowActionModal('reject')}
-                >
-                  Reject Claim
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full border-slate-400 text-slate-300 hover:bg-slate-700/30"
-                  leftIcon={<FlagIcon className="h-4 w-4" />}
-                  onClick={() => setShowActionModal('flag')}
-                >
-                  Flag for Review
-                </Button>
+          {isInsurer ? (
+            <PixelCard variant="blue" title="Claim Management">
+              <div className="space-y-4">
+                <div className="text-sm space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-text-on-dark-secondary">Priority:</span>
+                    <span className="px-2 py-0.5 text-xs font-semibold rounded-full border border-red-500 text-red-300 bg-red-700/30">HIGH</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-text-on-dark-secondary">Assigned To:</span>
+                    <span className="text-text-on-dark-primary">Sarah Johnson</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-text-on-dark-secondary">Last Activity:</span>
+                    <span className="text-text-on-dark-primary">2 hours ago</span>
+                  </div>
+                </div>
+                
+                {claim.status === ClaimStatus.IN_REVIEW && (
+                  <div className="space-y-2 pt-3 border-t border-slate-700">
+                    <Button 
+                      className="w-full" 
+                      variant="primary"
+                      leftIcon={<CheckCircleIcon className="h-4 w-4" />}
+                      onClick={() => setShowActionModal('approve')}
+                    >
+                      Approve Claim
+                    </Button>
+                    <Button 
+                      className="w-full" 
+                      variant="danger"
+                      leftIcon={<XCircleIcon className="h-4 w-4" />}
+                      onClick={() => setShowActionModal('reject')}
+                    >
+                      Reject Claim
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-slate-400 text-slate-300 hover:bg-slate-700/30"
+                      leftIcon={<FlagIcon className="h-4 w-4" />}
+                      onClick={() => setShowActionModal('flag')}
+                    >
+                      Flag for Review
+                    </Button>
+                  </div>
+                )}
+                
+                {claim.status !== ClaimStatus.IN_REVIEW && (
+                  <div className="space-y-2 pt-3 border-t border-slate-700">
+                    <div className="text-center">
+                      <div className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getStatusBadgeStyles(claim.status)}`}>
+                        {claim.status}
+                      </div>
+                      <p className="text-xs text-text-on-dark-secondary mt-2">
+                        {claim.status === ClaimStatus.APPROVED && 'Claim processing completed'}
+                        {claim.status === ClaimStatus.REJECTED && 'Claim has been rejected'}
+                        {claim.status === ClaimStatus.SUBMITTED && 'Awaiting adjuster assignment'}
+                        {claim.status === ClaimStatus.CLOSED && 'Claim is closed'}
+                      </p>
+                    </div>
+                    
+                    {/* Issue Certificate button for approved claims */}
+                    {claim.status === ClaimStatus.APPROVED && !certificateIssued && (
+                      <Button 
+                        className="w-full" 
+                        variant="primary"
+                        leftIcon={<CheckCircleIcon className="h-4 w-4" />}
+                        onClick={() => setShowCertificateModal(true)}
+                      >
+                        Issue Certificate
+                      </Button>
+                    )}
+                    
+                    {/* Show certificate issued status */}
+                    {certificateIssued && (
+                      <div className="bg-green-900/20 border border-green-700 rounded-lg p-3 text-center">
+                        <CheckCircleIcon className="h-5 w-5 text-green-400 mx-auto mb-1" />
+                        <p className="text-xs text-green-300">Certificate Issued</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                <div className="space-y-2 pt-3 border-t border-slate-700">
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-blue-400 text-blue-300 hover:bg-blue-700/30"
+                    leftIcon={<MessageSquareIcon className="h-4 w-4" />}
+                    onClick={() => setShowRequestInfoModal(true)}
+                  >
+                    Contact Policyholder
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-slate-400 text-slate-300 hover:bg-slate-700/30"
+                    leftIcon={<UserCircleIcon className="h-4 w-4" />}
+                  >
+                    View Policy Details
+                  </Button>
+                </div>
               </div>
             </PixelCard>
           ) : (
@@ -617,7 +872,7 @@ export const ClaimDetailsPage: React.FC = () => {
               label="Reason"
               value={actionReason}
               onChange={(e) => setActionReason(e.target.value)}
-              placeholder={`Please provide a reason for ${showActionModal}ing this claim...`}
+              placeholder={`Please provide a reason for ${showActionModal === 'approve' ? 'approving' : showActionModal}ing this claim...`}
               rows={4}
               required
             />
@@ -875,6 +1130,66 @@ export const ClaimDetailsPage: React.FC = () => {
                 className="flex-1"
               >
                 Send Request
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Certificate Issuance Modal */}
+      {showCertificateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-slate-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-text-on-dark-primary">Issue Verification Certificate</h3>
+              <button onClick={() => setShowCertificateModal(false)}>
+                <XMarkIcon className="h-5 w-5 text-text-on-dark-secondary" />
+              </button>
+            </div>
+            <p className="text-text-on-dark-secondary">
+              Are you sure you want to issue a verification certificate for this claim?
+            </p>
+            <div className="flex space-x-3 mt-6">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowCertificateModal(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="primary"
+                onClick={issueCertificate}
+                isLoading={isSubmitting}
+                className="flex-1"
+              >
+                Issue Certificate
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Toast Notification */}
+      {showSuccessToast && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-slate-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-text-on-dark-primary">Certificate Issued Successfully</h3>
+              <button onClick={() => setShowSuccessToast(false)}>
+                <XMarkIcon className="h-5 w-5 text-text-on-dark-secondary" />
+              </button>
+            </div>
+            <p className="text-text-on-dark-secondary">
+              Your certificate has been issued successfully!
+            </p>
+            <div className="flex space-x-3 mt-6">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowSuccessToast(false)}
+                className="flex-1"
+              >
+                Close
               </Button>
             </div>
           </div>

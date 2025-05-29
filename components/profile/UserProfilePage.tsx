@@ -3,7 +3,7 @@ import { PageHeader } from '../common/PageHeader';
 import PixelCard from '../common/PixelCard';
 import { User, Claim, ClaimStatus, UserRole } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
-import { MailIcon, PhoneIcon, MapPinIcon, ShieldCheckIcon, HistoryIcon, XMarkIcon, InfoIcon } from '../common/Icon';
+import { MailIcon, PhoneIcon, MapPinIcon, ShieldCheckIcon, HistoryIcon, XMarkIcon, InfoIcon, UserCircleIcon } from '../common/Icon';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { Button } from '../common/Button';
 import { MOCK_DELAY } from '../../constants';
@@ -208,6 +208,9 @@ export const UserProfilePage: React.FC = () => {
         setIsLoading(true);
         await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
         if (authUser) {
+            // Only add risk score and claims history for non-insurer users
+            const isInsurer = authUser.role === 'insurer_admin' || authUser.role === 'super_admin';
+            
             setProfileData({
                 ...authUser,
                 name: authUser.name || "Sophia Bennett",
@@ -216,8 +219,9 @@ export const UserProfilePage: React.FC = () => {
                 avatarUrl: authUser.avatarUrl || `https://picsum.photos/seed/${authUser.email}/200/200`,
                 address: "123 Main St, Anytown, USA",
                 phone: "(555) 123-4567",
-                claimsHistory: mockUserClaimsHistory.map(c => ({...c, policyholderName: authUser.name || "Sophia Bennett"})),
-                riskAssessmentScore: 75,
+                // Only include claims history and risk score for non-insurer users
+                claimsHistory: isInsurer ? [] : mockUserClaimsHistory.map(c => ({...c, policyholderName: authUser.name || "Sophia Bennett"})),
+                riskAssessmentScore: isInsurer ? undefined : 75,
             });
         }
         setIsLoading(false);
@@ -229,12 +233,15 @@ export const UserProfilePage: React.FC = () => {
     return <LoadingSpinner message="Loading profile..." />;
   }
 
+  // Check if user is an insurer
+  const isInsurer = profileData.role === 'insurer_admin' || profileData.role === 'super_admin';
+
   return (
     <div>
       <PageHeader title="User Profile" subtitle={profileData.role ? `Role: ${profileData.role}` : ""} />
       
-      {/* Risk Assessment Modal */}
-      {profileData.riskAssessmentScore !== undefined && (
+      {/* Risk Assessment Modal - Only show for non-insurer users */}
+      {!isInsurer && profileData.riskAssessmentScore !== undefined && (
         <RiskAssessmentModal 
           isOpen={showRiskModal}
           onClose={() => setShowRiskModal(false)}
@@ -274,19 +281,33 @@ export const UserProfilePage: React.FC = () => {
         </div>
 
         <div className="md:col-span-2 space-y-6">
-          <PixelCard variant="blue" title="Contact Information" icon={<MailIcon className="h-5 w-5 text-blue-400" />}>
-            <dl className="space-y-3">
-              {profileData.phone && (
-                <InfoRow icon={<PhoneIcon className="h-5 w-5 text-slate-400" />} label="Phone" value={profileData.phone} />
-              )}
-              <InfoRow icon={<MailIcon className="h-5 w-5 text-slate-400" />} label="Email" value={profileData.email} />
-              {profileData.address && (
-                <InfoRow icon={<MapPinIcon className="h-5 w-5 text-slate-400" />} label="Address" value={profileData.address} />
-              )}
-            </dl>
+          <PixelCard variant="blue" title="Personal Information" icon={<UserCircleIcon className="h-5 w-5 text-blue-400" />}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-text-on-dark-secondary">Full Name</label>
+                <p className="mt-1 text-text-on-dark-primary">{profileData.name}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-on-dark-secondary">Email</label>
+                <p className="mt-1 text-text-on-dark-primary">{profileData.email}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-on-dark-secondary">Phone</label>
+                <p className="mt-1 text-text-on-dark-primary">{profileData.phone}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-on-dark-secondary">Role</label>
+                <p className="mt-1 text-text-on-dark-primary">{profileData.role}</p>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-text-on-dark-secondary">Address</label>
+                <p className="mt-1 text-text-on-dark-primary">{profileData.address}</p>
+              </div>
+            </div>
           </PixelCard>
-
-          {profileData.claimsHistory && profileData.claimsHistory.length > 0 && (
+          
+          {/* Claims History - Only show for non-insurer users */}
+          {!isInsurer && profileData.claimsHistory && profileData.claimsHistory.length > 0 && (
             <PixelCard variant="blue" title="Claims History" icon={<HistoryIcon className="h-5 w-5 text-blue-400" />}>
               <ul className="divide-y divide-slate-700">
                 {profileData.claimsHistory.map(claim => (
@@ -307,7 +328,8 @@ export const UserProfilePage: React.FC = () => {
             </PixelCard>
           )}
           
-          {profileData.riskAssessmentScore !== undefined && (
+          {/* Risk Assessment - Only show for non-insurer users */}
+          {!isInsurer && profileData.riskAssessmentScore !== undefined && (
              <PixelCard 
                variant="blue" 
                title="Risk Assessment" 

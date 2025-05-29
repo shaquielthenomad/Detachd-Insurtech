@@ -2,17 +2,19 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '../common/Button';
 import { APP_NAME, ROUTES } from '../../constants';
-import { ShieldCheckIcon, ZapIcon, SearchIcon, CheckCircleIcon } from '../common/Icon'; 
-import LetterGlitch from '../common/LetterGlitch';
-import GlassIcons from '../common/GlassIcons'; // Import GlassIcons
+// import { ShieldCheckIcon, ZapIcon, SearchIcon, CheckCircleIcon } from '../common/Icon'; // Uncomment when restoring SecureAI section
+// import GlassIcons from '../common/GlassIcons'; // Uncomment when restoring SecureAI section
+import Squares from '../common/Squares';
 
 export const WelcomePage: React.FC = () => {
   const navigate = useNavigate();
 
+  // BACKUP: Uncomment when restoring SecureAI Technology section
+  /*
   const glassIconItems = [
     {
-      icon: <ShieldCheckIcon className="w-full h-full text-sky-100" />, // Adjusted icon styling for GlassIcons
-      color: 'blue', // Corresponds to gradientMapping in GlassIcons
+      icon: <ShieldCheckIcon className="w-full h-full text-sky-100" />,
+      color: 'blue',
       label: "Image Verification",
       onClick: () => console.log("Image Verification Clicked"),
     },
@@ -35,17 +37,19 @@ export const WelcomePage: React.FC = () => {
       onClick: () => console.log("Policy Sync Clicked"),
     },
   ];
+  */
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      <LetterGlitch 
-        glitchSpeed={70}
-        glitchColors={['#1e3a8a', '#3b82f6', '#93c5fd']} 
-        centerVignette={true}
-        outerVignette={true}
-        smooth={true}
-        blurAmount="1px" // Apply blur to LetterGlitch
-      />
+      <div className="absolute inset-0 z-0">
+        <Squares 
+          speed={0.5}
+          squareSize={40}
+          direction='diagonal'
+          borderColor='rgba(20, 20, 20, 0.8)'
+          hoverFillColor='rgba(0, 191, 255, 0.3)'
+        />
+      </div>
       <div className="relative z-10 w-full max-w-lg text-center"> 
         <header className="mb-12">
           <h1 className="text-5xl font-bold tracking-tight text-slate-100 mb-4">{APP_NAME}</h1>
@@ -81,6 +85,7 @@ export const WelcomePage: React.FC = () => {
           </Button>
         </main>
 
+        {/* BACKUP: SecureAI Technology section - uncomment when needed
         <section className="mb-10">
           <h2 className="text-xl font-semibold text-slate-200 mb-6">Powered by SecureAI Technology</h2>
           <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
@@ -94,6 +99,7 @@ export const WelcomePage: React.FC = () => {
             ))}
           </div>
         </section>
+        */}
 
         <div className="mb-8 text-center">
           <Link to={ROUTES.CONTACT} className="text-sm text-blue-400 hover:text-blue-300 font-medium">

@@ -51,6 +51,13 @@ import { MedicalProClaimJoinPage } from './components/claims/MedicalProClaimJoin
 import { RoleGuard } from './components/auth/RoleGuard';
 import { RoleBasedRedirect } from './components/auth/RoleBasedRedirect';
 import { SuperAdminDashboard } from './components/admin/SuperAdminDashboard';
+import { PortfolioManagementPage } from './components/admin/PortfolioManagementPage';
+import { UpdatePasswordPage } from './components/settings/UpdatePasswordPage';
+import { LanguageSettingsPage } from './components/settings/LanguageSettingsPage';
+import { TeamRolesPage } from './components/settings/TeamRolesPage';
+import { RegionalSettingsPage } from './components/settings/RegionalSettingsPage';
+import { HelpVerificationPage } from './components/help/HelpVerificationPage';
+import { StatusPage } from './components/help/StatusPage';
 
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -97,10 +104,11 @@ const App: React.FC = () => {
         <Route path={ROUTES.VERIFY_ACCOUNT} element={<PlaceholderPage />} />
 
         {/* Static/Info Pages (Public) */}
-                          <Route path={ROUTES.ABOUT_APP} element={<AboutPage />} />
+        <Route path={ROUTES.ABOUT_APP} element={<AboutPage />} />
         <Route path={ROUTES.TERMS_CONDITIONS} element={<TermsPage />} />
         <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPage />} />
         <Route path={ROUTES.CONTACT} element={<PublicContactPage />} />
+        <Route path={ROUTES.STATUS} element={<StatusPage />} />
         <Route path={ROUTES.ACCESSIBILITY_STATEMENT} element={<PlaceholderPage />} />
         <Route path={ROUTES.COMPLIANCE_INFO} element={<PlaceholderPage />} />
         <Route path={ROUTES.DISPUTE_RESOLUTION} element={<PlaceholderPage />} />
@@ -154,6 +162,15 @@ const App: React.FC = () => {
           </ProtectedRoute>
         } />
         
+        {/* Portfolio Management - admin roles only */}
+        <Route path="/portfolio" element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['super_admin', 'insurer_admin']}>
+              <Layout><PortfolioManagementPage /></Layout>
+            </RoleGuard>
+          </ProtectedRoute>
+        } />
+        
         {/* Analytics - super_admin and insurer_admin only */}
         <Route path={ROUTES.ANALYTICS} element={
           <ProtectedRoute>
@@ -185,16 +202,16 @@ const App: React.FC = () => {
         <Route path={ROUTES.TEAM_ROLES} element={
           <ProtectedRoute>
             <RoleGuard allowedRoles={['super_admin', 'insurer_admin']}>
-              <Layout><PlaceholderPage /></Layout>
+              <Layout><TeamRolesPage /></Layout>
             </RoleGuard>
           </ProtectedRoute>
         } />
         
         <Route path={ROUTES.SETTINGS} element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
-        <Route path={ROUTES.SETTINGS_UPDATE_PASSWORD} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
+        <Route path={ROUTES.SETTINGS_UPDATE_PASSWORD} element={<ProtectedRoute><Layout><UpdatePasswordPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.SETTINGS_DELETE_ACCOUNT} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
-        <Route path={ROUTES.SETTINGS_REGIONAL} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
-        <Route path={ROUTES.SETTINGS_LANGUAGE} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
+        <Route path={ROUTES.SETTINGS_REGIONAL} element={<ProtectedRoute><Layout><RegionalSettingsPage /></Layout></ProtectedRoute>} />
+        <Route path={ROUTES.SETTINGS_LANGUAGE} element={<ProtectedRoute><Layout><LanguageSettingsPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.SETTINGS_PREFERENCES} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.SETTINGS_ACCESS_CONTROLS} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.SETTINGS_CONSENT} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
@@ -204,6 +221,7 @@ const App: React.FC = () => {
         <Route path={ROUTES.HELP} element={<ProtectedRoute><Layout><HelpCenterPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.HELP_CONTACT_SUPPORT} element={<ProtectedRoute><Layout><ContactSupportPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.HELP_REPORT_ISSUE} element={<ProtectedRoute><Layout><ReportIssuePage /></Layout></ProtectedRoute>} />
+        <Route path={ROUTES.HELP_VERIFICATION} element={<ProtectedRoute><Layout><HelpVerificationPage /></Layout></ProtectedRoute>} />
         <Route path={ROUTES.HELP_MESSAGES} element={<ProtectedRoute><Layout><PlaceholderPage /></Layout></ProtectedRoute>} />
         
         {/* Witness Claims - accessible through dashboard or direct link */}

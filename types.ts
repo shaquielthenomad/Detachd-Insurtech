@@ -1,4 +1,3 @@
-
 export enum UserRole {
   SUPER_ADMIN = 'Super Admin',
   POLICYHOLDER = 'Policyholder',
@@ -162,6 +161,7 @@ export enum Page {
   HELP_CONTACT_SUPPORT = '/help/contact',
   HELP_REPORT_ISSUE = '/help/report-issue',
   HELP_MESSAGES = '/help/messages',
+  STATUS = '/status', // System status page
   CONTACT = '/contact', // Public contact page for non-logged in users
   
   ABOUT_APP = '/about',
