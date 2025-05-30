@@ -301,9 +301,9 @@ export const AnalyticsPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="py-4 text-right">
-                        <div className="w-16 bg-slate-700 rounded-full h-2 ml-auto">
+                        <div className="w-16 bg-slate-700 rounded h-2 ml-auto">
                           <div 
-                            className="bg-blue-400 h-2 rounded-full"
+                            className="bg-blue-400 h-2 rounded"
                             style={{ width: `${Math.min((region.claims / 1500) * 100, 100)}%` }}
                           ></div>
                         </div>

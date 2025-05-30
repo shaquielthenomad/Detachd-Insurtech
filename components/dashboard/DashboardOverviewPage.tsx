@@ -233,7 +233,7 @@ export const DashboardOverviewPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-text-on-dark-primary mb-6">AI Risk Insights</h3>
               <div className="space-y-6">
                 <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-400 rounded-sm"></div>
                   <span className="text-text-on-dark-primary font-medium">Low Risk Profile</span>
                 </div>
                 <div className="space-y-4">
@@ -351,7 +351,6 @@ export const DashboardOverviewPage: React.FC = () => {
         {/* Key Performance Metrics with Material Design Styling */}
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <PixelCard variant="blue" className="p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
               <div className="flex items-center justify-between">
                 <FileTextIcon className="h-8 w-8 text-blue-400 flex-shrink-0" />
@@ -368,7 +367,6 @@ export const DashboardOverviewPage: React.FC = () => {
           </PixelCard>
           
           <PixelCard variant="blue" className="p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
               <div className="flex items-center justify-between">
                 <AlertTriangleIcon className="h-8 w-8 text-yellow-400 flex-shrink-0" />
@@ -385,7 +383,6 @@ export const DashboardOverviewPage: React.FC = () => {
           </PixelCard>
           
           <PixelCard variant="blue" className="p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
               <div className="flex items-center justify-between">
                 <UsersIcon className="h-8 w-8 text-green-400 flex-shrink-0" />
@@ -402,7 +399,6 @@ export const DashboardOverviewPage: React.FC = () => {
           </PixelCard>
           
           <PixelCard variant="blue" className="p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
               <div className="flex items-center justify-between">
                 <ChartBarIcon className="h-8 w-8 text-purple-400 flex-shrink-0" />
@@ -654,21 +650,21 @@ export const DashboardOverviewPage: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
+                  <div className="w-3 h-3 bg-green-400 rounded-sm mr-3"></div>
                   <span className="text-text-on-dark-primary">API Response Time</span>
                 </div>
                 <span className="text-green-400 font-semibold">142ms</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
+                  <div className="w-3 h-3 bg-green-400 rounded-sm mr-3"></div>
                   <span className="text-text-on-dark-primary">Database Health</span>
                 </div>
                 <span className="text-green-400 font-semibold">Optimal</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-3 h-3 bg-yellow-400 rounded-full mr-3"></div>
+                  <div className="w-3 h-3 bg-yellow-400 rounded-sm mr-3"></div>
                   <span className="text-text-on-dark-primary">Cache Hit Rate</span>
                 </div>
                 <span className="text-yellow-400 font-semibold">87%</span>

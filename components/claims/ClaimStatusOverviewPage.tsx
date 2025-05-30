@@ -212,9 +212,9 @@ export const ClaimStatusOverviewPage: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <div className="w-full bg-slate-700 rounded-full h-2">
+                <div className="w-full bg-slate-700 rounded h-2">
                   <div 
-                    className="h-2 rounded-full bg-current opacity-60"
+                    className="h-2 rounded bg-current opacity-60"
                     style={{ width: `${summary.percentage}%` }}
                   ></div>
                 </div>

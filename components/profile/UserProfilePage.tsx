@@ -82,7 +82,7 @@ const RiskAssessmentModal: React.FC<{
           <div className="space-y-8">
             {/* Risk Score */}
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-700 mb-4">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-lg bg-slate-700 mb-4">
                 <span className={`text-2xl font-bold ${riskColor}`}>{riskScore}</span>
               </div>
               <h4 className="text-lg font-medium text-white mb-2">
@@ -99,7 +99,7 @@ const RiskAssessmentModal: React.FC<{
               <div className="space-y-4">
                 {riskFactors.map((factor, index) => (
                   <div key={index} className="flex items-start space-x-3 p-4 bg-slate-700/50 rounded-lg">
-                    <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
+                    <div className={`w-2 h-2 rounded-sm mt-2 flex-shrink-0 ${
                       riskScore >= 80 ? 'bg-green-400' : riskScore >= 60 ? 'bg-yellow-400' : 'bg-red-400'
                     }`}></div>
                     <p className="text-sm text-slate-300 leading-relaxed">{factor}</p>

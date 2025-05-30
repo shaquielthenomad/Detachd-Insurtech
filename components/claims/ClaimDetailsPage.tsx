@@ -94,36 +94,6 @@ export const ClaimDetailsPage: React.FC = () => {
   const { claimId } = useParams<{ claimId: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
-  
-  // Add debug info at the top
-  if (!user) {
-    return (
-      <div>
-        <PageHeader title="Debug: No User" />
-        <PixelCard variant="blue">
-          <p>User not authenticated. Please log in first.</p>
-          <Link to={ROUTES.LOGIN}>
-            <Button variant="primary">Go to Login</Button>
-          </Link>
-        </PixelCard>
-      </div>
-    );
-  }
-  
-  if (!claimId) {
-    return (
-      <div>
-        <PageHeader title="Debug: No Claim ID" />
-        <PixelCard variant="blue">
-          <p>No claim ID provided in URL.</p>
-          <Link to={ROUTES.CLAIMS}>
-            <Button variant="primary">Back to Claims</Button>
-          </Link>
-        </PixelCard>
-      </div>
-    );
-  }
-  
   const [claim, setClaim] = useState<MockClaimFull | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
