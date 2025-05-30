@@ -54,7 +54,7 @@ const createMockClaimDetails = (claimId: string, userRole?: string): MockClaimFu
     'clm001': {
       id: 'clm001',
       claimNumber: 'DET-001',
-      policyholderName: 'John Smith', // Fixed - always use actual policyholder name
+      policyholderName: 'Jacob Doe', // Fixed - always use actual policyholder name
       claimType: 'Auto Accident',
       status: ClaimStatus.IN_REVIEW,
       amountClaimed: 25000,
@@ -81,7 +81,7 @@ const createMockClaimDetails = (claimId: string, userRole?: string): MockClaimFu
     'clm002': {
       id: 'clm002',
       claimNumber: 'DET-002',
-      policyholderName: 'Jane Doe', // Fixed - actual policyholder name
+      policyholderName: 'Jacob Doe', // Fixed - actual policyholder name
       claimType: 'Property Damage',
       status: ClaimStatus.SUBMITTED,
       amountClaimed: 12000,
@@ -106,7 +106,7 @@ const createMockClaimDetails = (claimId: string, userRole?: string): MockClaimFu
     'clm003': {
       id: 'clm003',
       claimNumber: 'DET-003',
-      policyholderName: 'Bob Johnson', // Fixed - actual policyholder name
+      policyholderName: 'Jacob Doe', // Fixed - actual policyholder name
       claimType: 'Theft',
       status: ClaimStatus.APPROVED,
       amountClaimed: 8000,
@@ -184,7 +184,7 @@ const createMockClaimDetails = (claimId: string, userRole?: string): MockClaimFu
   const result: MockClaimFull = {
     id: baseData.id || claimId,
     claimNumber: baseData.claimNumber || `DET-${claimId.slice(-3)}`,
-    policyholderName: baseData.policyholderName || 'John Smith', // Use actual policyholder name from data
+    policyholderName: baseData.policyholderName || 'Jacob Doe', // Use actual policyholder name from data
     dateOfLoss: baseData.dateOfLoss || '2024-07-15',
     claimType: baseData.claimType || 'General Claim',
     status: baseData.status || ClaimStatus.SUBMITTED,

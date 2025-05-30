@@ -12,7 +12,7 @@ export const PolicyholderWelcomePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, login } = useAuth();
 
-  const [fullName, setFullName] = useState(user?.name || '');
+  const [fullName, setFullName] = useState(user?.name || 'Jacob Doe');
   const [policyNumber, setPolicyNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');

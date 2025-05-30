@@ -91,9 +91,9 @@ export class AuthService {
       const mockUser: User = {
         id: `usr_${Date.now()}`,
         email,
-        name: email.split('@')[0].replace(/[^a-zA-Z]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        name: email.includes('jacob') || email.includes('j.doe') ? 'Jacob Doe' : 'Jacob Doe',
         role: email.includes('insurer') ? UserRole.INSURER_PARTY : UserRole.POLICYHOLDER,
-        avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=1e40af&color=fff`
+        avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent('Jacob Doe')}&background=1e40af&color=fff`
       };
       
       const token = this.generateToken(mockUser);

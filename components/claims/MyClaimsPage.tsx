@@ -22,14 +22,11 @@ import {
 } from '../common/Icon'; 
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { useAuth } from '../../contexts/AuthContext';
+import { ClaimsStorageService, StoredClaim } from '../../services/claimsStorage';
 
 // Extended claim interface for insurer view
-interface InsurerClaim extends Claim {
-  policyNumber?: string;
-  assignedTo?: string;
-  priority?: 'high' | 'medium' | 'low';
-  lastActivity?: string;
-  riskScore?: number;
+interface InsurerClaim extends StoredClaim {
+  // Add any additional insurer-specific fields if needed
 }
 
 const getStatusBadgeStyles = (status: ClaimStatus): string => {
@@ -68,123 +65,36 @@ export const MyClaimsPage: React.FC = () => {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 500)); 
       
-      if (isInsurer) {
-        // Mock data for insurers - all claims across policyholders
-        const mockInsurerClaims: InsurerClaim[] = [
-          { 
-            id: 'clm001', 
-            claimNumber: 'DET-001', 
-            policyholderName: 'John Smith', 
-            dateOfLoss: '2024-07-15', 
-            claimType: 'Auto Accident', 
-            status: ClaimStatus.IN_REVIEW, 
-            amountClaimed: 25000,
-            policyNumber: 'POL-12345',
-            assignedTo: 'Sarah Johnson',
-            priority: 'high',
-            lastActivity: '2024-07-16',
-            riskScore: 75
-          },
-          { 
-            id: 'clm002', 
-            claimNumber: 'DET-002', 
-            policyholderName: 'Jane Doe', 
-            dateOfLoss: '2024-06-20', 
-            claimType: 'Property Damage', 
-            status: ClaimStatus.SUBMITTED, 
-            amountClaimed: 12000,
-            policyNumber: 'POL-67890',
-            assignedTo: 'Mike Wilson',
-            priority: 'medium',
-            lastActivity: '2024-07-14',
-            riskScore: 30
-          },
-          { 
-            id: 'clm003', 
-            claimNumber: 'DET-003', 
-            policyholderName: 'Bob Johnson', 
-            dateOfLoss: '2024-05-01', 
-            claimType: 'Theft', 
-            status: ClaimStatus.APPROVED, 
-            amountClaimed: 8000,
-            policyNumber: 'POL-11111',
-            assignedTo: 'Lisa Chen',
-            priority: 'low',
-            lastActivity: '2024-07-10',
-            riskScore: 20
-          },
-          { 
-            id: 'clm004', 
-            claimNumber: 'DET-004', 
-            policyholderName: 'Alice Brown', 
-            dateOfLoss: '2024-07-10', 
-            claimType: 'Medical', 
-            status: ClaimStatus.REJECTED, 
-            amountClaimed: 15000,
-            policyNumber: 'POL-22222',
-            assignedTo: 'David Kim',
-            priority: 'medium',
-            lastActivity: '2024-07-12',
-            riskScore: 85
-          },
-          { 
-            id: 'clm005', 
-            claimNumber: 'DET-005', 
-            policyholderName: 'Tom Wilson', 
-            dateOfLoss: '2024-07-08', 
-            claimType: 'Auto Accident', 
-            status: ClaimStatus.IN_REVIEW, 
-            amountClaimed: 32000,
-            policyNumber: 'POL-33333',
-            assignedTo: 'Sarah Johnson',
-            priority: 'high',
-            lastActivity: '2024-07-15',
-            riskScore: 65
-          },
-        ];
-        
-        // Update claims with localStorage data
-        const updatedClaims = mockInsurerClaims.map(claim => {
-          const savedClaimState = localStorage.getItem(`claim_${claim.id}`);
-          if (savedClaimState) {
-            const parsedState = JSON.parse(savedClaimState);
-            return {
-              ...claim,
-              status: parsedState.status || claim.status,
-              lastActivity: parsedState.auditTrail?.[0]?.timestamp || claim.lastActivity
-            };
+      try {
+        if (isInsurer) {
+          // For insurers, get all claims across policyholders
+          const allClaims = ClaimsStorageService.getInsurerViewClaims();
+          setClaims(allClaims);
+        } else {
+          // For policyholders, get their claims only
+          const userClaims = ClaimsStorageService.getUserClaims(user?.id);
+          
+          // If no user-specific claims found, try to get claims by name
+          if (userClaims.length === 0 && user?.name) {
+            const allClaims = ClaimsStorageService.getAllClaims();
+            const nameBasedClaims = allClaims.filter(claim => 
+              claim.policyholderName.toLowerCase().includes(user.name.toLowerCase())
+            );
+            setClaims(nameBasedClaims);
+          } else {
+            setClaims(userClaims);
           }
-          return claim;
-        });
-        
-        setClaims(updatedClaims);
-      } else {
-        // Mock data for policyholders - their claims only
-        const mockUserClaims: InsurerClaim[] = [
-          { id: 'clm001', claimNumber: 'DET-001', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-07-15', claimType: 'Auto Accident', status: ClaimStatus.IN_REVIEW, amountClaimed: 25000 },
-          { id: 'clm002', claimNumber: 'DET-002', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-06-20', claimType: 'Property Damage', status: ClaimStatus.APPROVED, amountClaimed: 12000 },
-          { id: 'clm003', claimNumber: 'DET-003', policyholderName: user?.name || 'John Smith', dateOfLoss: '2024-05-01', claimType: 'Theft', status: ClaimStatus.REJECTED, amountClaimed: 8000 },
-        ];
-        
-        // Update claims with localStorage data
-        const updatedClaims = mockUserClaims.map(claim => {
-          const savedClaimState = localStorage.getItem(`claim_${claim.id}`);
-          if (savedClaimState) {
-            const parsedState = JSON.parse(savedClaimState);
-            return {
-              ...claim,
-              status: parsedState.status || claim.status
-            };
-          }
-          return claim;
-        });
-        
-        setClaims(updatedClaims);
+        }
+      } catch (error) {
+        console.error('Error fetching claims:', error);
+        setClaims([]);
       }
+      
       setIsLoading(false);
     };
+    
     fetchClaims();
-  }, [user?.name, isInsurer]);
+  }, [user?.name, user?.id, isInsurer]);
 
   // Filter claims based on search and filters
   const filteredClaims = claims.filter(claim => {

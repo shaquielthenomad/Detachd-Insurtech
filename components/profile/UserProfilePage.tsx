@@ -213,14 +213,14 @@ export const UserProfilePage: React.FC = () => {
             
             setProfileData({
                 ...authUser,
-                name: authUser.name || "Sophia Bennett",
-                email: authUser.email,
+                name: authUser.name || "Jacob Doe",
+                email: authUser.email || "j.doe@gmail.com",
                 role: authUser.role,
-                avatarUrl: authUser.avatarUrl || `https://picsum.photos/seed/${authUser.email}/200/200`,
-                address: "123 Main St, Anytown, USA",
-                phone: "(555) 123-4567",
+                avatarUrl: authUser.avatarUrl || `https://picsum.photos/seed/${authUser.email || "jacob.doe"}/200/200`,
+                address: "145 Long Street, Cape Town, 8001",
+                phone: "084 497 6894",
                 // Only include claims history and risk score for non-insurer users
-                claimsHistory: isInsurer ? [] : mockUserClaimsHistory.map(c => ({...c, policyholderName: authUser.name || "Sophia Bennett"})),
+                claimsHistory: isInsurer ? [] : mockUserClaimsHistory.map(c => ({...c, policyholderName: authUser.name || "Jacob Doe"})),
                 riskAssessmentScore: isInsurer ? undefined : 75,
             });
         }
