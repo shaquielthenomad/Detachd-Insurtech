@@ -31,8 +31,7 @@ export const LoginPage: React.FC = () => {
     { email: 'admin@detachd.com', role: 'Super Admin', password: 'admin123' },
     { email: 'insurer@detachd.com', role: 'Insurer Admin', password: 'insurer123' },
     { email: 'policyholder@detachd.com', role: 'Policyholder', password: 'policy123' },
-    { email: 'witness@detachd.com', role: 'Witness', password: 'witness123' },
-    { email: 'doctor@detachd.com', role: 'Medical Professional', password: 'doctor123' }
+    { email: 'witness@detachd.com', role: 'Witness', password: 'witness123' }
   ];
 
   const handleDemoLogin = async (demoEmail: string, demoPassword: string) => {
