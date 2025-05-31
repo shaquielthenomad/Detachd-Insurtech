@@ -186,7 +186,7 @@ export const DashboardOverviewPage: React.FC = () => {
       <div className="min-h-screen bg-slate-900">
         <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto">
           <PageHeader 
-            title={`Welcome back, ${user?.name || 'Policyholder'}`} 
+            title={`Welcome back, ${user?.name || 'Jacob Doe'}`} 
             subtitle="Manage your insurance claims and policies"
           />
           

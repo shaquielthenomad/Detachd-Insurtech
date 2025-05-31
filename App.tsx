@@ -58,6 +58,7 @@ import { TeamRolesPage } from './components/settings/TeamRolesPage';
 import { RegionalSettingsPage } from './components/settings/RegionalSettingsPage';
 import { HelpVerificationPage } from './components/help/HelpVerificationPage';
 import { StatusPage } from './components/help/StatusPage';
+import { HolographicVerificationPage } from './components/onboarding/HolographicVerificationPage';
 
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -85,6 +86,7 @@ const App: React.FC = () => {
         <Route path={ROUTES.ONBOARDING_ROLE_SELECTION} element={<RoleSelectionPage />} />
         <Route path={ROUTES.SIGNUP} element={<Navigate to={ROUTES.ONBOARDING_ROLE_SELECTION} replace />} /> {/* Redirect SIGNUP to role selection */}
         <Route path={ROUTES.ONBOARDING_VERIFICATION} element={<VerificationPage />} />
+        <Route path={ROUTES.ONBOARDING_HOLOGRAPHIC_VERIFICATION} element={<HolographicVerificationPage />} />
         <Route path={ROUTES.ONBOARDING_VERIFICATION_STATUS} element={<VerificationStatusPage />} />
         <Route path={ROUTES.ONBOARDING_ADDITIONAL_INFO} element={<AdditionalInfoPage />} />
         <Route path={ROUTES.ONBOARDING_UPLOAD_ID} element={<UploadIdPage />} />

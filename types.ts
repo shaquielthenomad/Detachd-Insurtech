@@ -101,6 +101,7 @@ export enum Page {
   
   ONBOARDING_ROLE_SELECTION = '/onboarding/role',
   ONBOARDING_VERIFICATION = '/onboarding/verify',
+  ONBOARDING_HOLOGRAPHIC_VERIFICATION = '/onboarding/holographic-verify',
   ONBOARDING_VERIFICATION_STATUS = '/onboarding/verification-status',
   ONBOARDING_ADDITIONAL_INFO = '/onboarding/additional-info',
   ONBOARDING_UPLOAD_ID = '/onboarding/upload-id',

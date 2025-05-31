@@ -26,6 +26,7 @@ export const RoleSelectionPage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [error, setError] = useState('');
+  const [useHolographicVerification, setUseHolographicVerification] = useState(false);
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
@@ -37,6 +38,11 @@ export const RoleSelectionPage: React.FC = () => {
       setError('Please select your role to continue.');
       return;
     }
+    
+    // For Government Officials and Responders, check if holographic verification is enabled
+    const shouldUseHolographic = useHolographicVerification && 
+      (selectedRole === UserRole.GOVERNMENT_OFFICIAL || selectedRole === UserRole.RESPONDER);
+    
     switch (selectedRole) {
         case UserRole.POLICYHOLDER:
             navigate(ROUTES.ONBOARDING_INSURANCE_CODE, { state: { role: selectedRole }});
@@ -52,13 +58,20 @@ export const RoleSelectionPage: React.FC = () => {
             break;
         case UserRole.GOVERNMENT_OFFICIAL:
         case UserRole.RESPONDER:
-            navigate(ROUTES.ONBOARDING_VERIFICATION, { state: { role: selectedRole }});
+            if (shouldUseHolographic) {
+                navigate(ROUTES.ONBOARDING_HOLOGRAPHIC_VERIFICATION, { state: { role: selectedRole }});
+            } else {
+                navigate(ROUTES.ONBOARDING_VERIFICATION, { state: { role: selectedRole }});
+            }
             break;
         default:
             navigate(ROUTES.ONBOARDING_ADDITIONAL_INFO, { state: { role: selectedRole }});
             break;
     }
   };
+
+  // Check if selected role supports holographic verification
+  const supportsHolographic = selectedRole === UserRole.GOVERNMENT_OFFICIAL || selectedRole === UserRole.RESPONDER;
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -89,6 +102,32 @@ export const RoleSelectionPage: React.FC = () => {
               </button>
             ))}
           </div>
+
+          {/* Holographic Verification Toggle */}
+          {supportsHolographic && (
+            <div className="mt-6 p-4 bg-slate-800/50 rounded-lg border border-slate-600">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-medium text-blue-200">🔮 Holographic Verification</h4>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Experience next-generation identity verification with immersive holographic UI
+                  </p>
+                </div>
+                <button
+                  onClick={() => setUseHolographicVerification(!useHolographicVerification)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    useHolographicVerification ? 'bg-blue-600' : 'bg-slate-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      useHolographicVerification ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          )}
 
           {error && <p className="mt-4 text-sm text-red-400 text-center">{error}</p>}
 
