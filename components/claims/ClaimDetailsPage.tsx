@@ -53,17 +53,17 @@ interface FileWithPreview extends File {
 }
 
 const createMockDocuments = (claimType: string): Document[] => {
-  const baseDocuments = [
-    { id: 'doc1', name: 'police_report.pdf', type: 'PDF' as const, url: '#', uploadedAt: '2024-07-16', size: '1.2MB' },
+  const baseDocuments: Document[] = [
+    { id: 'doc1', name: 'police_report.pdf', type: 'PDF', url: '#', uploadedAt: '2024-07-16', size: '1.2MB' },
   ];
   
   if (claimType === 'Auto Accident') {
     baseDocuments.push(
-      { id: 'doc2', name: 'damage_photo_front.jpg', type: 'Photo' as const, url: 'https://picsum.photos/seed/damage1/200/150', uploadedAt: '2024-07-16', size: '850KB' }
+      { id: 'doc2', name: 'damage_photo_front.jpg', type: 'Photo', url: 'https://picsum.photos/seed/damage1/200/150', uploadedAt: '2024-07-16', size: '850KB' }
     );
   } else if (claimType === 'Property Damage') {
     baseDocuments.push(
-      { id: 'doc3', name: 'water_damage_photos.jpg', type: 'Photo' as const, url: 'https://picsum.photos/seed/water/200/150', uploadedAt: '2024-06-21', size: '2.1MB' }
+      { id: 'doc3', name: 'water_damage_photos.jpg', type: 'Photo', url: 'https://picsum.photos/seed/water/200/150', uploadedAt: '2024-06-21', size: '2.1MB' }
     );
   }
   
