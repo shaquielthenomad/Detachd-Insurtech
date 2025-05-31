@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { PageHeader } from '../common/PageHeader';
 import PixelCard from '../common/PixelCard';
 import { FileTextIcon, CheckCircleIcon, PlusCircleIcon, AlertTriangleIcon, ShieldCheckIcon, BellIcon, UsersIcon, ChartBarIcon, ExclamationTriangleIcon, ClockIcon, ZapIcon, EyeIcon, DownloadIcon, TrendingUpIcon } from '../common/Icon';
-import { UserRole } from '../../types';
+import { UserRole, ClaimStatus } from '../../types';
 import { Button } from '../common/Button';
 import { ROUTES } from '../../constants';
 import { useAuth } from '../../contexts/AuthContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import Masonry, { MasonryDataItem } from '../common/Masonry';
+import { ClaimsStorageService } from '../../services/claimsStorage';
 
 // Color palette for charts
 const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -31,13 +32,6 @@ const initialRiskScoreTrendData: { name: string; avgRiskScore: number }[] = [
   { name: 'Week 5', avgRiskScore: 0 },
 ];
 
-const claimTypesData = [
-  { name: 'Auto Accident', value: 40, color: '#3b82f6' },
-  { name: 'Property Damage', value: 25, color: '#10b981' },
-  { name: 'Medical', value: 20, color: '#f59e0b' },
-  { name: 'Theft', value: 15, color: '#ef4444' },
-];
-
 export const DashboardOverviewPage: React.FC = () => {
   const { user } = useAuth();
   const [totalClaims, setTotalClaims] = useState(0);
@@ -53,6 +47,12 @@ export const DashboardOverviewPage: React.FC = () => {
   const [activePolicies, setActivePolicies] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
   const [monthlyRevenue, setMonthlyRevenue] = useState(0);
+  const [claimTypesData, setClaimTypesData] = useState([
+    { name: 'Auto Accident', value: 0, color: '#3b82f6' },
+    { name: 'Property Damage', value: 0, color: '#10b981' },
+    { name: 'Medical', value: 0, color: '#f59e0b' },
+    { name: 'Theft', value: 0, color: '#ef4444' },
+  ]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,43 +64,73 @@ export const DashboardOverviewPage: React.FC = () => {
       const isInsurer = user?.role === 'insurer_admin' || user?.role === 'super_admin';
       const isPolicyholder = user?.role === 'policyholder';
       
+      // Get real claims data from storage
+      const claimsStats = ClaimsStorageService.getClaimsStats();
+      const allClaims = isInsurer ? ClaimsStorageService.getInsurerViewClaims() : ClaimsStorageService.getUserClaims(user?.id);
+      
       if (isInsurer) {
         // Insurer/Admin-specific data
-        setTotalClaims(125);
-        setOpenClaims(30);
-        setClosedClaims(95);
-        setUrgentTasks(8);
-        setPendingApprovals(15);
-        setFraudAlerts(3);
-        setTotalUsers(1247);
-        setMonthlyRevenue(2150000);
-        setClaimsByMonthData([
-          { name: 'Jan', Submitted: 20, Approved: 15, Rejected: 2 },
-          { name: 'Feb', Submitted: 25, Approved: 18, Rejected: 3 },
-          { name: 'Mar', Submitted: 30, Approved: 22, Rejected: 4 },
-          { name: 'Apr', Submitted: 28, Approved: 25, Rejected: 1 },
-          { name: 'May', Submitted: 35, Approved: 30, Rejected: 2 },
-          { name: 'Jun', Submitted: 40, Approved: 33, Rejected: 5 },
-        ]);
+        setTotalClaims(claimsStats.total);
+        setOpenClaims(claimsStats.byStatus[ClaimStatus.SUBMITTED] + claimsStats.byStatus[ClaimStatus.IN_REVIEW]);
+        setClosedClaims(claimsStats.byStatus[ClaimStatus.APPROVED] + claimsStats.byStatus[ClaimStatus.REJECTED] + claimsStats.byStatus[ClaimStatus.CLOSED]);
+        setUrgentTasks(allClaims.filter(claim => claim.priority === 'high').length);
+        setPendingApprovals(claimsStats.byStatus[ClaimStatus.SUBMITTED]);
+        setFraudAlerts(allClaims.filter(claim => claim.riskScore > 70).length);
+        setTotalUsers(1247); // Keep as mock for now
+        setMonthlyRevenue(claimsStats.totalAmount);
+        
+        // Generate realistic chart data based on current claims
+        const currentMonth = new Date().getMonth();
+        const monthData = [...initialClaimsByMonthData];
+        monthData[currentMonth] = {
+          name: monthData[currentMonth].name,
+          Submitted: claimsStats.byStatus[ClaimStatus.SUBMITTED],
+          Approved: claimsStats.byStatus[ClaimStatus.APPROVED],
+          Rejected: claimsStats.byStatus[ClaimStatus.REJECTED]
+        };
+        setClaimsByMonthData(monthData);
+        
+        // Set realistic risk score trend
         setRiskScoreTrendData([
-          { name: 'Week 1', avgRiskScore: 65 },
-          { name: 'Week 2', avgRiskScore: 68 },
-          { name: 'Week 3', avgRiskScore: 62 },
-          { name: 'Week 4', avgRiskScore: 70 },
-          { name: 'Week 5', avgRiskScore: 67 },
+          { name: 'Week 1', avgRiskScore: Math.max(claimsStats.avgRiskScore - 10, 20) },
+          { name: 'Week 2', avgRiskScore: Math.max(claimsStats.avgRiskScore - 5, 20) },
+          { name: 'Week 3', avgRiskScore: claimsStats.avgRiskScore },
+          { name: 'Week 4', avgRiskScore: Math.min(claimsStats.avgRiskScore + 5, 90) },
+          { name: 'Week 5', avgRiskScore: Math.min(claimsStats.avgRiskScore + 3, 90) },
         ]);
+        
+        // Generate claim types data from real claims
+        const claimTypes = allClaims.reduce((acc, claim) => {
+          acc[claim.claimType] = (acc[claim.claimType] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+        
+        const totalClaimsForTypes = Object.values(claimTypes).reduce((sum, count) => sum + count, 0);
+        const updatedClaimTypesData = [
+          { name: 'Auto Accident', value: claimTypes['Auto Accident'] || 0, color: '#3b82f6' },
+          { name: 'Property Damage', value: claimTypes['Property Damage'] || 0, color: '#10b981' },
+          { name: 'Medical', value: claimTypes['Medical'] || 0, color: '#f59e0b' },
+          { name: 'Theft', value: claimTypes['Theft'] || 0, color: '#ef4444' },
+        ];
+        setClaimTypesData(updatedClaimTypesData);
+        
       } else if (isPolicyholder) {
         // Policyholder-specific data
-        setMyClaimsCount(3);
-        setActivePolicies(1);
-        setOpenClaims(1);
-        setClosedClaims(2);
+        const userClaims = allClaims;
+        setMyClaimsCount(userClaims.length);
+        setActivePolicies(1); // Keep as mock for now
+        setOpenClaims(userClaims.filter(claim => 
+          claim.status === ClaimStatus.SUBMITTED || claim.status === ClaimStatus.IN_REVIEW
+        ).length);
+        setClosedClaims(userClaims.filter(claim => 
+          claim.status === ClaimStatus.APPROVED || claim.status === ClaimStatus.REJECTED || claim.status === ClaimStatus.CLOSED
+        ).length);
       }
       
       setIsLoading(false);
     };
     fetchData();
-  }, [user?.role]);
+  }, [user?.role, user?.id]);
 
   if (isLoading) {
     return <LoadingSpinner message="Loading dashboard data..." />;
@@ -203,7 +233,7 @@ export const DashboardOverviewPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-text-on-dark-primary mb-6">AI Risk Insights</h3>
               <div className="space-y-6">
                 <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-400 rounded-sm"></div>
                   <span className="text-text-on-dark-primary font-medium">Low Risk Profile</span>
                 </div>
                 <div className="space-y-4">
@@ -321,7 +351,6 @@ export const DashboardOverviewPage: React.FC = () => {
         {/* Key Performance Metrics with Material Design Styling */}
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <PixelCard variant="blue" className="p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
               <div className="flex items-center justify-between">
                 <FileTextIcon className="h-8 w-8 text-blue-400 flex-shrink-0" />
@@ -338,7 +367,6 @@ export const DashboardOverviewPage: React.FC = () => {
           </PixelCard>
           
           <PixelCard variant="blue" className="p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
               <div className="flex items-center justify-between">
                 <AlertTriangleIcon className="h-8 w-8 text-yellow-400 flex-shrink-0" />
@@ -355,7 +383,6 @@ export const DashboardOverviewPage: React.FC = () => {
           </PixelCard>
           
           <PixelCard variant="blue" className="p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
               <div className="flex items-center justify-between">
                 <UsersIcon className="h-8 w-8 text-green-400 flex-shrink-0" />
@@ -372,7 +399,6 @@ export const DashboardOverviewPage: React.FC = () => {
           </PixelCard>
           
           <PixelCard variant="blue" className="p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
               <div className="flex items-center justify-between">
                 <ChartBarIcon className="h-8 w-8 text-purple-400 flex-shrink-0" />
@@ -624,21 +650,21 @@ export const DashboardOverviewPage: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
+                  <div className="w-3 h-3 bg-green-400 rounded-sm mr-3"></div>
                   <span className="text-text-on-dark-primary">API Response Time</span>
                 </div>
                 <span className="text-green-400 font-semibold">142ms</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
+                  <div className="w-3 h-3 bg-green-400 rounded-sm mr-3"></div>
                   <span className="text-text-on-dark-primary">Database Health</span>
                 </div>
                 <span className="text-green-400 font-semibold">Optimal</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-3 h-3 bg-yellow-400 rounded-full mr-3"></div>
+                  <div className="w-3 h-3 bg-yellow-400 rounded-sm mr-3"></div>
                   <span className="text-text-on-dark-primary">Cache Hit Rate</span>
                 </div>
                 <span className="text-yellow-400 font-semibold">87%</span>

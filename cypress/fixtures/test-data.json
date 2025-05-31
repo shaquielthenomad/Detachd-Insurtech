@@ -2,16 +2,16 @@
   "users": {
     "policyholder": {
       "id": "user-123",
-      "email": "john.doe@example.com",
-      "firstName": "John",
+      "email": "j.doe@gmail.com",
+      "firstName": "Jacob",
       "lastName": "Doe",
       "role": "policyholder",
-      "phone": "+1234567890",
+      "phone": "084 497 6894",
       "address": {
-        "street": "123 Main St",
-        "city": "Anytown",
-        "state": "CA",
-        "zipCode": "12345"
+        "street": "145 Long Street",
+        "city": "Cape Town",
+        "state": "Western Cape",
+        "zipCode": "8001"
       }
     },
     "insurer_admin": {

@@ -8,6 +8,7 @@ import { Textarea } from '../common/Textarea';
 import { Claim, ClaimStatus, Document, ClaimNote, FraudIndicator, UserRole } from '../../types';
 import { ROUTES, MAX_FILE_SIZE_MB, ACCEPTED_DOCUMENT_TYPES } from '../../constants';
 import { useAuth } from '../../contexts/AuthContext';
+import { ClaimsStorageService, StoredClaim } from '../../services/claimsStorage';
 import { 
   FileTextIcon, 
   DollarSignIcon, 
@@ -41,170 +42,53 @@ const getStatusBadgeStyles = (status: ClaimStatus | undefined): string => {
   }
 };
 
-interface MockClaimFull extends Claim {
+interface MockClaimFull extends StoredClaim {
     documents: Document[];
     notes: ClaimNote[];
     fraudIndicators: FraudIndicator[];
-    auditTrail: { timestamp: string; event: string; user?: string }[];
 }
-
-const createMockClaimDetails = (claimId: string, userRole?: string): MockClaimFull => {
-  // Create different claim details based on the claimId - consistent with MyClaimsPage
-  const claimData: { [key: string]: Partial<MockClaimFull> } = {
-    'clm001': {
-      id: 'clm001',
-      claimNumber: 'DET-001',
-      policyholderName: 'John Smith', // Fixed - always use actual policyholder name
-      claimType: 'Auto Accident',
-      status: ClaimStatus.IN_REVIEW,
-      amountClaimed: 25000,
-      dateOfLoss: '2024-07-15',
-      description: 'Minor fender bender at the intersection of Adderley Street and Strand Street, Cape Town. Other party involved: Nomsa Dlamini.',
-      riskScore: 75, // Fixed - consistent with MyClaimsPage (was 45)
-      documents: [
-        { id: 'doc1', name: 'police_report.pdf', type: 'PDF', url: '#', uploadedAt: '2024-07-16', size: '1.2MB' },
-        { id: 'doc2', name: 'damage_photo_front.jpg', type: 'Photo', url: 'https://picsum.photos/seed/damage1/200/150', uploadedAt: '2024-07-16', size: '850KB' },
-      ],
-      notes: [
-        { id: 'note1', author: 'Sarah Johnson (Adjuster)', content: 'Initial review complete. Contacted policyholder for statement.', timestamp: '2024-07-17 10:30 AM', avatarUrl: 'https://picsum.photos/seed/sarah/40/40' },
-      ],
-      auditTrail: [
-        { timestamp: '2024-07-15 02:30 PM', event: 'Claim Submitted by Policyholder' },
-        { timestamp: '2024-07-16 09:00 AM', event: 'Document "police_report.pdf" Uploaded' },
-        { timestamp: '2024-07-16 09:05 AM', event: 'Document "damage_photo_front.jpg" Uploaded' },
-        { timestamp: '2024-07-16 09:10 AM', event: 'Initial Risk Assessment by System - Score: 75' }, // Fixed
-        { timestamp: '2024-07-16 11:00 AM', event: 'Claim Assigned to Adjuster: Sarah Johnson' }, // Fixed name
-        { timestamp: '2024-07-17 10:30 AM', event: 'Note added by Sarah Johnson', user: 'Sarah Johnson' },
-        { timestamp: '2024-07-17 03:00 PM', event: 'Status changed to "In Review" by Sarah Johnson', user: 'Sarah Johnson' },
-      ]
-    },
-    'clm002': {
-      id: 'clm002',
-      claimNumber: 'DET-002',
-      policyholderName: 'Jane Doe', // Fixed - actual policyholder name
-      claimType: 'Property Damage',
-      status: ClaimStatus.SUBMITTED,
-      amountClaimed: 12000,
-      dateOfLoss: '2024-06-20',
-      description: 'Water damage to home office due to burst pipe in upstairs bathroom. Affected electronics and furniture.',
-      riskScore: 30, // Fixed - consistent with MyClaimsPage
-      documents: [
-        { id: 'doc3', name: 'water_damage_photos.jpg', type: 'Photo', url: 'https://picsum.photos/seed/water/200/150', uploadedAt: '2024-06-21', size: '2.1MB' },
-        { id: 'doc4', name: 'plumber_report.pdf', type: 'PDF', url: '#', uploadedAt: '2024-06-22', size: '890KB' },
-      ],
-      notes: [
-        { id: 'note2', author: 'Mike Wilson (Adjuster)', content: 'Awaiting additional documentation from policyholder.', timestamp: '2024-06-25 02:15 PM', avatarUrl: 'https://picsum.photos/seed/mike/40/40' },
-      ],
-      auditTrail: [
-        { timestamp: '2024-06-20 04:45 PM', event: 'Claim Submitted by Policyholder' },
-        { timestamp: '2024-06-21 09:30 AM', event: 'Document "water_damage_photos.jpg" Uploaded' },
-        { timestamp: '2024-06-22 11:15 AM', event: 'Document "plumber_report.pdf" Uploaded' },
-        { timestamp: '2024-06-22 11:20 AM', event: 'Initial Risk Assessment by System - Score: 30' },
-        { timestamp: '2024-06-23 10:00 AM', event: 'Claim Assigned to Adjuster: Mike Wilson' },
-      ]
-    },
-    'clm003': {
-      id: 'clm003',
-      claimNumber: 'DET-003',
-      policyholderName: 'Bob Johnson', // Fixed - actual policyholder name
-      claimType: 'Theft',
-      status: ClaimStatus.APPROVED,
-      amountClaimed: 8000,
-      dateOfLoss: '2024-05-01',
-      description: 'Laptop and camera stolen from vehicle parked at shopping center. Window was broken to gain entry.',
-      riskScore: 20, // Fixed - consistent with MyClaimsPage
-      documents: [
-        { id: 'doc5', name: 'police_case_number.pdf', type: 'PDF', url: '#', uploadedAt: '2024-05-02', size: '450KB' },
-      ],
-      notes: [
-        { id: 'note3', author: 'Lisa Chen (Adjuster)', content: 'Claim approved after verification with police report. Payment processed.', timestamp: '2024-05-10 11:30 AM', avatarUrl: 'https://picsum.photos/seed/lisa/40/40' },
-      ],
-      auditTrail: [
-        { timestamp: '2024-05-01 08:20 PM', event: 'Claim Submitted by Policyholder' },
-        { timestamp: '2024-05-02 10:45 AM', event: 'Document "police_case_number.pdf" Uploaded' },
-        { timestamp: '2024-05-02 10:50 AM', event: 'Initial Risk Assessment by System - Score: 20' },
-        { timestamp: '2024-05-03 09:00 AM', event: 'Claim Assigned to Adjuster: Lisa Chen' },
-        { timestamp: '2024-05-10 11:30 AM', event: 'Claim Approved by Lisa Chen', user: 'Lisa Chen' },
-      ]
-    },
-    'clm004': {
-      id: 'clm004',
-      claimNumber: 'DET-004',
-      policyholderName: 'Alice Brown', // New claim data consistent with MyClaimsPage
-      claimType: 'Medical',
-      status: ClaimStatus.REJECTED,
-      amountClaimed: 15000,
-      dateOfLoss: '2024-07-10',
-      description: 'Medical expenses following a slip and fall incident at shopping mall.',
-      riskScore: 85,
-      documents: [
-        { id: 'doc6', name: 'medical_reports.pdf', type: 'PDF', url: '#', uploadedAt: '2024-07-11', size: '2.1MB' },
-      ],
-      notes: [
-        { id: 'note4', author: 'David Kim (Adjuster)', content: 'Claim rejected due to pre-existing condition. High risk assessment confirmed.', timestamp: '2024-07-12 03:20 PM', avatarUrl: 'https://picsum.photos/seed/david/40/40' },
-      ],
-      auditTrail: [
-        { timestamp: '2024-07-10 06:15 PM', event: 'Claim Submitted by Policyholder' },
-        { timestamp: '2024-07-11 09:20 AM', event: 'Document "medical_reports.pdf" Uploaded' },
-        { timestamp: '2024-07-11 09:25 AM', event: 'Initial Risk Assessment by System - Score: 85' },
-        { timestamp: '2024-07-11 02:00 PM', event: 'Claim Assigned to Adjuster: David Kim' },
-        { timestamp: '2024-07-12 03:20 PM', event: 'Claim Rejected by David Kim', user: 'David Kim' },
-      ]
-    },
-    'clm005': {
-      id: 'clm005',
-      claimNumber: 'DET-005',
-      policyholderName: 'Tom Wilson', // New claim data consistent with MyClaimsPage
-      claimType: 'Auto Accident',
-      status: ClaimStatus.IN_REVIEW,
-      amountClaimed: 32000,
-      dateOfLoss: '2024-07-08',
-      description: 'Multi-vehicle collision on highway. Significant vehicle damage reported.',
-      riskScore: 65,
-      documents: [
-        { id: 'doc7', name: 'highway_accident_report.pdf', type: 'PDF', url: '#', uploadedAt: '2024-07-09', size: '1.8MB' },
-        { id: 'doc8', name: 'vehicle_damage_photos.jpg', type: 'Photo', url: 'https://picsum.photos/seed/accident/200/150', uploadedAt: '2024-07-09', size: '3.2MB' },
-      ],
-      notes: [
-        { id: 'note5', author: 'Sarah Johnson (Adjuster)', content: 'Complex case under review. Awaiting traffic police final report.', timestamp: '2024-07-15 11:45 AM', avatarUrl: 'https://picsum.photos/seed/sarah/40/40' },
-      ],
-      auditTrail: [
-        { timestamp: '2024-07-08 07:30 PM', event: 'Claim Submitted by Policyholder' },
-        { timestamp: '2024-07-09 08:15 AM', event: 'Document "highway_accident_report.pdf" Uploaded' },
-        { timestamp: '2024-07-09 08:20 AM', event: 'Document "vehicle_damage_photos.jpg" Uploaded' },
-        { timestamp: '2024-07-09 08:25 AM', event: 'Initial Risk Assessment by System - Score: 65' },
-        { timestamp: '2024-07-10 10:00 AM', event: 'Claim Assigned to Adjuster: Sarah Johnson' },
-        { timestamp: '2024-07-15 11:45 AM', event: 'Note added by Sarah Johnson', user: 'Sarah Johnson' },
-      ]
-    }
-  };
-
-  const baseData = claimData[claimId] || claimData['clm001']; // Fallback to clm001 if ID not found
-  
-  const result: MockClaimFull = {
-    id: baseData.id || claimId,
-    claimNumber: baseData.claimNumber || `DET-${claimId.slice(-3)}`,
-    policyholderName: baseData.policyholderName || 'John Smith', // Use actual policyholder name from data
-    dateOfLoss: baseData.dateOfLoss || '2024-07-15',
-    claimType: baseData.claimType || 'General Claim',
-    status: baseData.status || ClaimStatus.SUBMITTED,
-    amountClaimed: baseData.amountClaimed || 0,
-    description: baseData.description || 'Claim description not available',
-    riskScore: baseData.riskScore || 25,
-    documents: baseData.documents || [],
-    notes: baseData.notes || [],
-    fraudIndicators: [],
-    auditTrail: baseData.auditTrail || [
-      { timestamp: new Date().toLocaleString(), event: 'Claim Submitted by Policyholder' }
-    ]
-  };
-  
-  return result;
-};
 
 interface FileWithPreview extends File {
   preview: string;
 }
+
+const createMockDocuments = (claimType: string): Document[] => {
+  const baseDocuments = [
+    { id: 'doc1', name: 'police_report.pdf', type: 'PDF' as const, url: '#', uploadedAt: '2024-07-16', size: '1.2MB' },
+  ];
+  
+  if (claimType === 'Auto Accident') {
+    baseDocuments.push(
+      { id: 'doc2', name: 'damage_photo_front.jpg', type: 'Photo' as const, url: 'https://picsum.photos/seed/damage1/200/150', uploadedAt: '2024-07-16', size: '850KB' }
+    );
+  } else if (claimType === 'Property Damage') {
+    baseDocuments.push(
+      { id: 'doc3', name: 'water_damage_photos.jpg', type: 'Photo' as const, url: 'https://picsum.photos/seed/water/200/150', uploadedAt: '2024-06-21', size: '2.1MB' }
+    );
+  }
+  
+  return baseDocuments;
+};
+
+const createMockNotes = (claimType: string, status: ClaimStatus): ClaimNote[] => {
+  const notes: ClaimNote[] = [];
+  
+  if (status === ClaimStatus.IN_REVIEW || status === ClaimStatus.APPROVED || status === ClaimStatus.REJECTED) {
+    notes.push({
+      id: 'note1',
+      author: 'Sarah Johnson (Adjuster)',
+      content: status === ClaimStatus.APPROVED 
+        ? 'Claim approved after thorough review. All documentation verified.'
+        : status === ClaimStatus.REJECTED 
+        ? 'Claim rejected due to insufficient evidence. Please provide additional documentation.'
+        : 'Initial review complete. Contacted policyholder for statement.',
+      timestamp: new Date().toLocaleString(),
+      avatarUrl: 'https://picsum.photos/seed/sarah/40/40'
+    });
+  }
+  
+  return notes;
+};
 
 export const ClaimDetailsPage: React.FC = () => {
   const { claimId } = useParams<{ claimId: string }>();
@@ -235,27 +119,71 @@ export const ClaimDetailsPage: React.FC = () => {
     const fetchClaimDetails = async () => {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 500)); 
+      
       if (claimId) {
-        const mockClaimDetails = createMockClaimDetails(claimId, user?.role);
+        // First try to get the claim from individual storage
+        let storedClaim = ClaimsStorageService.getClaim(claimId);
         
-        // Check for saved claim state in localStorage
-        const savedClaimState = localStorage.getItem(`claim_${claimId}`);
-        if (savedClaimState) {
-          const parsedState = JSON.parse(savedClaimState);
-          // Merge saved state with mock data
-          mockClaimDetails.status = parsedState.status || mockClaimDetails.status;
-          if (parsedState.auditTrail) {
-            mockClaimDetails.auditTrail = [...parsedState.auditTrail, ...mockClaimDetails.auditTrail];
-          }
-          setCertificateIssued(parsedState.certificateIssued || false);
+        // If not found, try to find in all claims (including mock claims)
+        if (!storedClaim) {
+          const allClaims = ClaimsStorageService.getInsurerViewClaims();
+          storedClaim = allClaims.find(claim => claim.id === claimId || claim.claimNumber.includes(claimId.slice(-3)));
         }
         
-        setClaim(mockClaimDetails);
+        if (storedClaim) {
+          // Convert stored claim to MockClaimFull format
+          const claimDetails: MockClaimFull = {
+            ...storedClaim,
+            documents: createMockDocuments(storedClaim.claimType),
+            notes: createMockNotes(storedClaim.claimType, storedClaim.status),
+            fraudIndicators: storedClaim.fraudAlerts || [],
+          };
+          
+          // Check for saved claim state in localStorage (for status updates, etc.)
+          const savedClaimState = localStorage.getItem(`claim_${claimId}`);
+          if (savedClaimState) {
+            const parsedState = JSON.parse(savedClaimState);
+            // Merge saved state with stored data
+            claimDetails.status = parsedState.status || claimDetails.status;
+            if (parsedState.auditTrail) {
+              claimDetails.auditTrail = [...parsedState.auditTrail, ...(claimDetails.auditTrail || [])];
+            }
+            setCertificateIssued(parsedState.certificateIssued || false);
+          }
+          
+          setClaim(claimDetails);
+        } else {
+          // Fallback to create a basic claim if nothing found
+          const fallbackClaim: MockClaimFull = {
+            id: claimId,
+            claimNumber: `DET-${claimId.slice(-3)}`,
+            policyholderName: 'Jacob Doe',
+            dateOfLoss: new Date().toISOString().split('T')[0],
+            claimType: 'General Claim',
+            status: ClaimStatus.SUBMITTED,
+            amountClaimed: 0,
+            location: 'Unknown',
+            description: 'Claim details not available',
+            submittedAt: new Date().toISOString(),
+            riskScore: 25,
+            fraudAlerts: [],
+            documentFlags: [],
+            isInsuranceClaim: true,
+            documents: [],
+            notes: [],
+            fraudIndicators: [],
+            auditTrail: [
+              { timestamp: new Date().toLocaleString(), event: 'Claim Submitted by Policyholder', user: 'Jacob Doe' }
+            ]
+          };
+          setClaim(fallbackClaim);
+        }
       } else {
         setClaim(null);
       }
       setIsLoading(false);
     };
+    
     fetchClaimDetails();
   }, [claimId, user?.role]);
 
@@ -269,12 +197,20 @@ export const ClaimDetailsPage: React.FC = () => {
     }
   }, [showSuccessToast]);
 
-  // Save claim state to localStorage
+  // Save claim state to localStorage and update storage service
   const saveClaimState = (updatedClaim: MockClaimFull) => {
     if (claimId) {
+      // Update in ClaimsStorageService
+      ClaimsStorageService.updateClaim(claimId, {
+        status: updatedClaim.status,
+        lastActivity: new Date().toISOString(),
+        auditTrail: updatedClaim.auditTrail
+      });
+      
+      // Also save local state for UI-specific data
       const stateToSave = {
         status: updatedClaim.status,
-        auditTrail: updatedClaim.auditTrail.slice(0, 10), // Save only recent audit entries
+        auditTrail: updatedClaim.auditTrail?.slice(0, 10), // Save only recent audit entries
         certificateIssued: certificateIssued
       };
       localStorage.setItem(`claim_${claimId}`, JSON.stringify(stateToSave));
@@ -294,9 +230,10 @@ export const ClaimDetailsPage: React.FC = () => {
       const updatedClaim = { ...claim, status: newStatus };
       const newAuditEntry = {
         timestamp: new Date().toLocaleString(),
-        event: `Claim ${action}d by Sarah Naidoo - ${actionReason}`,
-        user: 'Sarah Naidoo'
+        event: `Claim ${action}d by Sarah Johnson - ${actionReason}`,
+        user: 'Sarah Johnson'
       };
+      updatedClaim.auditTrail = updatedClaim.auditTrail || [];
       updatedClaim.auditTrail = [newAuditEntry, ...updatedClaim.auditTrail];
       setClaim(updatedClaim);
       saveClaimState(updatedClaim);
@@ -323,18 +260,27 @@ export const ClaimDetailsPage: React.FC = () => {
         event: `Certificate issued by Sarah Johnson - Policy payout certificate generated`,
         user: 'Sarah Johnson'
       };
+      updatedClaim.auditTrail = updatedClaim.auditTrail || [];
       updatedClaim.auditTrail = [certificateEntry, ...updatedClaim.auditTrail];
       setClaim(updatedClaim);
       setCertificateIssued(true);
       setShowSuccessToast(true);
       
       // Save updated state with certificate issued
-      const stateToSave = {
-        status: updatedClaim.status,
-        auditTrail: updatedClaim.auditTrail.slice(0, 10),
-        certificateIssued: true
-      };
-      localStorage.setItem(`claim_${claimId}`, JSON.stringify(stateToSave));
+      if (claimId) {
+        ClaimsStorageService.updateClaim(claimId, {
+          lastActivity: new Date().toISOString(),
+          auditTrail: updatedClaim.auditTrail,
+          certificateIssued: true
+        });
+        
+        const stateToSave = {
+          status: updatedClaim.status,
+          auditTrail: updatedClaim.auditTrail.slice(0, 10),
+          certificateIssued: true
+        };
+        localStorage.setItem(`claim_${claimId}`, JSON.stringify(stateToSave));
+      }
     }
     
     setIsSubmitting(false);

@@ -367,3 +367,35 @@ export const FilterIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
   </svg>
 );
+
+export const WandIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M15 4V2"></path>
+    <path d="M15 16v-2"></path>
+    <path d="M8 9h2"></path>
+    <path d="M20 9h2"></path>
+    <path d="M17.8 11.8 19 13"></path>
+    <path d="M15 9h0"></path>
+    <path d="M17.8 6.2 19 5"></path>
+    <path d="m3 21 9-9"></path>
+    <path d="m12.2 6.2 1.4-1.4"></path>
+    <circle cx="5" cy="19" r="2"></circle>
+  </svg>
+);
+
+export const BarChart3Icon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M3 3v18h18"></path>
+    <path d="M18 17V9"></path>
+    <path d="M13 17V5"></path>
+    <path d="M8 17v-3"></path>
+  </svg>
+);
+
+export const AlertCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <circle cx="12" cy="12" r="10"></circle>
+    <line x1="12" y1="8" x2="12" y2="12"></line>
+    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+  </svg>
+);

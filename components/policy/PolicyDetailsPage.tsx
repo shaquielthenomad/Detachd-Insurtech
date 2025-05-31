@@ -131,10 +131,10 @@ const createMockPolicyDetails = (policyId: string, userName: string): PolicyDeta
   
   return {
     policyholder: {
-      name: userName || 'John Smith',
-      address: '123 Main Street, Cape Town, 8001',
-      phone: '+27 82 123 4567',
-      email: userName ? `${userName.toLowerCase().replace(/\s+/g, '.')}@example.com` : 'john.smith@example.com'
+      name: 'Jacob Doe',
+      address: '145 Long Street, Cape Town, 8001',
+      phone: '084 497 6894',
+      email: 'j.doe@gmail.com'
     },
     documents: {
       policyDocument: '#',
