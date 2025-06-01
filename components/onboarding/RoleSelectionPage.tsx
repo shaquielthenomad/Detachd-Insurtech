@@ -61,7 +61,7 @@ export const RoleSelectionPage: React.FC = () => {
             if (shouldUseHolographic) {
                 navigate(ROUTES.ONBOARDING_HOLOGRAPHIC_VERIFICATION, { state: { role: selectedRole }});
             } else {
-                navigate(ROUTES.ONBOARDING_VERIFICATION, { state: { role: selectedRole }});
+            navigate(ROUTES.ONBOARDING_VERIFICATION, { state: { role: selectedRole }});
             }
             break;
         default:

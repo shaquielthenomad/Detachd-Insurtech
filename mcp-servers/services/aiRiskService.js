@@ -1,4 +1,4 @@
-const { openAIClient, config, containers } = require('../config/azure');
+const { openAIClient, config, containers, isFallbackMode } = require('../config/azure');
 
 class AIRiskService {
   /**
@@ -6,6 +6,12 @@ class AIRiskService {
    */
   static async calculateRiskScore(userId, riskData = {}) {
     try {
+      // If in fallback mode, return fallback assessment immediately
+      if (isFallbackMode || !openAIClient) {
+        console.log('🔄 Using fallback risk assessment - Azure OpenAI not available');
+        return this.getFallbackRiskAssessment(riskData);
+      }
+
       const {
         claimsHistory = [],
         drivingRecord = {},
@@ -53,8 +59,10 @@ class AIRiskService {
       const aiResponse = completion.choices[0].message.content;
       const riskAssessment = this.parseAIResponse(aiResponse);
 
-      // Store assessment in Cosmos DB
-      await this.storeRiskAssessment(userId, riskAssessment, riskData);
+      // Store assessment in Cosmos DB (if not in fallback mode)
+      if (!isFallbackMode) {
+        await this.storeRiskAssessment(userId, riskAssessment, riskData);
+      }
 
       return riskAssessment;
     } catch (error) {
@@ -160,6 +168,11 @@ Consider South African specific factors: crime rates, economic conditions, road 
    */
   static async storeRiskAssessment(userId, assessment, originalData) {
     try {
+      if (isFallbackMode) {
+        console.log('📝 Skipping risk assessment storage - fallback mode');
+        return;
+      }
+
       const riskAssessmentRecord = {
         id: `${userId}-${Date.now()}`,
         userId,
@@ -180,6 +193,11 @@ Consider South African specific factors: crime rates, economic conditions, road 
    */
   static async getRiskHistory(userId, limit = 10) {
     try {
+      if (isFallbackMode) {
+        console.log('📝 Returning empty risk history - fallback mode');
+        return [];
+      }
+
       const querySpec = {
         query: 'SELECT * FROM c WHERE c.userId = @userId ORDER BY c.createdAt DESC OFFSET 0 LIMIT @limit',
         parameters: [
@@ -201,6 +219,18 @@ Consider South African specific factors: crime rates, economic conditions, road 
    */
   static async detectFraudPatterns(claimData) {
     try {
+      // If in fallback mode, return basic fraud assessment
+      if (isFallbackMode || !openAIClient) {
+        console.log('🔄 Using fallback fraud detection - Azure OpenAI not available');
+        return { 
+          fraudRisk: 25, 
+          flaggedIndicators: ['Manual review recommended'], 
+          recommendedActions: ['Standard verification process'], 
+          confidence: 50,
+          analyzedAt: new Date().toISOString()
+        };
+      }
+
       const fraudAnalysisPrompt = `
 FRAUD DETECTION ANALYSIS
 

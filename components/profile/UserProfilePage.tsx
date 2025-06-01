@@ -37,7 +37,7 @@ const RiskAssessmentModal: React.FC<{
   const getRiskFactors = (score: number) => {
     if (score >= 80) return [
       'Excellent driving record with no recent incidents',
-      'Long-term customer with consistent payment history', 
+      'Long-term customer with consistent payment history',
       'Vehicle equipped with advanced safety features',
       'Low-risk geographic location',
       'Responsible social media activity patterns'
@@ -238,12 +238,12 @@ export const UserProfilePage: React.FC = () => {
                 console.warn('⚠️ MCP servers unavailable, falling back to local data:', error);
                 
                 // Fallback to local data with Jacob Doe persona
-                setProfileData({
-                    ...authUser,
+            setProfileData({
+                ...authUser,
                     id: JACOB_DOE_PERSONA.id,
                     name: JACOB_DOE_PERSONA.name,
                     email: JACOB_DOE_PERSONA.email,
-                    role: authUser.role,
+                role: authUser.role,
                     avatarUrl: JACOB_DOE_PERSONA.avatarUrl,
                     address: JACOB_DOE_PERSONA.address,
                     phone: JACOB_DOE_PERSONA.phone,
@@ -252,7 +252,7 @@ export const UserProfilePage: React.FC = () => {
                         { id: 'ch2', claimNumber: '2022-003', policyholderName: JACOB_DOE_PERSONA.name, dateOfLoss: '2022-08-20', claimType: 'Home Damage', status: ClaimStatus.CLOSED, amountClaimed: 10000 },
                     ],
                     riskAssessmentScore: isInsurer ? undefined : JACOB_DOE_PERSONA.riskScore,
-                });
+            });
                 
                 setDataSource('fallback');
                 setMcpStatus('offline');
@@ -278,17 +278,7 @@ export const UserProfilePage: React.FC = () => {
     <div>
       <PageHeader 
         title="User Profile" 
-        subtitle={
-          <div className="flex items-center gap-2">
-            <span>{profileData.role ? `Role: ${profileData.role}` : ""}</span>
-            <div className="flex items-center gap-1">
-              <div className={`w-2 h-2 rounded-full ${mcpStatus === 'online' ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
-              <span className="text-xs text-slate-400">
-                {mcpStatus === 'online' ? 'Azure Connected' : 'Local Data'}
-              </span>
-            </div>
-          </div>
-        }
+        subtitle={`${profileData.role ? `Role: ${profileData.role}` : ""} • ${mcpStatus === 'online' ? 'Azure Connected' : 'Local Data'}`}
       />
       
       {/* Data Source Indicator */}
@@ -338,31 +328,31 @@ export const UserProfilePage: React.FC = () => {
                   style={{ backfaceVisibility: 'hidden' }}
                 >
                   <PixelCard variant="blue" className="h-full hover:ring-2 hover:ring-blue-400/50 transition-all" contentClassName="flex flex-col items-center justify-center p-6">
-                    <img 
-                      src={profileData.avatarUrl} 
-                      alt={`${profileData.name} avatar`}
-                      className="w-32 h-32 rounded-full mx-auto mb-4 shadow-lg border-4 border-slate-700"
-                    />
+            <img 
+              src={profileData.avatarUrl} 
+              alt={`${profileData.name} avatar`}
+              className="w-32 h-32 rounded-full mx-auto mb-4 shadow-lg border-4 border-slate-700"
+            />
                     <h2 className="text-2xl font-semibold text-text-on-dark-primary text-center">{profileData.name}</h2>
                     <p className="text-md text-text-on-dark-secondary text-center">{profileData.role}</p>
                     {profileData.id && <p className="text-xs text-slate-400 mt-1 text-center">ID: {profileData.id}</p>}
-                    
-                    <div className="mt-6 flex flex-col items-center">
-                      <h3 className="text-sm font-medium text-text-on-dark-secondary mb-3 text-center">Emergency Contact QR</h3>
-                      <QRCode 
-                        value={JSON.stringify({
-                          name: profileData.name,
-                          id: profileData.id,
-                          role: profileData.role,
-                          phone: profileData.phone,
-                          email: profileData.email
-                        })} 
-                        size={100}
-                      />
+            
+            <div className="mt-6 flex flex-col items-center">
+              <h3 className="text-sm font-medium text-text-on-dark-secondary mb-3 text-center">Emergency Contact QR</h3>
+              <QRCode 
+                value={JSON.stringify({
+                  name: profileData.name,
+                  id: profileData.id,
+                  role: profileData.role,
+                  phone: profileData.phone,
+                  email: profileData.email
+                })} 
+                size={100}
+              />
                       <p className="text-xs text-slate-400 mt-2 text-center max-w-[200px]">
-                        Share with first responders for quick access to your profile
-                      </p>
-                    </div>
+                Share with first responders for quick access to your profile
+              </p>
+            </div>
                     
                     {/* Click indicator */}
                     <div className="mt-4 text-center">
@@ -370,8 +360,8 @@ export const UserProfilePage: React.FC = () => {
                         🔮 Click to see holographic view
                       </p>
                     </div>
-                  </PixelCard>
-                </div>
+          </PixelCard>
+        </div>
 
                 {/* Back Side - Holographic Profile */}
                 <div 
@@ -399,103 +389,83 @@ export const UserProfilePage: React.FC = () => {
 
           {/* Side Information */}
           <div className="lg:col-span-2 space-y-6">
-            <PixelCard variant="blue" title="Personal Information" icon={<UserCircleIcon className="h-5 w-5 text-blue-400" />}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-on-dark-secondary">Full Name</label>
-                  <p className="mt-1 text-text-on-dark-primary">{profileData.name}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-on-dark-secondary">Email</label>
-                  <p className="mt-1 text-text-on-dark-primary">{profileData.email}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-on-dark-secondary">Phone</label>
-                  <p className="mt-1 text-text-on-dark-primary">{profileData.phone}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-on-dark-secondary">Role</label>
-                  <p className="mt-1 text-text-on-dark-primary">{profileData.role}</p>
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-text-on-dark-secondary">Address</label>
-                  <p className="mt-1 text-text-on-dark-primary">{profileData.address}</p>
-                </div>
+          <PixelCard variant="blue" title="Personal Information" icon={<UserCircleIcon className="h-5 w-5 text-blue-400" />}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-text-on-dark-secondary">Full Name</label>
+                <p className="mt-1 text-text-on-dark-primary">{profileData.name}</p>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-text-on-dark-secondary">Email</label>
+                <p className="mt-1 text-text-on-dark-primary">{profileData.email}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-on-dark-secondary">Phone</label>
+                <p className="mt-1 text-text-on-dark-primary">{profileData.phone}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-on-dark-secondary">Role</label>
+                <p className="mt-1 text-text-on-dark-primary">{profileData.role}</p>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-text-on-dark-secondary">Address</label>
+                <p className="mt-1 text-text-on-dark-primary">{profileData.address}</p>
+              </div>
+            </div>
+          </PixelCard>
+          
+          {/* Claims History - Only show for non-insurer users */}
+          {!isInsurer && profileData.claimsHistory && profileData.claimsHistory.length > 0 && (
+            <PixelCard variant="blue" title="Claims History" icon={<HistoryIcon className="h-5 w-5 text-blue-400" />}>
+              <ul className="divide-y divide-slate-700">
+                {profileData.claimsHistory.map(claim => (
+                  <li key={claim.id} className="py-3">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-sm font-medium text-blue-300 hover:underline cursor-pointer">Claim #{claim.claimNumber}</p>
+                        <p className="text-xs text-text-on-dark-secondary">{claim.claimType} - {new Date(claim.dateOfLoss).toLocaleDateString()}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-text-on-dark-primary">${claim.amountClaimed?.toLocaleString()}</p>
+                        <p className={`text-xs font-medium ${claim.status === ClaimStatus.APPROVED ? 'text-green-400' : 'text-slate-400'}`}>{claim.status}</p>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </PixelCard>
-            
-            {/* Claims History - Only show for non-insurer users */}
-            {!isInsurer && profileData.claimsHistory && profileData.claimsHistory.length > 0 && (
-              <PixelCard variant="blue" title="Claims History" icon={<HistoryIcon className="h-5 w-5 text-blue-400" />}>
-                <ul className="divide-y divide-slate-700">
-                  {profileData.claimsHistory.map(claim => (
-                    <li key={claim.id} className="py-3">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-sm font-medium text-blue-300 hover:underline cursor-pointer">Claim #{claim.claimNumber}</p>
-                          <p className="text-xs text-text-on-dark-secondary">{claim.claimType} - {new Date(claim.dateOfLoss).toLocaleDateString()}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold text-text-on-dark-primary">${claim.amountClaimed?.toLocaleString()}</p>
-                          <p className={`text-xs font-medium ${claim.status === ClaimStatus.APPROVED ? 'text-green-400' : 'text-slate-400'}`}>{claim.status}</p>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </PixelCard>
-            )}
-            
+          )}
+          
             {/* Risk Assessment - Only show for non-insurer users, now with consistent scoring */}
-            {!isInsurer && profileData.riskAssessmentScore !== undefined && (
-               <PixelCard 
-                 variant="blue" 
-                 title="Risk Assessment" 
-                 icon={<ShieldCheckIcon className="h-5 w-5 text-blue-400" />}
-                 className="cursor-pointer hover:ring-2 hover:ring-blue-400/50 transition-all"
-                 onClick={() => setShowRiskModal(true)}
-               >
-                  <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <p className="text-sm text-text-on-dark-secondary">Current Risk Score:</p>
-                        <InfoIcon className="h-4 w-4 text-blue-400 ml-2" />
-                      </div>
+          {!isInsurer && profileData.riskAssessmentScore !== undefined && (
+             <PixelCard 
+               variant="blue" 
+               title="Risk Assessment" 
+               icon={<ShieldCheckIcon className="h-5 w-5 text-blue-400" />}
+               className="cursor-pointer hover:ring-2 hover:ring-blue-400/50 transition-all"
+               onClick={() => setShowRiskModal(true)}
+             >
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <p className="text-sm text-text-on-dark-secondary">Current Risk Score:</p>
+                      <InfoIcon className="h-4 w-4 text-blue-400 ml-2" />
+                    </div>
                       <p className={`text-2xl font-bold ${
                         getRiskScoreColor(profileData.riskAssessmentScore) === 'green' ? 'text-green-400' :
                         getRiskScoreColor(profileData.riskAssessmentScore) === 'yellow' ? 'text-yellow-400' : 'text-red-400'
                       }`}>
-                          {profileData.riskAssessmentScore}/100
-                      </p>
-                  </div>
+                        {profileData.riskAssessmentScore}/100
+                    </p>
+                </div>
                   <p className="text-xs text-slate-400 mt-2">
                     Click for detailed risk factor analysis 
                     {dataSource === 'mcp' && <span className="text-green-400"> • AI-Powered</span>}
                   </p>
-               </PixelCard>
-            )}
-          </div>
+             </PixelCard>
+          )}
         </div>
       </div>
-
-      <style jsx>{`
-        .flip-card-inner {
-          transform-style: preserve-3d;
-        }
-        
-        .flip-card-front,
-        .flip-card-back {
-          -webkit-backface-visibility: hidden;
-          backface-visibility: hidden;
-        }
-        
-        .flip-card-back {
-          transform: rotateY(180deg);
-        }
-        
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-      `}</style>
+      </div>
     </div>
   );
 };

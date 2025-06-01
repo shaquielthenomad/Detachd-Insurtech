@@ -5,22 +5,22 @@
 
 set -e  # Exit on any error
 
-echo "🚀 Starting Detachd Azure MCP Setup..."
+echo "🚀 Starting Detachd MCP Azure Setup..."
 echo "================================================="
 
-# Configuration
-RESOURCE_GROUP="detachd-rg"
-LOCATION="southafricanorth"  # Azure region closest to South Africa
-COSMOS_DB_ACCOUNT="detachd-cosmos"
-STORAGE_ACCOUNT="detachdstorage$(date +%s)"  # Unique name
-COGNITIVE_SERVICES="detachd-cognitive"
-OPENAI_ACCOUNT="detachd-openai"
-CONTAINER_REGISTRY="detachdacr"
+# Configuration - USA East with detachd-mcp naming
+RESOURCE_GROUP="detachd-mcp-rg"
+LOCATION="eastus"  # USA East region
+COSMOS_DB_ACCOUNT="detachd-mcp-cosmos"
+STORAGE_ACCOUNT="detachdmcpstorage$(date +%s)"  # Unique name
+COGNITIVE_SERVICES="detachd-mcp-cognitive"
+OPENAI_ACCOUNT="detachd-mcp-openai"
+CONTAINER_REGISTRY="detachdmcpacr"
 CONTAINER_INSTANCE="detachd-mcp-servers"
 
 echo "📋 Configuration:"
 echo "  Resource Group: $RESOURCE_GROUP"
-echo "  Location: $LOCATION"
+echo "  Location: $LOCATION (USA East)"
 echo "  Cosmos DB: $COSMOS_DB_ACCOUNT"
 echo "  Storage: $STORAGE_ACCOUNT"
 echo ""

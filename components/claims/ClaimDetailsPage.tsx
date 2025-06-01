@@ -54,7 +54,7 @@ interface FileWithPreview extends File {
 
 const createMockDocuments = (claimType: string): Document[] => {
   const baseDocuments: Document[] = [
-    { id: 'doc1', name: 'police_report.pdf', type: 'PDF', url: '#', uploadedAt: '2024-07-16', size: '1.2MB' },
+        { id: 'doc1', name: 'police_report.pdf', type: 'PDF', url: '#', uploadedAt: '2024-07-16', size: '1.2MB' },
   ];
   
   if (claimType === 'Auto Accident') {
@@ -138,19 +138,19 @@ export const ClaimDetailsPage: React.FC = () => {
             notes: createMockNotes(storedClaim.claimType, storedClaim.status),
             fraudIndicators: storedClaim.fraudAlerts || [],
           };
-          
+        
           // Check for saved claim state in localStorage (for status updates, etc.)
-          const savedClaimState = localStorage.getItem(`claim_${claimId}`);
-          if (savedClaimState) {
-            const parsedState = JSON.parse(savedClaimState);
+        const savedClaimState = localStorage.getItem(`claim_${claimId}`);
+        if (savedClaimState) {
+          const parsedState = JSON.parse(savedClaimState);
             // Merge saved state with stored data
             claimDetails.status = parsedState.status || claimDetails.status;
-            if (parsedState.auditTrail) {
+          if (parsedState.auditTrail) {
               claimDetails.auditTrail = [...parsedState.auditTrail, ...(claimDetails.auditTrail || [])];
-            }
-            setCertificateIssued(parsedState.certificateIssued || false);
           }
-          
+          setCertificateIssued(parsedState.certificateIssued || false);
+        }
+        
           setClaim(claimDetails);
         } else {
           // Fallback to create a basic claim if nothing found
@@ -274,12 +274,12 @@ export const ClaimDetailsPage: React.FC = () => {
           certificateIssued: true
         });
         
-        const stateToSave = {
-          status: updatedClaim.status,
-          auditTrail: updatedClaim.auditTrail.slice(0, 10),
-          certificateIssued: true
-        };
-        localStorage.setItem(`claim_${claimId}`, JSON.stringify(stateToSave));
+      const stateToSave = {
+        status: updatedClaim.status,
+        auditTrail: updatedClaim.auditTrail.slice(0, 10),
+        certificateIssued: true
+      };
+      localStorage.setItem(`claim_${claimId}`, JSON.stringify(stateToSave));
       }
     }
     
