@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mcp-server:
+    build: ./mcp-servers
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      # Fallback mode for local testing without Azure
+      COSMOS_DB_ENDPOINT: fallback
+      COSMOS_DB_KEY: fallback
+      COSMOS_DB_DATABASE_NAME: detachd-insurance
+      AZURE_STORAGE_CONNECTION_STRING: fallback
+      COGNITIVE_SERVICES_ENDPOINT: fallback
+      COGNITIVE_SERVICES_KEY: fallback
+      AZURE_OPENAI_ENDPOINT: fallback
+      AZURE_OPENAI_KEY: fallback
+      AZURE_OPENAI_DEPLOYMENT_NAME: gpt-4
+      CORS_ORIGIN: http://localhost:5173
+      RATE_LIMIT_MAX_REQUESTS: 100
+      RATE_LIMIT_WINDOW_MS: 900000
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  # React app (optional - can run separately with npm run dev)
+  web:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/mcp-servers/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:3001/api
+      REACT_APP_MCP_BASE_URL: http://localhost:3001
+    command: npm run dev -- --host
+    depends_on:
+      - mcp-server 
